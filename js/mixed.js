@@ -1,5 +1,5 @@
 /* =============================================
-   mixed.js — Mixed Quiz (Multi-Folder)
+   mixed.js — Mixed Quiz (Multi-Folder) 
    ============================================= */
 
 let mixedState = {
