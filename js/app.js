@@ -144,8 +144,8 @@ function showView(id) {
     target.classList.remove('hidden');
     if (id === 'folderView') {
         target.classList.add('active');
-    } else if (id === 'flashcardContainer') {
-        target.style.display = 'block'; // outer shell is block — fc-grid inside is the grid
+    } else if (id === 'flashcardContainer' || id === 'notesContainer') {
+        target.style.display = 'block';
     }
 }
 
@@ -173,5 +173,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadFolderStructure();  // db.js
     navigateToRoot();             // navigation.js
     updateMedalDisplay();
+    _startSessionTracker();       // time-on-site tracking
     console.log('QuizMaster Pro ready!');
 });
+
+// ── Session Time Tracker ──────────────────────
+// Ticks every 60s, adds 1 minute to today's time in IndexedDB
+function _startSessionTracker() {
+    const TODAY = () => new Date().toISOString().split('T')[0];
+    setInterval(async () => {
+        const timeMap = (await jnlGet('timeSpent')) || {};
+        const d = TODAY();
+        timeMap[d] = (timeMap[d] || 0) + 1; // +1 minute
+        await jnlSet('timeSpent', timeMap);
+    }, 60000); // every 60 seconds
+}
