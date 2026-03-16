@@ -132,7 +132,7 @@ function showQuickActions() {
 
 // ── View Switching ────────────────────────────
 function showView(id) {
-    ['folderView','quizContainer','flashcardContainer','pomodoroContainer','notesContainer'].forEach(v => {
+    ['folderView','quizContainer','flashcardContainer','notesContainer'].forEach(v => {
         const el = document.getElementById(v);
         if (!el) return;
         el.classList.remove('active');
