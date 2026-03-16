@@ -1,5 +1,5 @@
 /* =============================================
-   difficult.js — Mark Difficult & Save Dialog
+   difficult.js — Mark Difficult & Save Dialog 
    ============================================= */
 
 let markedDifficultList = [];
