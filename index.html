@@ -155,18 +155,191 @@
 
         <!-- Notes / Journal Container -->
         <div id="notesContainer" class="notes-container glass-card hidden">
-            <div class="notes-header">
-                <h2><i class="fas fa-book-open"></i> Learning Journal</h2>
-                <button class="secondary-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back</button>
+
+            <!-- Top nav -->
+            <div class="jnl-topbar">
+                <div class="jnl-title"><i class="fas fa-book-open"></i> My Journal</div>
+                <div class="jnl-tabs">
+                    <button class="jnl-tab active" id="jtab-today"    onclick="jnlTab('today')">📅 Today</button>
+                    <button class="jnl-tab"         id="jtab-goals"   onclick="jnlTab('goals')">🎯 Goals</button>
+                    <button class="jnl-tab"         id="jtab-routine" onclick="jnlTab('routine')">🔁 Routine</button>
+                    <button class="jnl-tab"         id="jtab-log"     onclick="jnlTab('log')">📓 Daily Log</button>
+                    <button class="jnl-tab"         id="jtab-stats"   onclick="jnlTab('stats')">📊 Stats</button>
+                </div>
+                <button class="secondary-btn" onclick="goHome()">← Back</button>
             </div>
-            <div class="notes-input-area">
-                <textarea id="noteInput" placeholder="Write your note… (Enter to save, Shift+Enter for new line)"></textarea>
-                <div style="display:flex;gap:12px;margin-top:10px;">
-                    <button class="primary-btn"  onclick="saveNote()"><i class="fas fa-save"></i> Save Note</button>
-                    <button class="danger-btn small" onclick="clearAllNotes()"><i class="fas fa-trash"></i> Clear All</button>
+
+            <!-- ── TODAY ── -->
+            <div class="jnl-panel active" id="jpanel-today">
+                <div class="jnl-today-header">
+                    <div>
+                        <div class="jnl-date-header" id="jnlDateHeading"></div>
+                        <div class="jnl-today-sub">How's your day going?</div>
+                    </div>
+                    <div class="jnl-progress-ring-wrap">
+                        <svg class="jnl-ring" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="#e0e0e0" stroke-width="5"/>
+                            <circle id="jnlRingFill" cx="24" cy="24" r="20" fill="none" stroke="#4a6fa5" stroke-width="5"
+                                stroke-dasharray="125.6" stroke-dashoffset="125.6"
+                                stroke-linecap="round" transform="rotate(-90 24 24)" style="transition:stroke-dashoffset 0.5s"/>
+                        </svg>
+                        <span class="jnl-ring-pct" id="jnlRingPct">0%</span>
+                    </div>
+                </div>
+
+                <div class="jnl-two-col">
+                    <!-- Today tasks -->
+                    <div class="jnl-col">
+                        <div class="jnl-section-title">
+                            📌 Today's Tasks
+                            <span class="jnl-badge jnl-badge-blue" id="todayProgress"></span>
+                        </div>
+                        <div class="jnl-add-row">
+                            <input type="text" id="todayTaskInput" placeholder="Add a task for today…"
+                                onkeydown="if(event.key==='Enter')addTodayTask()">
+                            <button class="primary-btn small" onclick="addTodayTask()">+ Add</button>
+                        </div>
+                        <div id="todayTaskList" class="jnl-task-list"></div>
+                    </div>
+                    <!-- Routine today -->
+                    <div class="jnl-col">
+                        <div class="jnl-section-title">🔁 Routine Today</div>
+                        <div id="routineTodayList" class="jnl-task-list"></div>
+                        <div class="jnl-routine-hint">Set habits in the <strong>Routine</strong> tab →</div>
+                    </div>
+                </div>
+
+                <!-- Tomorrow preview -->
+                <div class="jnl-tomorrow-preview">
+                    <div class="jnl-section-title" style="margin-bottom:8px;">📅 Tomorrow's Goals <small style="font-size:0.75rem;text-transform:none;color:#999;">(set in Goals tab)</small></div>
+                    <div id="tomorrowPreviewList" class="jnl-task-list jnl-preview-list"></div>
                 </div>
             </div>
-            <div class="notes-list" id="notesList"></div>
+
+            <!-- ── GOALS ── -->
+            <div class="jnl-panel" id="jpanel-goals">
+                <div class="jnl-goals-header">
+                    <div>
+                        <div style="font-weight:700;font-size:1.05rem;color:#4a6fa5;">🎯 Goal Planner</div>
+                        <div style="font-size:0.82rem;color:#999;margin-top:2px;">Plan what you want to achieve</div>
+                    </div>
+                    <div class="jnl-goals-stats">
+                        <span class="jnl-badge jnl-badge-blue" id="goalsProgressBadge"></span>
+                    </div>
+                </div>
+
+                <div class="jnl-goal-add-box">
+                    <input type="text" id="goalInput" placeholder="What do you want to achieve?…"
+                        onkeydown="if(event.key==='Enter')addGoal()" style="flex:1">
+                    <select id="goalTargetDate" style="padding:8px 10px;border:1px solid #ddd;border-radius:4px;font-family:inherit;font-size:0.88rem;">
+                        <option value="tomorrow">📅 Tomorrow</option>
+                        <option value="thisweek">📅 This Week</option>
+                        <option value="custom">📅 Custom…</option>
+                    </select>
+                    <input type="date" id="goalCustomDate" style="display:none;padding:8px;border:1px solid #ddd;border-radius:4px;">
+                    <button class="primary-btn small" onclick="addGoal()">+ Add</button>
+                </div>
+
+                <div class="jnl-goals-board">
+                    <div class="jnl-goals-col">
+                        <div class="jnl-goals-col-header pending">⏳ Pending</div>
+                        <div id="goalListPending" class="jnl-task-list"></div>
+                    </div>
+                    <div class="jnl-goals-col">
+                        <div class="jnl-goals-col-header done-col">✅ Completed</div>
+                        <div id="goalListDone" class="jnl-task-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── ROUTINE ── -->
+            <div class="jnl-panel" id="jpanel-routine">
+                <div style="font-weight:700;font-size:1.05rem;color:#4a6fa5;margin-bottom:4px;">🔁 Daily Routine Builder</div>
+                <div style="font-size:0.82rem;color:#999;margin-bottom:16px;">Tasks that appear every day automatically</div>
+
+                <div class="jnl-add-row">
+                    <span class="jnl-routine-icon-pick" id="routineIconPick" onclick="toggleIconPicker()">😊</span>
+                    <input type="text" id="routineInput" placeholder="e.g. Morning exercise, Read 20 pages…"
+                        onkeydown="if(event.key==='Enter')addRoutine()">
+                    <button class="primary-btn small" onclick="addRoutine()">+ Add</button>
+                </div>
+                <div id="routineIconPanel" class="jnl-icon-panel" style="display:none;">
+                    <span onclick="pickIcon('😊')">😊</span><span onclick="pickIcon('💪')">💪</span>
+                    <span onclick="pickIcon('📚')">📚</span><span onclick="pickIcon('🧘')">🧘</span>
+                    <span onclick="pickIcon('💧')">💧</span><span onclick="pickIcon('🏃')">🏃</span>
+                    <span onclick="pickIcon('✍️')">✍️</span><span onclick="pickIcon('🎵')">🎵</span>
+                    <span onclick="pickIcon('🌅')">🌅</span><span onclick="pickIcon('🍎')">🍎</span>
+                    <span onclick="pickIcon('🧹')">🧹</span><span onclick="pickIcon('💻')">💻</span>
+                </div>
+
+                <div class="jnl-routine-week-legend">
+                    <span class="jnl-wday active" data-day="all" onclick="filterRoutineDay('all')">All</span>
+                    <span class="jnl-wday" data-day="0" onclick="filterRoutineDay('0')">Sun</span>
+                    <span class="jnl-wday" data-day="1" onclick="filterRoutineDay('1')">Mon</span>
+                    <span class="jnl-wday" data-day="2" onclick="filterRoutineDay('2')">Tue</span>
+                    <span class="jnl-wday" data-day="3" onclick="filterRoutineDay('3')">Wed</span>
+                    <span class="jnl-wday" data-day="4" onclick="filterRoutineDay('4')">Thu</span>
+                    <span class="jnl-wday" data-day="5" onclick="filterRoutineDay('5')">Fri</span>
+                    <span class="jnl-wday" data-day="6" onclick="filterRoutineDay('6')">Sat</span>
+                </div>
+
+                <div id="routineList" class="jnl-task-list"></div>
+
+                <div class="jnl-routine-streak-row" id="routineStreakRow"></div>
+            </div>
+
+            <!-- ── DAILY LOG ── -->
+            <div class="jnl-panel" id="jpanel-log">
+                <div style="font-weight:700;font-size:1.05rem;color:#4a6fa5;margin-bottom:4px;">📓 Daily Journal</div>
+                <div style="font-size:0.82rem;color:#999;margin-bottom:16px;">Write what you did, learned, felt today</div>
+
+                <div class="jnl-log-mood-row">
+                    <span style="font-size:0.82rem;color:#999;margin-right:6px;">Mood:</span>
+                    <span class="jnl-mood-btn" data-mood="5" onclick="setMood(5)" title="Amazing">🤩</span>
+                    <span class="jnl-mood-btn" data-mood="4" onclick="setMood(4)" title="Good">😊</span>
+                    <span class="jnl-mood-btn" data-mood="3" onclick="setMood(3)" title="Okay">😐</span>
+                    <span class="jnl-mood-btn" data-mood="2" onclick="setMood(2)" title="Tired">😔</span>
+                    <span class="jnl-mood-btn" data-mood="1" onclick="setMood(1)" title="Bad">😞</span>
+                    <span class="jnl-mood-selected" id="moodSelected"></span>
+                </div>
+
+                <div class="jnl-log-write">
+                    <textarea id="logInput"
+                        placeholder="Write about your day…&#10;What did you accomplish? What did you learn? Any challenges?&#10;(Enter to save, Shift+Enter for new line)"
+                        rows="5"></textarea>
+                    <div style="display:flex;justify-content:flex-end;">
+                        <button class="primary-btn" onclick="saveLog()">💾 Save Entry</button>
+                    </div>
+                </div>
+
+                <div class="jnl-log-filters">
+                    <span style="font-size:0.82rem;color:#999;">Filter:</span>
+                    <button class="jnl-filter-btn active" onclick="filterLogs('all',this)">All</button>
+                    <button class="jnl-filter-btn" onclick="filterLogs('today',this)">Today</button>
+                    <button class="jnl-filter-btn" onclick="filterLogs('week',this)">This Week</button>
+                </div>
+                <div id="logList" class="jnl-log-list"></div>
+            </div>
+
+            <!-- ── STATS ── -->
+            <div class="jnl-panel" id="jpanel-stats">
+                <div style="font-weight:700;font-size:1.05rem;color:#4a6fa5;margin-bottom:16px;">📊 Progress Analytics</div>
+
+                <div class="jnl-stats-grid" id="jnlStatsGrid"></div>
+
+                <div class="jnl-section-title" style="margin-top:20px;">Last 7 Days Completion</div>
+                <div id="jnlWeekChart" class="jnl-week-chart"></div>
+
+                <div class="jnl-section-title" style="margin-top:20px;">Mood Trend (Last 7 Days)</div>
+                <div id="jnlMoodChart" class="jnl-mood-chart"></div>
+
+                <div class="jnl-section-title" style="margin-top:20px;">Routine Streaks</div>
+                <div id="jnlRoutineStreaks" class="jnl-routine-streaks-list"></div>
+
+                <div class="jnl-section-title" style="margin-top:20px;">Daily History</div>
+                <div id="jnlHistoryList" class="jnl-log-list"></div>
+            </div>
+
         </div>
 
     </main>
@@ -241,8 +414,6 @@
 <script src="js/mixed.js"></script>
 <script src="js/pomodoro.js"></script>
 <script src="js/notes.js"></script>
-<script src="js/Pomodoroquiz.js"></script>
-
 
 </body>
 </html>
