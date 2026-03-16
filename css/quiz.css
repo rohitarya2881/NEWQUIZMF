@@ -166,7 +166,7 @@
     border: 1px solid #e0e0e0; border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     margin-bottom: 14px;
-    position: sticky; top: 56px; z-index: 50;
+    position: sticky; top: -30px; z-index: 50;
 }
 .dark-theme .fc-toolbar { background: #0D1117; border-color: rgba(255,255,255,0.08); }
 .fc-toolbar-title {
