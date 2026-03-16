@@ -135,23 +135,7 @@
         <!-- Flashcard Container -->
         <div id="flashcardContainer" class="fc-outer hidden"></div>
 
-        <!-- Pomodoro Container -->
-        <div id="pomodoroContainer" class="pomodoro-container glass-card hidden">
-            <h2><i class="fas fa-clock"></i> Pomodoro Timer</h2>
-            <div class="pomo-display" id="pomoDisplay">25:00</div>
-            <div class="pomo-status"  id="pomoStatus">Ready to focus!</div>
-            <div class="pomo-controls">
-                <button class="primary-btn"   onclick="pomoStart()"><i class="fas fa-play"></i> Start</button>
-                <button class="secondary-btn" onclick="pomoPause()"><i class="fas fa-pause"></i> Pause</button>
-                <button class="danger-btn"    onclick="pomoReset()"><i class="fas fa-stop"></i> Reset</button>
-                <button class="secondary-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back</button>
-            </div>
-            <div class="pomo-settings">
-                <label>Focus (min): <input type="number" id="pomoFocus" value="25" min="1" max="120" onchange="pomoReset()"></label>
-                <label>Break (min): <input type="number" id="pomoBreak" value="5"  min="1" max="30"  onchange="pomoReset()"></label>
-            </div>
-            <div class="pomo-rounds">Completed rounds: <strong id="pomoRounds">0</strong></div>
-        </div>
+        <!-- Pomodoro Container — full flow shell created dynamically by pomodoro.js -->
 
         <!-- Notes / Journal Container -->
         <div id="notesContainer" class="hidden" style="max-width:860px;margin:20px auto;padding:0 16px;">
