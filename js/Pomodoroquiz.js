@@ -1,6 +1,6 @@
 /* =============================================
    pomodoro.js — Full Pomodoro Learning Flow
-   Setup → Study (flashcards) → Quiz → Break → repeat
+   Setup → Study (flashcards) → Quiz → Break → repeat 
    ============================================= */
 
 // ── Settings & State ─────────────────────────
