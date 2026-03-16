@@ -421,6 +421,42 @@ async function saveDifficultQuestions() {
     await loadFolderStructure();
 }
 
+// ── Shuffle All Options ───────────────────────
+// Permanently randomises option order across ALL quizzes in current folder
+// correctIndex is updated to match the new position
+async function shuffleAllOptions() {
+    if (!currentFolder) { showToast('Navigate into a folder first', 'warning'); return; }
+
+    // Collect all quizzes recursively under current folder
+    const quizzes = [];
+    const collect = (node) => {
+        if (node.type === 'quiz') quizzes.push(node);
+        node.children?.forEach(collect);
+    };
+    collect(currentFolder);
+
+    if (!quizzes.length) { showToast('No quizzes found in this folder', 'warning'); return; }
+
+    const total = quizzes.reduce((s, q) => s + (q.questions?.length || 0), 0);
+    if (!confirm(`Permanently shuffle option order for all ${total} questions in "${currentFolder.name}"?\n\nThis cannot be undone.`)) return;
+
+    for (const quiz of quizzes) {
+        if (!quiz.questions?.length) continue;
+        quiz.questions.forEach(q => {
+            const correct = q.options[q.correctIndex];  // save correct answer text
+            // Fisher-Yates shuffle options
+            for (let i = q.options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+            }
+            q.correctIndex = q.options.indexOf(correct);  // find new position
+        });
+        await saveItem(quiz);
+    }
+
+    showToast(`✅ Options shuffled across ${quizzes.length} quiz${quizzes.length > 1 ? 'zes' : ''}`, 'success');
+}
+
 // ── Quiz Mode Selector ────────────────────────
 function startQuizMode() {
     if (!currentFolder) { showToast('Please select a folder', 'warning'); return; }
@@ -488,7 +524,8 @@ function displayFlashcards(quizId) {
                         <p class="flashcard-question">${escHtml(q.question)}</p>
                         <div class="flashcard-options">
                             ${q.options.map((o, j) => `
-<div class="flashcard-option">                                    <span class="flashcard-opt-letter">${letters[j]}</span>
+                                <div class="flashcard-option${j === q.correctIndex ? ' correct-option' : ''}">
+                                    <span class="flashcard-opt-letter">${letters[j]}</span>
                                     <span>${escHtml(o)}</span>
                                 </div>`).join('')}
                         </div>
