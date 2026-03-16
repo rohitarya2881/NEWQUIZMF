@@ -6,7 +6,7 @@ let db;
 
 function initDB() {
     return new Promise((resolve, reject) => {
-        const req = indexedDB.open('QuizMasterProDB', 4);
+        const req = indexedDB.open('QuizMasterProDB', 5);
 
         req.onupgradeneeded = e => {
             const d = e.target.result;
@@ -14,6 +14,10 @@ function initDB() {
                 const s = d.createObjectStore('folderStructure', { keyPath: 'id' });
                 s.createIndex('parentId', 'parentId', { unique: false });
                 s.createIndex('type', 'type', { unique: false });
+            }
+            // Journal store — key/value pairs, key = string like 'goals', 'logs' etc.
+            if (!d.objectStoreNames.contains('journal')) {
+                d.createObjectStore('journal', { keyPath: 'key' });
             }
         };
 
@@ -72,6 +76,24 @@ function clearAllData() {
     return new Promise((resolve, reject) => {
         const tx = db.transaction(['folderStructure'], 'readwrite');
         tx.objectStore('folderStructure').clear().onsuccess = () => resolve();
+        tx.onerror = e => reject(e.target.error);
+    });
+}
+
+// ── Journal DB helpers ────────────────────────
+function jnlGet(key) {
+    return new Promise(resolve => {
+        const tx  = db.transaction(['journal'], 'readonly');
+        const req = tx.objectStore('journal').get(key);
+        req.onsuccess = e => resolve(e.target.result?.value ?? null);
+        req.onerror   = () => resolve(null);
+    });
+}
+
+function jnlSet(key, value) {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(['journal'], 'readwrite');
+        tx.objectStore('journal').put({ key, value }).onsuccess = () => resolve();
         tx.onerror = e => reject(e.target.error);
     });
 }
