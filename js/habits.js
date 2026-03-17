@@ -127,7 +127,7 @@ function habitChangeMonth(dir) {
     _renderHabitChart();
 }
 
-// ── Monthly bar chart ────────────────────────
+// ── Monthly bar chart — dates on X, marks on Y ──
 function _renderHabitChart() {
     const el = document.getElementById('habitBarChart'); if (!el) return;
     const lbl = document.getElementById('habitMonthLabel');
@@ -137,38 +137,63 @@ function _renderHabitChart() {
     const monthName = new Date(y, m-1, 1).toLocaleDateString(undefined, {month:'long', year:'numeric'});
     if (lbl) lbl.textContent = monthName;
 
-    const maxPts = _habits.length * HABIT_PTS || 100;
-    const today  = HABIT_TODAY();
-    let html = '<div class="habit-chart-inner">';
+    const maxPts  = _habits.length * HABIT_PTS || 100;
+    const today   = HABIT_TODAY();
+    const isDark  = document.body.classList.contains('dark-theme');
 
+    // Y axis ticks: 0, 25, 50, 75, 100 (as actual points)
+    const yTicks  = [0, 25, 50, 75, 100].map(p => Math.round(p * maxPts / 100));
+    const CHART_H = 160; // px height of bar area
+
+    // Build data
+    const data = [];
     for (let day = 1; day <= daysInMonth; day++) {
-        const ds    = `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        const done  = (_habitDone[ds] || []).length;
-        const score = done * HABIT_PTS;
-        const pct   = maxPts > 0 ? Math.round(score / maxPts * 100) : 0;
-        const isToday = ds === today;
-        const isFuture = ds > today;
-        const barColor = score === maxPts && maxPts > 0 ? '#27ae60'
-                       : pct >= 70 ? '#4a6fa5'
-                       : pct >= 40 ? '#f39c12'
-                       : pct > 0   ? '#e74c3c'
-                       : isFuture  ? 'transparent' : '#e0e0e0';
-
-        html += `<div class="habit-bar-col ${isToday ? 'habit-bar-today' : ''}">
-            <div class="habit-bar-score">${score > 0 ? score : ''}</div>
-            <div class="habit-bar-wrap">
-                <div class="habit-bar-fill" style="height:${pct}%;background:${barColor};"
-                    title="${ds}: ${score}pts (${done}/${_habits.length} habits)"></div>
-            </div>
-            <div class="habit-bar-day">${day}</div>
-        </div>`;
+        const ds     = `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const done   = (_habitDone[ds] || []).length;
+        const score  = done * HABIT_PTS;
+        const pct    = maxPts > 0 ? score / maxPts * 100 : 0;
+        data.push({ day, ds, score, pct, isToday: ds === today, isFuture: ds > today });
     }
 
-    html += '</div>';
+    const barColor = (pct, isFuture) => {
+        if (isFuture) return 'transparent';
+        if (pct === 0) return isDark ? '#1e2a35' : '#e0e0e0';
+        if (pct >= 100) return '#27ae60';
+        if (pct >= 70)  return '#4a6fa5';
+        if (pct >= 40)  return '#f39c12';
+        return '#e74c3c';
+    };
+
+    let html = `<div class="hbc-wrap">
+        <!-- Y axis -->
+        <div class="hbc-yaxis">`;
+    [...yTicks].reverse().forEach(v => {
+        html += `<div class="hbc-ytick">${v}</div>`;
+    });
+    html += `</div>
+        <!-- Chart area -->
+        <div class="hbc-area">
+            <!-- Y gridlines -->
+            <div class="hbc-grid">`;
+    yTicks.forEach(() => { html += `<div class="hbc-gridline"></div>`; });
+    html += `</div>
+            <!-- Bars -->
+            <div class="hbc-bars">`;
+    data.forEach(d => {
+        const h   = Math.max(0, Math.min(100, d.pct));
+        const col = barColor(d.pct, d.isFuture);
+        html += `<div class="hbc-bar-col ${d.isToday ? 'hbc-today' : ''}">
+            <div class="hbc-bar-inner" title="${d.ds}: ${d.score}pts">
+                <div class="hbc-bar-fill" style="height:${h}%;background:${col};"></div>
+            </div>
+            <div class="hbc-bar-label">${d.day}</div>
+        </div>`;
+    });
+    html += `</div></div></div>`;
 
     // Legend
-    html += `<div class="habit-chart-legend">
-        <span class="habit-leg" style="--c:#27ae60">100%</span>
+    html += `<div class="hbc-legend">
+        <span class="habit-leg" style="--c:#27ae60">100pts</span>
         <span class="habit-leg" style="--c:#4a6fa5">70%+</span>
         <span class="habit-leg" style="--c:#f39c12">40%+</span>
         <span class="habit-leg" style="--c:#e74c3c">&lt;40%</span>
