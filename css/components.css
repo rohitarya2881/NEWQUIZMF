@@ -70,7 +70,7 @@
 .dark-theme .stat-label { color: #aaa; }
 @media (max-width: 600px) {
     .folder-actions,
-    .folder-stats {
+    .folder-actions-bar {
         display: none;
     }
 }
