@@ -124,7 +124,12 @@
    ══════════════════════════════════════════════ */
 
 /* Setup */
-.pomo-setup-dialog { max-width:600px !important; padding:0 !important; overflow:hidden !important; }
+.pomo-setup-dialog { max-width:600px !important; padding:0 !important; overflow-y:auto !important; max-height:90vh !important; }
+
+@media (max-width: 600px) {
+    .modal { align-items: flex-start; padding: 0; overflow-y: auto; }
+    .pomo-setup-dialog { max-width:100% !important; width:100% !important; max-height:100dvh !important; min-height:100dvh; border-radius:0 !important; margin:0 !important; }
+}
 .pomo-setup-header { display:flex; align-items:flex-start; justify-content:space-between; padding:20px 24px 16px; background:linear-gradient(135deg,#4a6fa5,#3a5a80); color:white; }
 .pomo-setup-title { font-size:1.3rem; font-weight:800; }
 .pomo-setup-subtitle { font-size:0.82rem; opacity:0.85; margin-top:2px; }
