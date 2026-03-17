@@ -177,14 +177,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('QuizMaster Pro ready!');
 });
 
-// ── Session Time Tracker ──────────────────────
-// Ticks every 60s, adds 1 minute to today's time in IndexedDB
+// ── Active Session Tracker ────────────────────
+// Only counts time when user is ACTIVE (mouse move, click, keypress, scroll, touch)
+// If no activity for 2 minutes → considered idle, stops counting
+// Ticks every 30s — if active in last 2min, adds 0.5 min to today's total
 function _startSessionTracker() {
     const TODAY = () => new Date().toISOString().split('T')[0];
+    const IDLE_THRESHOLD = 2 * 60 * 1000; // 2 minutes idle = stop counting
+    let lastActivity = Date.now();
+
+    // Reset idle timer on any user interaction
+    const onActivity = () => { lastActivity = Date.now(); };
+    ['mousemove','mousedown','keydown','scroll','touchstart','click','wheel']
+        .forEach(e => document.addEventListener(e, onActivity, { passive: true }));
+
+    // Every 30 seconds check if user was active
     setInterval(async () => {
+        const idle = Date.now() - lastActivity;
+        if (idle > IDLE_THRESHOLD) return; // idle — don't count
+
         const timeMap = (await jnlGet('timeSpent')) || {};
         const d = TODAY();
-        timeMap[d] = (timeMap[d] || 0) + 1; // +1 minute
+        // Add 0.5 min (30s tick) stored as float, rounded to 1dp
+        timeMap[d] = Math.round(((timeMap[d] || 0) + 0.5) * 10) / 10;
         await jnlSet('timeSpent', timeMap);
-    }, 60000); // every 60 seconds
+    }, 30000);
 }
