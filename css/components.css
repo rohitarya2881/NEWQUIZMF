@@ -68,7 +68,12 @@
 .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
 .stat-label { font-size: 0.75rem; color: #666; }
 .dark-theme .stat-label { color: #aaa; }
-
+@media (max-width: 600px) {
+    .folder-actions,
+    .folder-stats {
+        display: none;
+    }
+}
 .subfolders-section, .quizzes-section { margin-bottom: 24px; }
 .subfolders-section h3, .quizzes-section h3 { margin-bottom: 12px; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1rem; }
 .dark-theme .subfolders-section h3, .dark-theme .quizzes-section h3 { color: #3498db; }
