@@ -428,11 +428,57 @@
     background: linear-gradient(to right, var(--primary) 0%, var(--primary) 30%, #e2e8f0 30%);
     outline: none; cursor: pointer;
 }
-.dark-theme .pomo-range { background: linear-gradient(to right, var(--primary) 30%, #334155 30%); }
+/* Pomodoro range slider */
+.pomo-range {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e0e0e0;
+    outline: none;
+    cursor: pointer;
+}
+.dark-theme .pomo-range {
+    background: #2c3e50;
+}
 .pomo-range::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 18px; height: 18px;
-    border-radius: 50%; background: var(--primary); cursor: pointer;
-    box-shadow: 0 1px 4px rgba(99,102,241,0.4);
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a6fa5;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.dark-theme .pomo-range::-webkit-slider-thumb {
+    background: #3498db;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+.pomo-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a6fa5;
+    cursor: pointer;
+    border: none;
+}
+.dark-theme .pomo-range::-moz-range-thumb {
+    background: #3498db;
+}
+
+/* Pomodoro quiz header mobile */
+@media (max-width: 600px) {
+    .pomo-phase-heading {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .pomo-phase-icon { font-size: 1.5rem; }
+    .pomo-phase-title { font-size: 0.95rem; }
+    .pomo-phase-sub { font-size: 0.75rem; }
+    .pomo-question-text { font-size: 0.92rem; padding: 14px; }
+    .pomo-opt-btn { padding: 10px 12px; font-size: 0.88rem; }
+    .pomo-opt-letter { width: 26px; height: 26px; font-size: 0.82rem; }
 }
 .pomo-slider-val { min-width: 28px; text-align: center; font-weight: 700; font-size: 0.95rem; color: var(--primary); }
 
