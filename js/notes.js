@@ -42,7 +42,7 @@ function jnlTab(name) {
     document.querySelectorAll('.jnl-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('jtab-'+name)?.classList.add('active');
     document.getElementById('jpanel-'+name)?.classList.add('active');
-    const fn = {today:renderToday,goals:renderGoals,routine:renderRoutine,log:renderLog,stats:renderStats};
+    const fn = {today:renderToday,goals:renderGoals,routine:renderRoutine,log:renderLog,stats:renderStats,habits:renderHabits};
     fn[name]?.();
 }
 
