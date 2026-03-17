@@ -450,7 +450,7 @@
 }
 .dark-theme .jnl-topbar { background: #0D1117; border-color: rgba(255,255,255,0.08); }
 
-.jnl-title { font-weight:700; font-size:1.05rem; color:#4a6fa5; display:flex; align-items:center; gap:7px; flex-shrink:0; }
+.jnl-title { font-weight:700;  color:#4a6fa5; display:flex; align-items:center; gap:7px; flex-shrink:0; }
 .dark-theme .jnl-title { color:#3498db; }
 .jnl-tabs { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
 .jnl-tab { padding:6px 14px; border:1px solid #e0e0e0; border-radius:20px; background:none; font-family:inherit; font-size:0.82rem; font-weight:500; cursor:pointer; color:#666; transition:all 0.18s; }
