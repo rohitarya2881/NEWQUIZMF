@@ -35,6 +35,7 @@ async function renderHabits() {
     _renderHabitChecklist();
     _renderHabitChart();
     _updateHabitScore();
+    _renderTimeScore();  // time score chart
 }
 
 // ── Add habit ────────────────────────────────
@@ -197,6 +198,110 @@ function _renderHabitChart() {
         <span class="habit-leg" style="--c:#4a6fa5">70%+</span>
         <span class="habit-leg" style="--c:#f39c12">40%+</span>
         <span class="habit-leg" style="--c:#e74c3c">&lt;40%</span>
+    </div>`;
+
+    el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// TIME SCORE CHART — 1hr active = 10pts, max 100
+// ══════════════════════════════════════════════
+
+let _timeMonth = null;
+const TIME_PTS_PER_HR = 10;
+const TIME_MAX_PTS    = 100;  // 10hrs max
+const TIME_MAX_MINS   = 60;   // 60 mins = 10pts (1 hr per segment)
+
+async function _renderTimeScore() {
+    const timeMap = (await jnlGet('timeSpent')) || {};
+    const today   = HABIT_TODAY();
+    const mins    = timeMap[today] || 0;
+    const pts     = Math.min(TIME_MAX_PTS, Math.floor(mins / 60 * TIME_PTS_PER_HR));
+    const hrs     = Math.floor(mins / 60);
+    const remMins = Math.round(mins % 60);
+
+    const el = document.getElementById('timeScoreBadge');
+    if (el) {
+        el.textContent = `${pts} pts  (${hrs}h ${remMins}m active)`;
+        el.className   = `jnl-badge ${pts >= TIME_MAX_PTS ? 'jnl-badge-green' : 'jnl-badge-blue'}`;
+    }
+
+    if (!_timeMonth) {
+        const now = new Date();
+        _timeMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    }
+    _renderTimeChart(timeMap);
+}
+
+function timeChangeMonth(dir) {
+    const [y, m] = _timeMonth.split('-').map(Number);
+    const d = new Date(y, m - 1 + dir, 1);
+    _timeMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    jnlGet('timeSpent').then(t => _renderTimeChart(t || {}));
+}
+
+function _renderTimeChart(timeMap) {
+    const el  = document.getElementById('timeBarChart');  if (!el) return;
+    const lbl = document.getElementById('timeMonthLabel');
+
+    const [y, m] = _timeMonth.split('-').map(Number);
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const monthName   = new Date(y, m-1, 1).toLocaleDateString(undefined, {month:'long', year:'numeric'});
+    if (lbl) lbl.textContent = monthName;
+
+    const today  = HABIT_TODAY();
+    const isDark = document.body.classList.contains('dark-theme');
+
+    // Y ticks: 0,25,50,75,100
+    const yTicks = [0, 25, 50, 75, 100];
+
+    const data = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+        const ds    = `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const mins  = timeMap[ds] || 0;
+        const pts   = Math.min(TIME_MAX_PTS, Math.floor(mins / 60 * TIME_PTS_PER_HR));
+        const pct   = pts; // pts IS percentage (max 100)
+        const hrs   = Math.floor(mins / 60);
+        const rmin  = Math.round(mins % 60);
+        data.push({ day, ds, pts, pct, mins, hrs, rmin, isToday: ds === today, isFuture: ds > today });
+    }
+
+    const barColor = (pts, isFuture) => {
+        if (isFuture) return 'transparent';
+        if (pts === 0) return isDark ? '#1e2a35' : '#e0e0e0';
+        if (pts >= 100) return '#27ae60';
+        if (pts >= 70)  return '#4a6fa5';
+        if (pts >= 40)  return '#f39c12';
+        return '#e74c3c';
+    };
+
+    let html = `<div class="hbc-wrap">
+        <div class="hbc-yaxis">`;
+    [...yTicks].reverse().forEach(v => {
+        html += `<div class="hbc-ytick">${v}</div>`;
+    });
+    html += `</div><div class="hbc-area">
+        <div class="hbc-grid">`;
+    yTicks.forEach(() => { html += `<div class="hbc-gridline"></div>`; });
+    html += `</div><div class="hbc-bars">`;
+    data.forEach(d => {
+        const col = barColor(d.pts, d.isFuture);
+        const tip = d.isFuture ? d.ds : `${d.ds}: ${d.pts}pts (${d.hrs}h ${d.rmin}m)`;
+        html += `<div class="hbc-bar-col ${d.isToday ? 'hbc-today' : ''}">
+            <div class="hbc-bar-inner" title="${tip}">
+                <div class="hbc-bar-fill" style="height:${d.pct}%;background:${col};"></div>
+            </div>
+            <div class="hbc-bar-label">${d.day}</div>
+        </div>`;
+    });
+    html += `</div></div></div>`;
+
+    // Legend with hours
+    html += `<div class="hbc-legend">
+        <span class="habit-leg" style="--c:#27ae60">10h+ (100pts)</span>
+        <span class="habit-leg" style="--c:#4a6fa5">7h+ (70pts)</span>
+        <span class="habit-leg" style="--c:#f39c12">4h+ (40pts)</span>
+        <span class="habit-leg" style="--c:#e74c3c">&lt;4h</span>
     </div>`;
 
     el.innerHTML = html;
