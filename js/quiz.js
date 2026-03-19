@@ -342,6 +342,11 @@ function showResults() {
     else if (acc >= 60) { medal = '🥉'; medalCounts.bronze++; localStorage.setItem('medalBronze', medalCounts.bronze); }
     updateMedalDisplay();
 
+    // Record attempt in revision planner
+    if (currentQuiz?.id) {
+        recordQuizAttempt(currentQuiz.id, score, currentQuizQuestions.length);
+    }
+
     c.innerHTML = `<div class="results-container">
         <div class="results-header">
             <h2>Quiz Completed! ${medal || '🎉'}</h2>
