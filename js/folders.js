@@ -6,11 +6,13 @@
 function createNewFolder() {
     const name = prompt('Enter folder name:');
     if (!name || !name.trim()) return;
+    const parentPath = currentFolder ? (currentFolder.path || '/') : '/';
+    const newPath = (parentPath === '/' ? '' : parentPath) + '/' + name.trim();
     const newF = {
         id: generateId(), name: name.trim(), type: 'folder',
         parentId: currentFolder ? currentFolder.id : 'root',
         children: [],
-        path: (currentPath.endsWith('/') ? currentPath : currentPath + '/') + name.trim(),
+        path: newPath,
         metadata: { created: new Date().toISOString(), modified: new Date().toISOString() }
     };
     saveItem(newF).then(() => loadFolderStructure().then(() => {
@@ -23,10 +25,12 @@ function createNewQuiz() {
     if (!currentFolder) { showToast('Navigate into a folder first', 'warning'); return; }
     const name = prompt('Enter quiz name:');
     if (!name || !name.trim()) return;
+    const parentPath = currentFolder.path || '/';
+    const newPath = (parentPath === '/' ? '' : parentPath) + '/' + name.trim();
     const newQ = {
         id: generateId(), name: name.trim(), type: 'quiz',
         parentId: currentFolder.id, questions: [],
-        path: (currentPath.endsWith('/') ? currentPath : currentPath + '/') + name.trim(),
+        path: newPath,
         metadata: { created: new Date().toISOString(), modified: new Date().toISOString(), questionCount: 0 }
     };
     saveItem(newQ).then(() => loadFolderStructure().then(() => {
