@@ -11,6 +11,17 @@ function navigateToRoot() {
     showQuickUploadArea();
 }
 
+function navigateToId(id) {
+    const item = findItemById(id);
+    if (!item) { showToast('Folder not found', 'warning'); return; }
+    currentPath   = item.path || '/';
+    currentFolder = item;
+    currentQuiz   = null;
+    updateBreadcrumb();
+    renderCurrentView();
+    showQuickUploadArea();
+}
+
 function navigateTo(path) {
     currentPath   = path;
     currentFolder = findItemByPath(path);
