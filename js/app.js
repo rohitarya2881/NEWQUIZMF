@@ -132,7 +132,7 @@ function showQuickActions() {
 
 // ── View Switching ────────────────────────────
 function showView(id) {
-    ['folderView','quizContainer','flashcardContainer','notesContainer'].forEach(v => {
+    ['folderView','quizContainer','flashcardContainer','notesContainer','plannerContainer'].forEach(v => {
         const el = document.getElementById(v);
         if (!el) return;
         el.classList.remove('active');
@@ -144,7 +144,7 @@ function showView(id) {
     target.classList.remove('hidden');
     if (id === 'folderView') {
         target.classList.add('active');
-    } else if (id === 'flashcardContainer' || id === 'notesContainer') {
+    } else if (id === 'flashcardContainer' || id === 'notesContainer' || id === 'plannerContainer') {
         target.style.display = 'block';
     }
 }
