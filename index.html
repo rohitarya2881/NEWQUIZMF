@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/quiz.css">
     <link rel="stylesheet" href="css/features.css">
+    <link rel="stylesheet" href="css/planner.css">
 </head>
 <body>
 <div class="app-container">
@@ -76,6 +77,7 @@
                 <button class="menu-item" onclick="showDifficultQuestions();toggleMenu()"><i class="fas fa-exclamation-triangle"></i> Difficult Questions</button>
                 <button class="menu-item" onclick="startPomodoro();toggleMenu()"><i class="fas fa-clock"></i> Pomodoro Timer</button>
                 <button class="menu-item" onclick="showNotes();toggleMenu()"><i class="fas fa-book-open"></i> Learning Journal</button>
+                <button class="menu-item" onclick="showPlanner();toggleMenu()"><i class="fas fa-calendar-check"></i> Revision Planner <span class="menu-badge">Smart</span></button>
             </div>
 
             <div class="menu-section">
@@ -382,6 +384,24 @@
 
         </div>
 
+        <!-- Revision Planner Container -->
+        <div id="plannerContainer" class="hidden">
+            <div class="planner-topbar">
+                <div class="planner-title"><i class="fas fa-calendar-check"></i> Revision Planner</div>
+                <div class="planner-tabs">
+                    <button class="planner-tab active" id="ptab-today"       onclick="plannerTab('today')">📋 Today</button>
+                    <button class="planner-tab"         id="ptab-calendar"   onclick="plannerTab('calendar')">📅 Calendar</button>
+                    <button class="planner-tab"         id="ptab-categories" onclick="plannerTab('categories')">🗂️ Categories</button>
+                    <button class="planner-tab"         id="ptab-performance"onclick="plannerTab('performance')">📊 Performance</button>
+                </div>
+                <button class="secondary-btn" onclick="goHome()" style="flex-shrink:0;font-size:0.78rem;padding:5px 12px;">✕ Close</button>
+            </div>
+            <div class="planner-panel active" id="ppanel-today"></div>
+            <div class="planner-panel"        id="ppanel-calendar"></div>
+            <div class="planner-panel"        id="ppanel-categories"></div>
+            <div class="planner-panel"        id="ppanel-performance"></div>
+        </div>
+
     </main>
 
     <!-- ════════════════ FAB ════════════════ -->
@@ -457,6 +477,7 @@
 <script src="js/pomodoro.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/habits.js"></script>
+<script src="js/planner.js"></script>
 
 </body>
 </html>
