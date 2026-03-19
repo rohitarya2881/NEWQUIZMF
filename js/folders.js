@@ -104,7 +104,7 @@ function renderSubfolders() {
     const subs = currentFolder.children?.filter(c => c.type === 'folder') || [];
     if (!subs.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No subfolders yet.</div>'; return; }
     el.innerHTML = subs.map(f => `
-        <div class="folder-card glass-card" onclick="navigateTo('${f.path}')" style="cursor:pointer;">
+        <div class="folder-card glass-card" onclick="navigateToId('${f.id}')" style="cursor:pointer;">
             <div class="folder-icon"><i class="fas fa-folder"></i></div>
             <div class="folder-name">${escHtml(f.name)}</div>
             <div class="folder-meta">${f.children?.filter(c => c.type === 'quiz').length || 0} quiz(zes)</div>
