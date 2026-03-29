@@ -1001,13 +1001,31 @@ function showBackupOptions() {
     document.body.appendChild(m);
 }
 
-function createFullBackup() {
+async function createFullBackup() {
     const items = getAllItems();
-    downloadJSON({ version:'2.0', type:'full_backup', date:new Date().toISOString(), structure:folderStructure, items,
-        stats:{ totalFolders:items.filter(i=>i.type==='folder').length, totalQuizzes:items.filter(i=>i.type==='quiz').length,
-            totalQuestions:items.reduce((s,i)=>s+(i.questions?.length||0),0) }},
-        `full_backup_${new Date().toISOString().split('T')[0]}.json`);
-    showToast('Full backup created', 'success');
+
+    // Collect all journal/planner/habits data from IndexedDB journal store
+    const journalKeys = ['todayTasks','goals','routine','routineDone','logs','history','timeSpent','habits','habitDone','revisionPlanner'];
+    const journalData = {};
+    for (const key of journalKeys) {
+        const val = await jnlGet(key);
+        if (val !== null) journalData[key] = val;
+    }
+
+    downloadJSON({
+        version: '2.0',
+        type: 'full_backup',
+        date: new Date().toISOString(),
+        structure: folderStructure,
+        items,
+        journalData,
+        stats: {
+            totalFolders:   items.filter(i=>i.type==='folder').length,
+            totalQuizzes:   items.filter(i=>i.type==='quiz').length,
+            totalQuestions: items.reduce((s,i)=>s+(i.questions?.length||0),0)
+        }
+    }, `full_backup_${new Date().toISOString().split('T')[0]}.json`);
+    showToast('Full backup created (includes journal data)', 'success');
 }
 
 function exportCurrentFolder() {
@@ -1045,11 +1063,17 @@ async function handleRestore(e) {
         try {
             const backup = JSON.parse(ev.target.result);
             if (backup.version === '2.0' && backup.type === 'full_backup' && backup.items) {
-                if (!confirm(`Restore full backup from ${backup.date}? This REPLACES all data.`)) return;
+                if (!confirm(`Restore full backup from ${backup.date}?\n\nThis will REPLACE:\n• All folders & quizzes\n• Journal, goals, habits, planner data\n\nThis cannot be undone.`)) return;
                 await clearAllData();
                 for (const item of backup.items) await saveItem(item);
+                // Restore journal data if present
+                if (backup.journalData) {
+                    for (const [key, val] of Object.entries(backup.journalData)) {
+                        await jnlSet(key, val);
+                    }
+                }
                 await loadFolderStructure(); navigateToRoot();
-                showToast('Backup restored!', 'success');
+                showToast('Full backup restored! (including journal data)', 'success');
             } else if (backup.version === '2.0' && backup.type === 'folder_export') {
                 if (!currentFolder) { showToast('Navigate into a folder first', 'warning'); return; }
                 const nf = { id:generateId(), name:backup.folder.name, type:'folder', parentId:currentFolder.id, children:[],
