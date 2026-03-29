@@ -109,11 +109,38 @@ function renderToday() {
 // ══════════════════════════════════════════════
 // GOALS
 // ══════════════════════════════════════════════
+function _goalTargetDate() {
+    const sel = document.getElementById('goalTargetDate')?.value;
+    const today = new Date();
+    if (sel === 'tomorrow') {
+        today.setDate(today.getDate() + 1);
+        return today.toISOString().split('T')[0];
+    }
+    if (sel === 'thisweek') {
+        // End of this week (Sunday)
+        const day = today.getDay();
+        today.setDate(today.getDate() + (7 - day));
+        return today.toISOString().split('T')[0];
+    }
+    if (sel === 'custom') {
+        return document.getElementById('goalCustomDate')?.value || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    }
+    return new Date(Date.now() + 86400000).toISOString().split('T')[0];
+}
+
+// Show/hide custom date input
+document.addEventListener('change', e => {
+    if (e.target.id === 'goalTargetDate') {
+        const cd = document.getElementById('goalCustomDate');
+        if (cd) cd.style.display = e.target.value === 'custom' ? 'block' : 'none';
+    }
+});
+
 async function addGoal() {
     const inp = document.getElementById('goalInput');
     const text = inp?.value.trim(); if (!text) return;
-    const tom = new Date(); tom.setDate(tom.getDate()+1);
-    _jnl.goals.unshift({ id: Date.now(), text, done: false, date: TODAY(), targetDate: tom.toISOString().split('T')[0] });
+    const targetDate = _goalTargetDate();
+    _jnl.goals.unshift({ id: Date.now(), text, done: false, date: TODAY(), targetDate, completedDate: null });
     await _jnlSave('goals');
     inp.value = ''; renderGoals();
 }
@@ -131,26 +158,32 @@ async function deleteGoal(id) {
 }
 
 function renderGoals() {
-    const tom = new Date(); tom.setDate(tom.getDate()+1);
-    const tomStr = tom.toISOString().split('T')[0];
-    const tomGoals = _jnl.goals.filter(g => g.targetDate === tomStr);
-    const otherGoals = _jnl.goals.filter(g => g.targetDate !== tomStr);
+    const today   = TODAY();
+    const pending = _jnl.goals.filter(g => !g.done).sort((a,b) => a.targetDate > b.targetDate ? 1 : -1);
+    const done    = _jnl.goals.filter(g => g.done).sort((a,b) => b.completedDate > a.completedDate ? 1 : -1);
 
-    const gl = document.getElementById('goalList');
-    if (gl) gl.innerHTML = tomGoals.length
-        ? tomGoals.map(g => _goalCard(g)).join('')
-        : '<div class="jnl-empty">No goals set for tomorrow yet.</div>';
+    const badge = document.getElementById('goalsProgressBadge');
+    if (badge) { badge.textContent = `${done.length}/${_jnl.goals.length} done`; badge.className = `jnl-badge ${done.length===_jnl.goals.length && _jnl.goals.length>0 ? 'jnl-badge-green':'jnl-badge-blue'}`; }
 
-    const ugl = document.getElementById('upcomingGoalList');
-    if (ugl) ugl.innerHTML = otherGoals.length
-        ? otherGoals.map(g => _goalCard(g, true)).join('')
-        : '<div class="jnl-empty">No other goals.</div>';
+    const pl = document.getElementById('goalListPending');
+    if (pl) pl.innerHTML = pending.length
+        ? pending.map(g => _goalCard(g)).join('')
+        : '<div class="jnl-empty">No pending goals 🎉</div>';
+
+    const dl = document.getElementById('goalListDone');
+    if (dl) dl.innerHTML = done.length
+        ? done.map(g => _goalCard(g)).join('')
+        : '<div class="jnl-empty">No completed goals yet.</div>';
 }
 
-function _goalCard(g, showDate=false) {
-    return `<div class="jnl-task ${g.done?'done':''}">
+function _goalCard(g) {
+    const today   = TODAY();
+    const overdue = !g.done && g.targetDate < today;
+    const due     = !g.done && g.targetDate === today;
+    const label   = g.targetDate ? `📅 ${FMT(g.targetDate)}${overdue ? ' ⚠️ Overdue' : due ? ' · Due today' : ''}` : '';
+    return `<div class="jnl-task ${g.done?'done':''} ${overdue?'jnl-overdue':''}">
         <span class="jnl-check" onclick="toggleGoal(${g.id})">${g.done?'✅':'⬜'}</span>
-        <span class="jnl-task-text">${escHtml(g.text)}${showDate?`<span class="jnl-date-tag">📅 ${FMT(g.targetDate)}</span>`:''}</span>
+        <span class="jnl-task-text">${escHtml(g.text)}<span class="jnl-date-tag">${label}</span></span>
         <button class="jnl-del" onclick="deleteGoal(${g.id})">✕</button>
     </div>`;
 }
@@ -197,34 +230,119 @@ function renderRoutine() {
 // ══════════════════════════════════════════════
 // DAILY LOG
 // ══════════════════════════════════════════════
+let _logFilter  = 'all';
+let _editingLog = null;  // id of log being edited
+
 async function saveLog() {
-    const inp = document.getElementById('logInput');
+    const inp  = document.getElementById('logInput');
     const text = inp?.value.trim(); if (!text) return;
-    _jnl.logs.unshift({ id: Date.now(), date: new Date().toISOString(), text });
+
+    if (_editingLog) {
+        // Update existing
+        const l = _jnl.logs.find(l => l.id === _editingLog);
+        if (l) { l.text = text; l.editedAt = new Date().toISOString(); }
+        _editingLog = null;
+        document.getElementById('logSaveBtn').textContent = '💾 Save Entry';
+    } else {
+        _jnl.logs.unshift({ id: Date.now(), date: new Date().toISOString(), text });
+    }
     await _jnlSave('logs');
-    inp.value = ''; renderLog();
+    inp.value = '';
+    renderLog();
     showToast('Log entry saved', 'success');
 }
 
+function editLog(id) {
+    const l = _jnl.logs.find(l => l.id === id); if (!l) return;
+    const inp = document.getElementById('logInput'); if (!inp) return;
+    inp.value = l.text;
+    inp.focus();
+    _editingLog = id;
+    const btn = document.getElementById('logSaveBtn');
+    if (btn) btn.textContent = '✏️ Update Entry';
+    const cancel = document.getElementById('logCancelBtn');
+    if (cancel) cancel.style.display = 'inline-flex';
+    inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelEditLog() {
+    _editingLog = null;
+    const inp = document.getElementById('logInput'); if (inp) inp.value = '';
+    const btn = document.getElementById('logSaveBtn');
+    if (btn) btn.textContent = '💾 Save Entry';
+    const cancel = document.getElementById('logCancelBtn');
+    if (cancel) cancel.style.display = 'none';
+}
+
 async function deleteLog(id) {
+    if (!confirm('Delete this log entry?')) return;
     _jnl.logs = _jnl.logs.filter(l => l.id !== id);
+    if (_editingLog === id) cancelEditLog();
     await _jnlSave('logs'); renderLog();
+}
+
+function filterLogs(filter, btn) {
+    _logFilter = filter;
+    document.querySelectorAll('.jnl-filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderLog();
+}
+
+function toggleLogExpand(id) {
+    const el = document.getElementById(`logtext-${id}`);
+    const btn = document.getElementById(`logmore-${id}`);
+    if (!el || !btn) return;
+    if (el.classList.contains('log-collapsed')) {
+        el.classList.remove('log-collapsed');
+        btn.textContent = '▲ Show less';
+    } else {
+        el.classList.add('log-collapsed');
+        btn.textContent = '▼ Read more';
+    }
 }
 
 function renderLog() {
     const ll = document.getElementById('logList'); if (!ll) return;
-    ll.innerHTML = _jnl.logs.length
-        ? _jnl.logs.map(l => `<div class="jnl-log-card">
-            <button class="jnl-del" onclick="deleteLog(${l.id})">✕</button>
-            <div class="jnl-log-date">📅 ${new Date(l.date).toLocaleString()}</div>
-            <div class="jnl-log-text">${escHtml(l.text)}</div>
-          </div>`).join('')
-        : '<div class="jnl-empty">No entries yet. Write what you did today!</div>';
+    const today = TODAY();
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+
+    let logs = _jnl.logs;
+    if (_logFilter === 'today') {
+        logs = logs.filter(l => l.date.startsWith(today));
+    } else if (_logFilter === 'week') {
+        logs = logs.filter(l => new Date(l.date) >= weekAgo);
+    }
+
+    if (!logs.length) {
+        ll.innerHTML = `<div class="jnl-empty">${_logFilter === 'today' ? 'No entries today yet.' : _logFilter === 'week' ? 'No entries this week.' : 'No entries yet. Write what you did today!'}</div>`;
+        return;
+    }
+
+    ll.innerHTML = logs.map(l => {
+        const lines = l.text.split('\n');
+        const isLong = l.text.length > 200 || lines.length > 3;
+        const dateStr = new Date(l.date).toLocaleString(undefined, {weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        const isToday = l.date.startsWith(today);
+        return `<div class="jnl-log-card ${_editingLog === l.id ? 'log-editing' : ''}">
+            <div class="jnl-log-card-header">
+                <div class="jnl-log-date">📅 ${dateStr}${l.editedAt ? ' · <em style="font-size:0.7rem;">edited</em>' : ''}${isToday ? ' <span class="jnl-routine-badge">Today</span>' : ''}</div>
+                <div class="jnl-log-actions">
+                    ${isToday || true ? `<button class="jnl-filter-btn" style="padding:2px 8px;font-size:0.72rem;" onclick="editLog(${l.id})">✏️ Edit</button>` : ''}
+                    <button class="jnl-del" onclick="deleteLog(${l.id})">✕</button>
+                </div>
+            </div>
+            <div id="logtext-${l.id}" class="jnl-log-text ${isLong ? 'log-collapsed' : ''}">${escHtml(l.text)}</div>
+            ${isLong ? `<button id="logmore-${l.id}" class="log-read-more" onclick="toggleLogExpand(${l.id})">▼ Read more</button>` : ''}
+        </div>`;
+    }).join('');
 }
 
 document.addEventListener('keydown', e => {
     if (document.activeElement?.id === 'logInput' && e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault(); saveLog();
+    }
+    if (document.activeElement?.id === 'logInput' && e.key === 'Escape') {
+        cancelEditLog();
     }
 });
 
