@@ -294,8 +294,9 @@
                     <textarea id="logInput"
                         placeholder="Write about your day…&#10;What did you accomplish? What did you learn? Any challenges?&#10;(Enter to save, Shift+Enter for new line)"
                         rows="5"></textarea>
-                    <div style="display:flex;justify-content:flex-end;">
-                        <button class="primary-btn" onclick="saveLog()">💾 Save Entry</button>
+                    <div style="display:flex;justify-content:flex-end;gap:8px;">
+                        <button class="secondary-btn" id="logCancelBtn" onclick="cancelEditLog()" style="display:none;">✕ Cancel</button>
+                        <button class="primary-btn" id="logSaveBtn" onclick="saveLog()">💾 Save Entry</button>
                     </div>
                 </div>
 
