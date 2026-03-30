@@ -84,6 +84,11 @@
                 <h4><i class="fas fa-database"></i> DATA MANAGEMENT</h4>
                 <button class="menu-item" onclick="exportAllData();toggleMenu()"><i class="fas fa-download"></i> Export All Data</button>
                 <button class="menu-item" onclick="clearMemory();toggleMenu()"><i class="fas fa-eraser"></i> Clear Memory</button>
+                <div style="padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);margin-top:4px;">
+                    <button class="menu-item" id="driveBakBtn" onclick="backupToDrive()" style="width:100%;justify-content:flex-start;">☁️ Backup to Drive</button>
+                    <button class="menu-item" onclick="restoreFromDrive()" style="width:100%;justify-content:flex-start;font-size:0.82rem;opacity:0.8;"><i class="fas fa-cloud-download-alt"></i> Restore from Drive</button>
+                    <div id="driveLastBackup" style="font-size:0.7rem;color:#aaa;padding:4px 14px;"></div>
+                </div>
             </div>
 
         </div>
@@ -479,6 +484,7 @@
 <script src="js/notes.js"></script>
 <script src="js/habits.js"></script>
 <script src="js/planner.js"></script>
+<script src="js/drive.js"></script>
 
 </body>
 </html>
