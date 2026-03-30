@@ -133,12 +133,11 @@ async function _doBackup() {
     } catch(err) {
         console.error('Drive backup error:', err);
         if (err.status === 401) {
-            // Token expired — re-auth
             _accessToken = null;
             driveSignIn();
         } else {
             showToast('Drive backup failed: ' + (err.result?.error?.message || err.message || 'Unknown error'), 'error');
-            _updateDriveBtn('signed-in');
+            _updateDriveBtn('error');
         }
     }
 }
@@ -216,22 +215,36 @@ function _buildMultipart(meta, content) {
 
 // ── UI helpers ────────────────────────────────
 function _updateDriveBtn(state) {
-    const btn = document.getElementById('driveBakBtn');
-    if (!btn) return;
+    const btn  = document.getElementById('driveBakBtn');
+    const dot  = document.getElementById('driveStatusDot');
+    const txt  = document.getElementById('driveStatusText');
+
     const states = {
-        'loading':   { text:'⏳ Syncing…',        disabled: true  },
-        'ready':     { text:'☁️ Backup to Drive', disabled: false },
-        'signed-in': { text:'☁️ Sync to Drive',   disabled: false },
+        'loading':   { text:'⏳ Syncing…',        disabled:true,  dotColor:'#f39c12', statusText:'Drive: Syncing…'       },
+        'ready':     { text:'☁️ Backup to Drive', disabled:false, dotColor:'#aaa',    statusText:'Drive: Not signed in'   },
+        'signed-in': { text:'☁️ Sync to Drive',   disabled:false, dotColor:'#27ae60', statusText:'Drive: Connected ✓'    },
+        'error':     { text:'☁️ Retry Drive',      disabled:false, dotColor:'#e74c3c', statusText:'Drive: Error — retry'  },
     };
     const s = states[state] || states['ready'];
-    btn.textContent = s.text;
-    btn.disabled    = s.disabled;
+
+    if (btn) { btn.textContent = s.text; btn.disabled = s.disabled; }
+    if (dot) dot.style.background = s.dotColor;
+    if (txt) txt.textContent = s.statusText;
+    if (txt) txt.style.color = s.dotColor;
 }
 
 function _updateDriveStatus() {
     const el = document.getElementById('driveLastBackup');
     const t  = localStorage.getItem('gd_last_backup');
-    if (el) el.textContent = t ? `Last synced: ${t}` : '';
+    if (el) el.textContent = t ? `Last synced: ${t}` : 'Never synced';
+    // Show connected state if we have a saved file ID
+    const fileId = localStorage.getItem('gd_backup_file_id');
+    if (fileId && !_accessToken) {
+        const dot = document.getElementById('driveStatusDot');
+        const txt = document.getElementById('driveStatusText');
+        if (dot) dot.style.background = '#f39c12';
+        if (txt) { txt.textContent = 'Drive: Sign in to sync'; txt.style.color = '#f39c12'; }
+    }
 }
 
 // ── Auto-backup every 30 min if signed in ─────
