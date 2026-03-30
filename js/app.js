@@ -174,6 +174,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     navigateToRoot();             // navigation.js
     updateMedalDisplay();
     _startSessionTracker();       // time-on-site tracking
+    initDriveBackup();            // Google Drive backup
+    _updateDriveStatus();
     console.log('QuizMaster Pro ready!');
 });
 
