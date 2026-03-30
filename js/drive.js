@@ -36,6 +36,13 @@ function initDriveBackup() {
             client_id: GDRIVE_CLIENT_ID,
             scope:     GDRIVE_SCOPE,
             callback:  _onToken,
+            // Use fragment redirect instead of popup to avoid COOP errors on GitHub Pages
+            ux_mode:        'popup',
+            error_callback: (err) => {
+                console.warn('GIS error:', err);
+                showToast('Sign-in error: ' + (err.type || 'unknown'), 'error');
+                _updateDriveBtn('ready');
+            }
         });
         _gisReady = true;
         _checkReady();
@@ -51,6 +58,7 @@ function _checkReady() {
 
 // ── Token callback ────────────────────────────
 function _onToken(resp) {
+    console.log('GIS token response:', resp);
     if (resp.error) {
         showToast('Google sign-in failed: ' + resp.error, 'error');
         _updateDriveBtn('ready');
@@ -59,7 +67,6 @@ function _onToken(resp) {
     _accessToken = resp.access_token;
     gapi.client.setToken({ access_token: _accessToken });
     _updateDriveBtn('signed-in');
-    // Auto-proceed with backup after sign-in
     _doBackup();
 }
 
