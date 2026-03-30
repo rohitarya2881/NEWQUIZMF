@@ -16,38 +16,29 @@ let _accessToken  = null;
 
 // ── Load Google scripts ───────────────────────
 function initDriveBackup() {
-    // Load GAPI
-    const s1 = document.createElement('script');
-    s1.src = 'https://apis.google.com/js/api.js';
-    s1.onload = () => {
-        gapi.load('client', async () => {
-            await gapi.client.init({});
-            _gapiReady = true;
-            _checkReady();
-        });
-    };
-    document.head.appendChild(s1);
-
-    // Load GIS (token client)
-    const s2 = document.createElement('script');
-    s2.src = 'https://accounts.google.com/gsi/client';
-    s2.onload = () => {
+    // Only need GIS for OAuth token — all Drive API calls use raw fetch
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.onload = () => {
         _tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: GDRIVE_CLIENT_ID,
-            scope:     GDRIVE_SCOPE,
-            callback:  _onToken,
-            // Use fragment redirect instead of popup to avoid COOP errors on GitHub Pages
-            ux_mode:        'popup',
+            client_id:      GDRIVE_CLIENT_ID,
+            scope:          GDRIVE_SCOPE,
+            callback:       _onToken,
             error_callback: (err) => {
                 console.warn('GIS error:', err);
                 showToast('Sign-in error: ' + (err.type || 'unknown'), 'error');
                 _updateDriveBtn('ready');
             }
         });
-        _gisReady = true;
+        _gapiReady = true;
+        _gisReady  = true;
         _checkReady();
     };
-    document.head.appendChild(s2);
+    s.onerror = () => {
+        console.warn('GIS script failed to load');
+        _updateDriveBtn('ready');
+    };
+    document.head.appendChild(s);
 }
 
 function _checkReady() {
@@ -65,7 +56,6 @@ function _onToken(resp) {
         return;
     }
     _accessToken = resp.access_token;
-    gapi.client.setToken({ access_token: _accessToken });
     _updateDriveBtn('signed-in');
     _doBackup();
 }
@@ -79,17 +69,13 @@ function driveSignIn() {
 
 // ── Main backup function ──────────────────────
 async function backupToDrive() {
-    if (!_accessToken) {
-        driveSignIn();   // will auto-backup after sign-in via _onToken
-        return;
-    }
+    if (!_accessToken) { driveSignIn(); return; }
     await _doBackup();
 }
 
 async function _doBackup() {
     _updateDriveBtn('loading');
     try {
-        // Build backup data (same as createFullBackup)
         const items = getAllItems();
         const journalKeys = ['todayTasks','goals','routine','routineDone','logs','history','timeSpent','habits','habitDone','revisionPlanner'];
         const journalData = {};
@@ -98,35 +84,24 @@ async function _doBackup() {
             if (val !== null) journalData[key] = val;
         }
         const backupData = JSON.stringify({
-            version: '2.0', type: 'full_backup',
-            date: new Date().toISOString(),
-            structure: folderStructure, items, journalData,
-            stats: {
-                totalFolders:   items.filter(i=>i.type==='folder').length,
-                totalQuizzes:   items.filter(i=>i.type==='quiz').length,
-                totalQuestions: items.reduce((s,i)=>s+(i.questions?.length||0),0)
-            }
+            version:'2.0', type:'full_backup', date:new Date().toISOString(),
+            structure:folderStructure, items, journalData,
+            stats:{ totalFolders:items.filter(i=>i.type==='folder').length, totalQuizzes:items.filter(i=>i.type==='quiz').length, totalQuestions:items.reduce((s,i)=>s+(i.questions?.length||0),0) }
         });
 
-        // Check if we already have a file ID saved
         let fileId = localStorage.getItem(FILEID_KEY);
 
+        // Verify file still exists
         if (fileId) {
-            // Verify file still exists on Drive
-            try {
-                await gapi.client.request({ path: `https://www.googleapis.com/drive/v3/files/${fileId}`, method: 'GET' });
-            } catch(e) {
-                // File deleted from Drive — reset and create new
-                fileId = null;
-                localStorage.removeItem(FILEID_KEY);
-            }
+            const check = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=id`, {
+                headers: { 'Authorization': 'Bearer ' + _accessToken }
+            });
+            if (!check.ok) { fileId = null; localStorage.removeItem(FILEID_KEY); }
         }
 
         if (fileId) {
-            // UPDATE existing file (PATCH)
             await _patchFile(fileId, backupData);
         } else {
-            // CREATE new file
             fileId = await _createFile(backupData);
             localStorage.setItem(FILEID_KEY, fileId);
         }
@@ -139,38 +114,37 @@ async function _doBackup() {
 
     } catch(err) {
         console.error('Drive backup error:', err);
-        if (err.status === 401) {
-            _accessToken = null;
-            driveSignIn();
+        if (err.status === 401 || err.message?.includes('401')) {
+            _accessToken = null; driveSignIn();
         } else {
-            showToast('Drive backup failed: ' + (err.result?.error?.message || err.message || 'Unknown error'), 'error');
+            showToast('Drive backup failed: ' + (err.message || 'Unknown error'), 'error');
             _updateDriveBtn('error');
         }
     }
 }
 
-// ── Create new file on Drive ──────────────────
+// ── Create new file ───────────────────────────
 async function _createFile(content) {
-    const meta = JSON.stringify({ name: BACKUP_FILENAME, mimeType: 'application/json' });
-    const body = _buildMultipart(meta, content);
-
-    const resp = await gapi.client.request({
-        path:    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
-        method:  'POST',
-        headers: { 'Content-Type': 'multipart/related; boundary=BOUNDARY_XYZ', 'Authorization': 'Bearer ' + _accessToken },
+    const boundary = 'QMPRO_BOUNDARY';
+    const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name: BACKUP_FILENAME, mimeType: 'application/json' })}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+    const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + _accessToken, 'Content-Type': `multipart/related; boundary=${boundary}` },
         body
     });
-    return resp.result.id;
+    if (!resp.ok) throw new Error('Create failed: ' + resp.status);
+    const data = await resp.json();
+    return data.id;
 }
 
-// ── Update existing file on Drive ─────────────
+// ── Update existing file ──────────────────────
 async function _patchFile(fileId, content) {
-    await gapi.client.request({
-        path:    `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
-        method:  'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _accessToken },
-        body:    content
+    const resp = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + _accessToken, 'Content-Type': 'application/json' },
+        body: content
     });
+    if (!resp.ok) throw new Error('Patch failed: ' + resp.status);
 }
 
 // ── Restore from Drive ────────────────────────
@@ -179,32 +153,25 @@ async function restoreFromDrive() {
 
     let fileId = localStorage.getItem(FILEID_KEY);
     if (!fileId) {
-        // Search Drive for the backup file
         showToast('Searching Drive for backup…', 'info');
-        try {
-            const resp = await gapi.client.request({
-                path:   `https://www.googleapis.com/drive/v3/files?q=name='${BACKUP_FILENAME}' and trashed=false&fields=files(id,name,modifiedTime)`,
-                method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + _accessToken }
-            });
-            const files = resp.result.files;
-            if (!files || files.length === 0) { showToast('No backup found on Drive', 'warning'); return; }
-            fileId = files[0].id;
-            localStorage.setItem(FILEID_KEY, fileId);
-        } catch(e) { showToast('Could not search Drive', 'error'); return; }
+        const resp = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${BACKUP_FILENAME}' and trashed=false&fields=files(id,name,modifiedTime)`, {
+            headers: { 'Authorization': 'Bearer ' + _accessToken }
+        });
+        const data = await resp.json();
+        if (!data.files?.length) { showToast('No backup found on Drive', 'warning'); return; }
+        fileId = data.files[0].id;
+        localStorage.setItem(FILEID_KEY, fileId);
     }
 
     if (!confirm('Restore from Google Drive? This will REPLACE all current data.')) return;
 
     try {
-        const resp = await gapi.client.request({
-            path:    `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-            method:  'GET',
+        const resp = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
             headers: { 'Authorization': 'Bearer ' + _accessToken }
         });
-        const backup = typeof resp.result === 'string' ? JSON.parse(resp.result) : resp.result;
+        if (!resp.ok) throw new Error('Download failed: ' + resp.status);
+        const backup = await resp.json();
         if (!backup.items) { showToast('Invalid backup format', 'error'); return; }
-
         await clearAllData();
         for (const item of backup.items) await saveItem(item);
         if (backup.journalData) {
@@ -212,12 +179,7 @@ async function restoreFromDrive() {
         }
         await loadFolderStructure(); navigateToRoot();
         showToast('✅ Restored from Google Drive!', 'success');
-    } catch(e) { showToast('Restore failed: ' + (e.message||'error'), 'error'); }
-}
-
-// ── Multipart body builder ────────────────────
-function _buildMultipart(meta, content) {
-    return `--BOUNDARY_XYZ\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--BOUNDARY_XYZ\r\nContent-Type: application/json\r\n\r\n${content}\r\n--BOUNDARY_XYZ--`;
+    } catch(e) { showToast('Restore failed: ' + e.message, 'error'); }
 }
 
 // ── UI helpers ────────────────────────────────
