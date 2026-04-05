@@ -7,7 +7,7 @@ let _reelIndex       = 0;
 let _reelAnswered    = false;
 let _reelFlipped     = false;
 let _reelScore       = { correct: 0, wrong: 0 };
-
+let _autoNextOnFlip = false;
 // ── Music state ───────────────────────────────
 let _musicFiles      = [];   // [{name, url}] — object URLs from File API
 let _musicIndex      = 0;
@@ -40,7 +40,19 @@ async function showReels() {
         showQuizSelectorModal(quizzes, _launchReels, '🎬 Choose Quiz for Reels');
     }
 }
+function _toggleAutoNext() {
+    _autoNextOnFlip = !_autoNextOnFlip;
 
+    const btn = document.getElementById('autoNextBtn');
+    if (btn) {
+        btn.textContent = _autoNextOnFlip ? '⏭️✅' : '⏭️❌';
+    }
+
+    showToast(
+        _autoNextOnFlip ? 'Auto next on flip ON' : 'Auto next on flip OFF',
+        'info'
+    );
+}
 function _launchReels(quiz) {
     if (!quiz?.questions?.length) { showToast('Quiz has no questions', 'warning'); return; }
     _reelsQuestions = shuffleArray([...quiz.questions]);
@@ -96,6 +108,8 @@ function _buildReelsShell() {
                 <button class="reels-ctrl" onclick="_musicPrev()" title="Previous song">⏮</button>
                 <button class="reels-ctrl" onclick="_musicToggleMute()" id="reelsMuteBtn" title="Mute">🔊</button>
                 <button class="reels-ctrl" onclick="_musicNext()" title="Next song">⏭</button>
+                    <button class="reels-ctrl" onclick="_toggleAutoNext()" id="autoNextBtn">⏭️❌</button>
+
                 <button class="reels-ctrl" onclick="_showMusicManager()" title="Music settings">⚙️</button>
             </div>
         </div>`;
@@ -199,8 +213,14 @@ function _reelsAnswer(chosen, correct) {
 
 function _flipCard() {
     _reelFlipped = true;
+
     const card = document.getElementById('reelsCard');
     if (card) card.classList.add('flipped');
+
+    // ✅ ADD THIS
+    if (_autoNextOnFlip) {
+        setTimeout(_playRandomMusic, 400);
+    }
 }
 
 // ══════════════════════════════════════════════
