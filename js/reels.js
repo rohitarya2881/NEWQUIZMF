@@ -13,6 +13,7 @@ let _musicFiles      = [];   // [{name, url}] — object URLs from File API
 let _musicIndex      = 0;
 let _musicAudio      = null;
 let _musicMuted      = false;
+let _flipLock = false;
 _musicList = [
     { name: "a", path: "music/a.mp3" },
     { name: "b", path: "music/b.mp3" },
@@ -212,15 +213,24 @@ function _reelsAnswer(chosen, correct) {
 }
 
 function _flipCard() {
+    // 🚫 prevent multiple rapid flips
+    if (_flipLock) return;
+    _flipLock = true;
+
     _reelFlipped = true;
 
     const card = document.getElementById('reelsCard');
     if (card) card.classList.add('flipped');
 
-    // ✅ ADD THIS
+    // 🎵 auto next (only once)
     if (_autoNextOnFlip) {
         setTimeout(_playRandomMusic, 400);
     }
+
+    // 🔓 unlock after animation
+    setTimeout(() => {
+        _flipLock = false;
+    }, 500); // match your CSS animation time
 }
 
 // ══════════════════════════════════════════════
