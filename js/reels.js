@@ -13,7 +13,11 @@ let _musicFiles      = [];   // [{name, url}] — object URLs from File API
 let _musicIndex      = 0;
 let _musicAudio      = null;
 let _musicMuted      = false;
-let _musicList       = [];   // [{name, path}] stored paths for GitHub music
+const MUSIC_LIST = [
+    'music/a.mp3',
+    'music/b.mp3',
+    'music/d.mp3'
+];
 const MUSIC_KEY      = 'reels_music_paths';
 
 // ── Touch tracking ────────────────────────────
