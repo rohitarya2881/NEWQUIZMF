@@ -13,10 +13,10 @@ let _musicFiles      = [];   // [{name, url}] — object URLs from File API
 let _musicIndex      = 0;
 let _musicAudio      = null;
 let _musicMuted      = false;
-const MUSIC_LIST = [
-    'music/a.mp3',
-    'music/b.mp3',
-    'music/d.mp3'
+_musicList = [
+    { name: "a", path: "music/a.mp3" },
+    { name: "b", path: "music/b.mp3" },
+    { name: "d", path: "music/d.mp3" }
 ];
 const MUSIC_KEY      = 'reels_music_paths';
 
