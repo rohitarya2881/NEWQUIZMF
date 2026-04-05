@@ -47,6 +47,8 @@ function _checkReady() {
     }
 }
 
+let _pendingAction = 'backup'; // 'backup' | 'restore'
+
 // ── Token callback ────────────────────────────
 function _onToken(resp) {
     console.log('GIS token response:', resp);
@@ -57,18 +59,24 @@ function _onToken(resp) {
     }
     _accessToken = resp.access_token;
     _updateDriveBtn('signed-in');
-    _doBackup();
+    if (_pendingAction === 'restore') {
+        _pendingAction = 'backup';
+        restoreFromDrive();
+    } else {
+        _doBackup();
+    }
 }
 
 // ── Sign in ───────────────────────────────────
 function driveSignIn() {
-    if (!_gapiReady || !_gisReady) { showToast('Google API loading…', 'info'); return; }
+    if (!_tokenClient) { showToast('Google API still loading, try again in a moment', 'info'); return; }
     _updateDriveBtn('loading');
     _tokenClient.requestAccessToken({ prompt: _accessToken ? '' : 'consent' });
 }
 
 // ── Main backup function ──────────────────────
 async function backupToDrive() {
+    _pendingAction = 'backup';
     if (!_accessToken) { driveSignIn(); return; }
     await _doBackup();
 }
@@ -149,6 +157,7 @@ async function _patchFile(fileId, content) {
 
 // ── Restore from Drive ────────────────────────
 async function restoreFromDrive() {
+    _pendingAction = 'restore';
     if (!_accessToken) { driveSignIn(); return; }
 
     let fileId = localStorage.getItem(FILEID_KEY);
