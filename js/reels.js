@@ -325,15 +325,35 @@ async function _startMusic() {
 function _playMusicByPath(song) {
     if (!song) return;
     _stopMusic();
+
     _musicAudio = new Audio(song.path);
-    _musicAudio.loop   = true;
+    _musicAudio.loop   = false; // ❗ disable loop
     _musicAudio.muted  = _musicMuted;
     _musicAudio.volume = 0.5;
+
+    // ✅ ADD HERE
+    _musicAudio.onended = () => {
+        setTimeout(_playRandomMusic, 300);
+    };
+
     _musicAudio.play().catch(() => {});
+    
     const nm = document.getElementById('reelsMusicName');
     if (nm) nm.textContent = song.name;
 }
+function _playRandomMusic() {
+    if (!_musicList.length) return;
 
+    let nextIndex;
+
+    // avoid same song repeating
+    do {
+        nextIndex = Math.floor(Math.random() * _musicList.length);
+    } while (_musicList.length > 1 && nextIndex === _musicIndex);
+
+    _musicIndex = nextIndex;
+    _playMusicByPath(_musicList[_musicIndex]);
+}
 function _stopMusic() {
     if (_musicAudio) { _musicAudio.pause(); _musicAudio.src = ''; _musicAudio = null; }
 }
