@@ -301,14 +301,22 @@ function _reelsExit() {
 // MUSIC
 // ══════════════════════════════════════════════
 async function _startMusic() {
-    // Load saved music paths from IndexedDB
     const saved = await jnlGet(MUSIC_KEY);
+
     if (saved?.length) {
         _musicList = saved;
-        _playMusicByPath(_musicList[Math.floor(Math.random() * _musicList.length)]);
+    } else {
+        // fallback to default list
+        _musicList = MUSIC_LIST.map(path => ({
+            name: path.split('/').pop(),
+            path: path
+        }));
     }
-    // If no music configured, show manager hint
-    else {
+
+    if (_musicList.length) {
+        _musicIndex = Math.floor(Math.random() * _musicList.length);
+        _playMusicByPath(_musicList[_musicIndex]);
+    } else {
         const nm = document.getElementById('reelsMusicName');
         if (nm) nm.textContent = 'Tap ⚙️ to add music';
     }
