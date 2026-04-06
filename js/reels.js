@@ -2,59 +2,39 @@
    reels.js — Quiz Reels (Swipe Cards + Music)
    ============================================= */
 
-let _reelsQuestions  = [];
-let _reelIndex       = 0;
-let _reelAnswered    = false;
-let _reelFlipped     = false;
-let _reelScore       = { correct: 0, wrong: 0 };
+let _reelsQuestions = [];
+let _reelIndex      = 0;
+let _reelAnswered   = false;
+let _reelFlipped    = false;
+let _reelScore      = { correct: 0, wrong: 0 };
 let _autoNextOnFlip = false;
-// ── Music state ───────────────────────────────
-let _musicFiles      = [];   // [{name, url}] — object URLs from File API
-let _musicIndex      = 0;
-let _musicAudio      = null;
-let _musicMuted      = false;
-let _flipLock = false;
-_musicList = [
-    { name: "a", path: "music/a.mp3" },
-    { name: "b", path: "music/b.mp3" },
-    { name: "d", path: "music/d.mp3" }
-];
-const MUSIC_KEY      = 'reels_music_paths';
+let _flipLock       = false;
 
-// ── Touch tracking ────────────────────────────
-let _touchStartY     = 0;
-let _touchStartX     = 0;
+// ── Music ─────────────────────────────────────
+let _musicList  = [];
+let _musicIndex = 0;
+let _musicAudio = null;
+let _musicMuted = false;
+const MUSIC_KEY = 'reels_music_paths';
+
+// ── Touch ─────────────────────────────────────
+let _touchStartY = 0;
+let _touchStartX = 0;
 
 // ══════════════════════════════════════════════
 // ENTRY POINT
 // ══════════════════════════════════════════════
 async function showReels() {
-    // Need a quiz selected
     if (!currentFolder) { showToast('Go into a folder first', 'warning'); return; }
     const quizzes = currentFolder.children?.filter(c => c.type === 'quiz') || [];
     if (!quizzes.length) { showToast('No quizzes in this folder', 'warning'); return; }
-
-    // If multiple quizzes, let user pick
-    if (quizzes.length === 1) {
-        _launchReels(quizzes[0]);
-    } else {
-        showQuizSelectorModal(quizzes, _launchReels, '🎬 Choose Quiz for Reels');
-    }
+    if (quizzes.length === 1) _launchReels(quizzes[0]);
+    else showQuizSelectorModal(quizzes, _launchReels, '🎬 Choose Quiz for Reels');
 }
-function _toggleAutoNext() {
-    _autoNextOnFlip = !_autoNextOnFlip;
 
-    const btn = document.getElementById('autoNextBtn');
-    if (btn) {
-        btn.textContent = _autoNextOnFlip ? '⏭️✅' : '⏭️❌';
-    }
-
-    showToast(
-        _autoNextOnFlip ? 'Auto next on flip ON' : 'Auto next on flip OFF',
-        'info'
-    );
-}
-function _launchReels(quiz) {
+// ── KEY FIX: handle both ID string and full quiz object ──
+function _launchReels(quizOrId) {
+    const quiz = (typeof quizOrId === 'string') ? findItemById(quizOrId) : quizOrId;
     if (!quiz?.questions?.length) { showToast('Quiz has no questions', 'warning'); return; }
     _reelsQuestions = shuffleArray([...quiz.questions]);
     _reelIndex      = 0;
@@ -62,6 +42,13 @@ function _launchReels(quiz) {
     _buildReelsShell();
     _renderCard();
     _startMusic();
+}
+
+function _toggleAutoNext() {
+    _autoNextOnFlip = !_autoNextOnFlip;
+    const btn = document.getElementById('autoNextBtn');
+    if (btn) btn.textContent = _autoNextOnFlip ? '⏭✅' : '⏭❌';
+    showToast(_autoNextOnFlip ? 'Auto next ON' : 'Auto next OFF', 'info');
 }
 
 // ══════════════════════════════════════════════
@@ -73,9 +60,8 @@ function _buildReelsShell() {
     shell.id = 'reelsShell';
     shell.className = 'reels-shell';
     shell.innerHTML = `
-        <!-- Top bar -->
         <div class="reels-topbar">
-            <button class="reels-ctrl" onclick="_reelsExit()" title="Exit">✕</button>
+            <button class="reels-ctrl" onclick="_reelsExit()">✕</button>
             <div class="reels-progress-wrap">
                 <div class="reels-progress-bar">
                     <div class="reels-progress-fill" id="reelsProgressFill" style="width:0%"></div>
@@ -85,7 +71,6 @@ function _buildReelsShell() {
             <div class="reels-score-pill" id="reelsScore">✅ 0 &nbsp; ❌ 0</div>
         </div>
 
-        <!-- Card area -->
         <div class="reels-card-area" id="reelsCardArea">
             <div class="reels-card-wrap" id="reelsCardWrap">
                 <div class="reels-card" id="reelsCard">
@@ -93,28 +78,23 @@ function _buildReelsShell() {
                     <div class="reels-card-back"  id="reelsCardBack"></div>
                 </div>
             </div>
-
-            <!-- Swipe hints -->
-            <div class="reels-hint reels-hint-up"   id="reelsHintUp">▲ Next</div>
-            <div class="reels-hint reels-hint-down" id="reelsHintDown">▼ Prev</div>
+            <div class="reels-hint reels-hint-up">▲ Next</div>
+            <div class="reels-hint reels-hint-down">▼ Prev</div>
         </div>
 
-        <!-- Bottom music bar -->
         <div class="reels-music-bar">
             <div class="reels-music-info">
                 <span class="reels-music-icon">🎵</span>
                 <span class="reels-music-name" id="reelsMusicName">No music</span>
             </div>
             <div class="reels-music-controls">
-                <button class="reels-ctrl" onclick="_musicPrev()" title="Previous song">⏮</button>
-                <button class="reels-ctrl" onclick="_musicToggleMute()" id="reelsMuteBtn" title="Mute">🔊</button>
+                <button class="reels-ctrl" onclick="_musicPrev()" title="Prev song">⏮</button>
+                <button class="reels-ctrl" id="reelsMuteBtn" onclick="_musicToggleMute()">🔊</button>
                 <button class="reels-ctrl" onclick="_musicNext()" title="Next song">⏭</button>
-                    <button class="reels-ctrl" onclick="_toggleAutoNext()" id="autoNextBtn">⏭️❌</button>
-
+                <button class="reels-ctrl" id="autoNextBtn" onclick="_toggleAutoNext()" title="Auto next card on flip">⏭❌</button>
                 <button class="reels-ctrl" onclick="_showMusicManager()" title="Music settings">⚙️</button>
             </div>
         </div>`;
-
     document.body.appendChild(shell);
     _bindSwipe();
 }
@@ -125,16 +105,14 @@ function _buildReelsShell() {
 function _renderCard() {
     const q = _reelsQuestions[_reelIndex];
     if (!q) return;
-
     _reelAnswered = false;
     _reelFlipped  = false;
+    _flipLock     = false;
 
-    // Remove flipped class
     const card = document.getElementById('reelsCard');
     if (card) card.classList.remove('flipped');
 
-    // Progress
-    const pct = Math.round((_reelIndex + 1) / _reelsQuestions.length * 100);
+    const pct  = Math.round((_reelIndex + 1) / _reelsQuestions.length * 100);
     const fill = document.getElementById('reelsProgressFill');
     const ctr  = document.getElementById('reelsCounter');
     const scr  = document.getElementById('reelsScore');
@@ -142,7 +120,6 @@ function _renderCard() {
     if (ctr)  ctr.textContent  = `${_reelIndex + 1} / ${_reelsQuestions.length}`;
     if (scr)  scr.innerHTML    = `✅ ${_reelScore.correct} &nbsp; ❌ ${_reelScore.wrong}`;
 
-    // Front face
     const front = document.getElementById('reelsCardFront');
     if (front) {
         const letters = ['A','B','C','D'];
@@ -152,7 +129,7 @@ function _renderCard() {
             <div class="reels-options">
                 ${(q.options||[]).map((opt,i) => `
                     <button class="reels-opt" data-idx="${i}"
-                        onclick="_reelsAnswer(${i}, ${q.correctIndex})">
+                        onclick="_reelsAnswer(${i},${q.correctIndex})">
                         <span class="reels-opt-letter">${letters[i]}</span>
                         <span class="reels-opt-text">${escHtml(opt)}</span>
                     </button>`).join('')}
@@ -162,7 +139,6 @@ function _renderCard() {
             </div>`;
     }
 
-    // Back face
     const back = document.getElementById('reelsCardBack');
     if (back) {
         const correct = q.options?.[q.correctIndex] || '';
@@ -175,12 +151,7 @@ function _renderCard() {
             <div class="reels-nav-hint">Swipe ▲ for next · ▼ for previous</div>`;
     }
 
-    // Make card tappable to flip (after answering)
-    if (card) {
-        card.onclick = () => {
-            if (_reelAnswered && !_reelFlipped) _flipCard();
-        };
-    }
+    if (card) card.onclick = () => { if (_reelAnswered && !_reelFlipped) _flipCard(); };
 }
 
 // ══════════════════════════════════════════════
@@ -189,52 +160,38 @@ function _renderCard() {
 function _reelsAnswer(chosen, correct) {
     if (_reelAnswered) return;
     _reelAnswered = true;
-
     const isCorrect = chosen === correct;
     if (isCorrect) _reelScore.correct++; else _reelScore.wrong++;
 
-    // Colour all options
     document.querySelectorAll('.reels-opt').forEach((btn, i) => {
         btn.disabled = true;
         if (i === correct) btn.classList.add('reels-correct');
         else if (i === chosen) btn.classList.add('reels-wrong');
     });
 
-    // Update score
     const scr = document.getElementById('reelsScore');
     if (scr) scr.innerHTML = `✅ ${_reelScore.correct} &nbsp; ❌ ${_reelScore.wrong}`;
-
-    // Show tap hint
     const hint = document.getElementById('reelsTapHint');
     if (hint) hint.style.display = 'block';
 
-    // Auto-flip after 1.5s
     setTimeout(() => { if (!_reelFlipped) _flipCard(); }, 1500);
 }
 
 function _flipCard() {
-    // 🚫 prevent multiple rapid flips
     if (_flipLock) return;
-    _flipLock = true;
-
+    _flipLock    = true;
     _reelFlipped = true;
-
-    const card = document.getElementById('reelsCard');
+    const card   = document.getElementById('reelsCard');
     if (card) card.classList.add('flipped');
 
-    // 🎵 auto next (only once)
     if (_autoNextOnFlip) {
-        setTimeout(_playRandomMusic, 400);
+        setTimeout(_reelsNext, 600);
     }
-
-    // 🔓 unlock after animation
-    setTimeout(() => {
-        _flipLock = false;
-    }, 500); // match your CSS animation time
+    setTimeout(() => { _flipLock = false; }, 500);
 }
 
 // ══════════════════════════════════════════════
-// SWIPE / NAVIGATION
+// NAVIGATION
 // ══════════════════════════════════════════════
 function _bindSwipe() {
     const area = document.getElementById('reelsCardArea');
@@ -248,18 +205,16 @@ function _bindSwipe() {
     area.addEventListener('touchend', e => {
         const dy = _touchStartY - e.changedTouches[0].clientY;
         const dx = Math.abs(_touchStartX - e.changedTouches[0].clientX);
-        if (Math.abs(dy) < 50 || dx > Math.abs(dy)) return; // too small or horizontal
+        if (Math.abs(dy) < 50 || dx > Math.abs(dy)) return;
         if (dy > 0) _reelsNext(); else _reelsPrev();
     }, { passive: true });
 
-    // Mouse wheel support for desktop
     area.addEventListener('wheel', e => {
         e.preventDefault();
         if (e.deltaY > 30) _reelsNext();
         else if (e.deltaY < -30) _reelsPrev();
     }, { passive: false });
 
-    // Keyboard
     document.addEventListener('keydown', _reelsKeyHandler);
 }
 
@@ -272,9 +227,7 @@ function _reelsKeyHandler(e) {
 }
 
 function _reelsNext() {
-    if (_reelIndex >= _reelsQuestions.length - 1) {
-        _reelsFinish(); return;
-    }
+    if (_reelIndex >= _reelsQuestions.length - 1) { _reelsFinish(); return; }
     _animateSlide('up');
     setTimeout(() => { _reelIndex++; _renderCard(); }, 300);
 }
@@ -332,16 +285,7 @@ function _reelsExit() {
 // ══════════════════════════════════════════════
 async function _startMusic() {
     const saved = await jnlGet(MUSIC_KEY);
-
-    if (saved?.length) {
-        _musicList = saved;
-    } else {
-        // fallback to default list
-        _musicList = MUSIC_LIST.map(path => ({
-            name: path.split('/').pop(),
-            path: path
-        }));
-    }
+    if (saved?.length) _musicList = saved;
 
     if (_musicList.length) {
         _musicIndex = Math.floor(Math.random() * _musicList.length);
@@ -355,41 +299,31 @@ async function _startMusic() {
 function _playMusicByPath(song) {
     if (!song) return;
     _stopMusic();
-
-    _musicAudio = new Audio(song.path);
-    _musicAudio.loop   = false; // ❗ disable loop
-    _musicAudio.muted  = _musicMuted;
-    _musicAudio.volume = 0.5;
-
-    // ✅ ADD HERE
-    _musicAudio.onended = () => {
-        setTimeout(_playRandomMusic, 300);
-    };
-
+    _musicAudio          = new Audio(song.path);
+    _musicAudio.loop     = false;
+    _musicAudio.muted    = _musicMuted;
+    _musicAudio.volume   = 0.5;
+    _musicAudio.onended  = () => setTimeout(_playRandomMusic, 300);
     _musicAudio.play().catch(() => {});
-    
     const nm = document.getElementById('reelsMusicName');
     if (nm) nm.textContent = song.name;
 }
+
 function _playRandomMusic() {
     if (!_musicList.length) return;
-
-    let nextIndex;
-
-    // avoid same song repeating
-    do {
-        nextIndex = Math.floor(Math.random() * _musicList.length);
-    } while (_musicList.length > 1 && nextIndex === _musicIndex);
-
-    _musicIndex = nextIndex;
+    let next;
+    do { next = Math.floor(Math.random() * _musicList.length); }
+    while (_musicList.length > 1 && next === _musicIndex);
+    _musicIndex = next;
     _playMusicByPath(_musicList[_musicIndex]);
 }
+
 function _stopMusic() {
     if (_musicAudio) { _musicAudio.pause(); _musicAudio.src = ''; _musicAudio = null; }
 }
 
 function _musicNext() {
-    if (!_musicList.length) { showToast('No music added yet. Tap ⚙️', 'info'); return; }
+    if (!_musicList.length) { showToast('No music added. Tap ⚙️', 'info'); return; }
     _musicIndex = (_musicIndex + 1) % _musicList.length;
     _playMusicByPath(_musicList[_musicIndex]);
 }
@@ -408,7 +342,7 @@ function _musicToggleMute() {
 }
 
 // ══════════════════════════════════════════════
-// MUSIC MANAGER (Settings)
+// MUSIC MANAGER
 // ══════════════════════════════════════════════
 async function _showMusicManager() {
     const saved = (await jnlGet(MUSIC_KEY)) || [];
@@ -432,13 +366,14 @@ async function _showMusicManager() {
             <button class="primary-btn" onclick="_addMusicEntry()">+ Add</button>
         </div>
         <div id="musicList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;">
-            ${_musicList.map((s,i) => `
+            ${_musicList.length ? _musicList.map((s,i) => `
                 <div class="jnl-task">
-                    <span class="reels-music-icon">🎵</span>
-                    <span class="jnl-task-text">${escHtml(s.name)}<br><small style="color:#aaa;">${escHtml(s.path)}</small></span>
-                    <button class="reels-ctrl" onclick="_testPlay(${i})" title="Test play">▶</button>
+                    <span>🎵</span>
+                    <span class="jnl-task-text">${escHtml(s.name)}<br>
+                        <small style="color:#aaa;">${escHtml(s.path)}</small></span>
+                    <button class="reels-ctrl" style="width:28px;height:28px;font-size:0.8rem;" onclick="_testPlay(${i})">▶</button>
                     <button class="jnl-del" onclick="_removeMusicEntry(${i})">✕</button>
-                </div>`).join('') || '<div class="jnl-empty">No songs added yet.</div>'}
+                </div>`).join('') : '<div class="jnl-empty">No songs added yet.</div>'}
         </div>
         <div class="modal-footer">
             <button class="secondary-btn" onclick="document.getElementById('musicModal').remove()">Close</button>
@@ -456,7 +391,6 @@ async function _addMusicEntry() {
     document.getElementById('musicModal')?.remove();
     _showMusicManager();
     showToast('Song added!', 'success');
-    // Start playing if first song
     if (_musicList.length === 1) _playMusicByPath(_musicList[0]);
 }
 
