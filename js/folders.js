@@ -107,36 +107,144 @@ function renderSubfolders() {
     const el   = document.getElementById('subfoldersGrid'); if (!el) return;
     const subs = currentFolder.children?.filter(c => c.type === 'folder') || [];
     if (!subs.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No subfolders yet.</div>'; return; }
-    el.innerHTML = subs.map(f => `
-        <div class="folder-card glass-card" onclick="navigateToId('${f.id}')" style="cursor:pointer;">
-            <div class="folder-icon"><i class="fas fa-folder"></i></div>
-            <div class="folder-name">${escHtml(f.name)}</div>
-            <div class="folder-meta">${f.children?.filter(c => c.type === 'quiz').length || 0} quiz(zes)</div>
-            <div class="folder-actions">
-                <button class="icon-btn small" onclick="event.stopPropagation();renameItem('${f.id}')" title="Rename"><i class="fas fa-edit"></i></button>
-                <button class="icon-btn small danger" onclick="event.stopPropagation();deleteItemById('${f.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>`).join('');
+
+    getStudyNotes().then(notes => {
+        el.innerHTML = subs.map(f => {
+            const n    = notes[f.id];
+            const note = n?.note ? `<div class="item-note" onclick="event.stopPropagation()">
+                <span class="item-note-text" id="note-text-${f.id}">${escHtml(n.note)}</span>
+                <button class="item-note-edit" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">✏️</button>
+            </div>` : `<button class="item-note-add" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">📝 Add note</button>`;
+            return `
+            <div class="folder-card glass-card" onclick="navigateToId('${f.id}')" style="cursor:pointer;">
+                <div class="folder-icon"><i class="fas fa-folder"></i></div>
+                <div class="folder-name">${escHtml(f.name)}</div>
+                <div class="folder-meta">${f.children?.filter(c => c.type === 'quiz').length || 0} quiz(zes)</div>
+                ${note}
+                <div class="folder-actions">
+                    <button class="icon-btn small" onclick="event.stopPropagation();renameItem('${f.id}')" title="Rename"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn small danger" onclick="event.stopPropagation();deleteItemById('${f.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    });
 }
 
 function renderQuizzes() {
     const el      = document.getElementById('quizzesList'); if (!el) return;
     const quizzes = currentFolder.children?.filter(c => c.type === 'quiz') || [];
     if (!quizzes.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No quizzes yet. Create one or upload JSON!</div>'; return; }
-    el.innerHTML = quizzes.map(q => `
-        <div class="quiz-card glass-card">
-            <div class="quiz-header">
-                <i class="fas fa-file-alt"></i>
-                <h4>${escHtml(q.name)}</h4>
-                <span class="question-count">${q.questions?.length || 0} questions</span>
+
+    getStudyNotes().then(notes => {
+        el.innerHTML = quizzes.map(q => {
+            const n    = notes[q.id];
+            const note = n?.note ? `<div class="item-note">
+                <span class="item-note-text">${escHtml(n.note)}</span>
+                <button class="item-note-edit" onclick="openNoteEditor('${q.id}','quiz')">✏️</button>
+            </div>` : `<button class="item-note-add" onclick="openNoteEditor('${q.id}','quiz')">📝 Add note</button>`;
+
+            // Bookmark banner
+            const bm = n?.bookmark;
+            const bmBanner = bm ? `<div class="quiz-bookmark-bar">
+                <span>📍 Stopped at Q${bm.q}/${bm.totalQ} · ${_daysAgoStr(bm.date)}</span>
+                <button class="primary-btn small" onclick="continueFromBookmark('${q.id}',${bm.q})">▶ Continue</button>
+                <button class="icon-btn small" onclick="clearStudyBookmark('${q.id}').then(renderCurrentView)" title="Clear bookmark">✕</button>
+            </div>` : '';
+
+            // Session history
+            const sessions = n?.sessions || [];
+            const lastSession = sessions[0];
+            const sessionInfo = lastSession
+                ? `<span class="quiz-session-info">Last: ${_daysAgoStr(lastSession.date)} · ${lastSession.score}/${lastSession.total} correct</span>`
+                : '';
+
+            return `
+            <div class="quiz-card glass-card">
+                <div class="quiz-header">
+                    <i class="fas fa-file-alt"></i>
+                    <h4>${escHtml(q.name)}</h4>
+                    <span class="question-count">${q.questions?.length || 0} questions</span>
+                </div>
+                ${sessionInfo ? `<div style="padding:0 14px 6px;font-size:0.75rem;color:#aaa;">${sessionInfo}</div>` : ''}
+                ${bmBanner}
+                ${note}
+                <div class="quiz-actions">
+                    <button class="primary-btn small"   onclick="startQuiz('${q.id}')"><i class="fas fa-play"></i> Start</button>
+                    <button class="secondary-btn small" onclick="displayFlashcards('${q.id}')"><i class="fas fa-layer-group"></i> Cards</button>
+                    <button class="secondary-btn small" onclick="showAddQuestionToQuizDialog('${q.id}')"><i class="fas fa-plus"></i> Add Q</button>
+                    <button class="danger-btn small"    onclick="deleteItemById('${q.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    });
+}
+
+function _daysAgoStr(isoDate) {
+    if (!isoDate) return '';
+    const diff = Math.floor((Date.now() - new Date(isoDate)) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return '1 day ago';
+    return `${diff} days ago`;
+}
+
+// ── Note editor ───────────────────────────────
+function openNoteEditor(itemId, type) {
+    const existing = document.getElementById('noteEditorModal');
+    if (existing) existing.remove();
+
+    getStudyNotes().then(notes => {
+        const current = notes[itemId]?.note || '';
+        const m = document.createElement('div'); m.className = 'modal'; m.id = 'noteEditorModal';
+        m.innerHTML = `<div class="modal-content" style="max-width:460px;">
+            <div class="modal-header" style="border-color:#4a6fa5;">
+                <h3 style="color:#4a6fa5;">📝 ${type === 'folder' ? 'Folder' : 'Quiz'} Note</h3>
+                <button class="close-btn" onclick="document.getElementById('noteEditorModal').remove()">✕</button>
             </div>
-            <div class="quiz-actions">
-                <button class="primary-btn small"   onclick="startQuiz('${q.id}')"><i class="fas fa-play"></i> Start</button>
-                <button class="secondary-btn small" onclick="displayFlashcards('${q.id}')"><i class="fas fa-layer-group"></i> Cards</button>
-                <button class="secondary-btn small" onclick="showAddQuestionToQuizDialog('${q.id}')"><i class="fas fa-plus"></i> Add Q</button>
-                <button class="danger-btn small"    onclick="deleteItemById('${q.id}')"><i class="fas fa-trash"></i></button>
+            <p style="font-size:0.82rem;color:#aaa;margin-bottom:10px;">
+                Write what you want to remember — where you left off, what to focus on, etc.
+            </p>
+            <textarea id="noteEditorText" rows="5"
+                style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-family:inherit;font-size:0.9rem;resize:vertical;box-sizing:border-box;"
+                placeholder="e.g. Studied till Mughal Empire · Need to revise Maurya dynasty">${escHtml(current)}</textarea>
+            <div class="modal-footer">
+                ${current ? `<button class="danger-btn" onclick="_clearNote('${itemId}')">🗑 Clear</button>` : '<div></div>'}
+                <div style="display:flex;gap:8px;">
+                    <button class="secondary-btn" onclick="document.getElementById('noteEditorModal').remove()">Cancel</button>
+                    <button class="primary-btn"   onclick="_saveNote('${itemId}')">💾 Save</button>
+                </div>
             </div>
-        </div>`).join('');
+        </div>`;
+        document.body.appendChild(m);
+        document.getElementById('noteEditorText')?.focus();
+    });
+}
+
+async function _saveNote(itemId) {
+    const text = document.getElementById('noteEditorText')?.value.trim() || '';
+    await saveStudyNote(itemId, text);
+    document.getElementById('noteEditorModal')?.remove();
+    renderCurrentView();
+    showToast('Note saved', 'success');
+}
+
+async function _clearNote(itemId) {
+    const all = await getStudyNotes();
+    if (all[itemId]) { delete all[itemId].note; delete all[itemId].noteDate; await jnlSet('studyNotes', all); }
+    document.getElementById('noteEditorModal')?.remove();
+    renderCurrentView();
+}
+
+// ── Continue from bookmark ────────────────────
+function continueFromBookmark(quizId, fromQ) {
+    // Open quiz settings with range pre-set to bookmark position
+    const quiz = findItemById(quizId);
+    if (!quiz) return;
+    startQuiz(quizId);
+    // Pre-fill start after dialog opens
+    setTimeout(() => {
+        const startEl = document.getElementById('qsdStart');
+        if (startEl) { startEl.value = fromQ; startEl.dispatchEvent(new Event('input')); }
+    }, 100);
 }
 
 function showQuickUploadArea() {
