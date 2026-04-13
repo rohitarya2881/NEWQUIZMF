@@ -70,10 +70,19 @@ function showQuizSettingsDialog(quiz) {
         <!-- Shuffle -->
         <div class="qsd-section">
             <div class="qsd-section-title"><i class="fas fa-random"></i> Order</div>
-            <div class="qsd-toggle-row">
+            <div class="qsd-toggle-row" style="margin-bottom:10px;">
                 <label class="qsd-toggle-label" for="qsdShuffle">Shuffle questions</label>
                 <label class="qsd-switch">
                     <input type="checkbox" id="qsdShuffle">
+                    <span class="qsd-slider"></span>
+                </label>
+            </div>
+            <div class="qsd-toggle-row">
+                <label class="qsd-toggle-label" for="qsdShuffleOpts">
+                    Shuffle options <span style="font-size:0.75rem;color:#aaa;">(breaks muscle memory)</span>
+                </label>
+                <label class="qsd-switch">
+                    <input type="checkbox" id="qsdShuffleOpts">
                     <span class="qsd-slider"></span>
                 </label>
             </div>
@@ -153,7 +162,8 @@ function launchQuizWithSettings(quizId, totalQuestions) {
     s = Math.max(1, Math.min(s, totalQuestions));
     e = Math.max(s, Math.min(e, totalQuestions));
 
-    const shuffle = document.getElementById('qsdShuffle')?.checked || false;
+    const shuffle      = document.getElementById('qsdShuffle')?.checked    || false;
+    const shuffleOpts  = document.getElementById('qsdShuffleOpts')?.checked || false;
 
     // Determine active timer tab
     const activeTab = ['none','per_question','total'].find(t =>
@@ -168,9 +178,19 @@ function launchQuizWithSettings(quizId, totalQuestions) {
         totalSecs = Math.max(60, (parseInt(document.getElementById('qsdTotalMins')?.value) || 10) * 60);
     }
 
-    // Slice + optionally shuffle
+    // Slice + optionally shuffle questions
     let qs = quiz.questions.slice(s - 1, e);
     if (shuffle) qs = shuffleArray(qs);
+
+    // Shuffle options within each question (breaks muscle memory)
+    if (shuffleOpts) {
+        qs = qs.map(q => {
+            if (!q.options?.length) return q;
+            const correctText = q.options[q.correctIndex];
+            const shuffled    = shuffleArray([...q.options]);
+            return { ...q, options: shuffled, correctIndex: shuffled.indexOf(correctText) };
+        });
+    }
 
     document.getElementById('quizSettingsModal')?.remove();
 
@@ -345,6 +365,7 @@ function showResults() {
     // Record attempt in revision planner
     if (currentQuiz?.id) {
         recordQuizAttempt(currentQuiz.id, score, currentQuizQuestions.length);
+        clearStudyBookmark(currentQuiz.id);  // completed — clear bookmark
     }
 
     c.innerHTML = `<div class="results-container">
@@ -1005,7 +1026,7 @@ async function createFullBackup() {
     const items = getAllItems();
 
     // Collect all journal/planner/habits data from IndexedDB journal store
-    const journalKeys = ['todayTasks','goals','routine','routineDone','logs','history','timeSpent','habits','habitDone','revisionPlanner'];
+    const journalKeys = ['todayTasks','goals','routine','routineDone','logs','history','timeSpent','habits','habitDone','revisionPlanner','studyNotes'];
     const journalData = {};
     for (const key of journalKeys) {
         const val = await jnlGet(key);
