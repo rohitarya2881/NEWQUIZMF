@@ -150,7 +150,18 @@ function showView(id) {
 }
 
 function goHome() {
-    clearRapidTimer();      // defined in rapid.js
+    // Auto-save bookmark if leaving quiz mid-way
+    if (currentQuiz?.id && currentQuestionIndex > 0 &&
+        currentQuestionIndex < currentQuizQuestions.length) {
+        saveStudyBookmark(
+            currentQuiz.id,
+            currentQuestionIndex,
+            currentQuizQuestions.length,
+            score,
+            currentQuizQuestions.length
+        );
+    }
+    clearRapidTimer();
     rapidPhase = '';
     showView('folderView');
     refreshView();
