@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuizMaster Pro | Complete Learning System</title>
 
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a6fa5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="QuizMaster">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Smart study app with spaced repetition, journal, habits and quiz reels">
+    <meta name="application-name" content="QuizMaster Pro">
+
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,6 +97,7 @@
                 <h4><i class="fas fa-database"></i> DATA MANAGEMENT</h4>
                 <button class="menu-item" onclick="exportAllData();toggleMenu()"><i class="fas fa-download"></i> Export All Data</button>
                 <button class="menu-item" onclick="clearMemory();toggleMenu()"><i class="fas fa-eraser"></i> Clear Memory</button>
+                <button class="menu-item" id="sidebarInstallBtn" onclick="_pwaInstall();toggleMenu()" style="display:none;"><i class="fas fa-download"></i> Install as App</button>
                 <div style="padding:8px 14px;border-top:1px solid rgba(255,255,255,0.08);margin-top:4px;">
                     <div id="driveStatus" style="font-size:0.72rem;padding:4px 0 8px;display:flex;align-items:center;gap:6px;">
                         <span id="driveStatusDot" style="width:8px;height:8px;border-radius:50%;background:#aaa;flex-shrink:0;display:inline-block;"></span>
@@ -479,6 +491,20 @@
      9. pomodoro.js
     10. notes.js
 ════════════════════════════════════════════ -->
+<!-- PWA Install Banner -->
+<div id="pwaInstallBanner" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:#4a6fa5;color:white;padding:12px 20px;border-radius:12px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:3000;display:none;
+    align-items:center;gap:12px;max-width:340px;width:90%;font-size:0.88rem;">
+    <span>📱 Install QuizMaster as an app!</span>
+    <button id="pwaInstallBtn" style="background:white;color:#4a6fa5;border:none;
+        padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.85rem;
+        white-space:nowrap;">Install</button>
+    <button onclick="document.getElementById('pwaInstallBanner').style.display='none'"
+        style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;
+        font-size:1rem;padding:0;">✕</button>
+</div>
+
 <script src="js/db.js"></script>
 <script src="js/app.js"></script>
 <script src="js/navigation.js"></script>
@@ -494,5 +520,74 @@
 <script src="js/drive.js"></script>
 <script src="js/reels.js"></script>
 
+<script>
+// ── Service Worker Registration ───────────────
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/NEWQUIZMF/sw.js')
+            .then(reg => {
+                console.log('[PWA] SW registered:', reg.scope);
+                // Check for updates
+                reg.addEventListener('updatefound', () => {
+                    const newSW = reg.installing;
+                    newSW.addEventListener('statechange', () => {
+                        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                            showToast('App updated! Refresh to get latest version.', 'info');
+                        }
+                    });
+                });
+            })
+            .catch(err => console.warn('[PWA] SW failed:', err));
+    });
+}
+
+// ── Install Prompt ────────────────────────────
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _pwaPrompt = e;
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner) banner.style.display = 'flex';
+    const sideBtn = document.getElementById('sidebarInstallBtn');
+    if (sideBtn) sideBtn.style.display = 'flex';
+});
+
+async function _pwaInstall() {
+    if (_pwaPrompt) {
+        _pwaPrompt.prompt();
+        const result = await _pwaPrompt.userChoice;
+        if (result.outcome === 'accepted') showToast('✅ QuizMaster installed!', 'success');
+        _pwaPrompt = null;
+    } else {
+        // iOS instructions
+        showToast('On iOS: tap Share → "Add to Home Screen"', 'info');
+    }
+}
+
+document.getElementById('pwaInstallBtn')?.addEventListener('click', async () => {
+    if (!_pwaPrompt) return;
+    _pwaPrompt.prompt();
+    const result = await _pwaPrompt.userChoice;
+    if (result.outcome === 'accepted') {
+        showToast('✅ QuizMaster installed!', 'success');
+        document.getElementById('pwaInstallBanner').style.display = 'none';
+    }
+    _pwaPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+    document.getElementById('pwaInstallBanner').style.display = 'none';
+    showToast('🎉 QuizMaster Pro installed successfully!', 'success');
+});
+
+// ── Handle shortcut URL actions ───────────────
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    if (action === 'quiz')    setTimeout(() => startQuizMode(), 1000);
+    if (action === 'planner') setTimeout(() => showPlanner(), 1000);
+    if (action === 'journal') setTimeout(() => showNotes(), 1000);
+});
+</script>
 </body>
 </html>
