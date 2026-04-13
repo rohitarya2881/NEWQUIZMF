@@ -1,0 +1,47 @@
+{
+  "name": "QuizMaster Pro",
+  "short_name": "QuizMaster",
+  "description": "Smart study app with spaced repetition, journal, habits and quiz reels",
+  "start_url": "/NEWQUIZMF/",
+  "scope": "/NEWQUIZMF/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#010409",
+  "theme_color": "#4a6fa5",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "icons/icon-72.png",   "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-128.png",  "sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-144.png",  "sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-152.png",  "sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-192.png",  "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-384.png",  "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Take Quiz",
+      "short_name": "Quiz",
+      "description": "Start a quiz",
+      "url": "/NEWQUIZMF/?action=quiz",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Revision Planner",
+      "short_name": "Planner",
+      "description": "Open revision planner",
+      "url": "/NEWQUIZMF/?action=planner",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Journal",
+      "short_name": "Journal",
+      "description": "Open learning journal",
+      "url": "/NEWQUIZMF/?action=journal",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
