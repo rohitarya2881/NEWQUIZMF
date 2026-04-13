@@ -97,3 +97,48 @@ function jnlSet(key, value) {
         tx.onerror = e => reject(e.target.error);
     });
 }
+
+// ── Study Notes & Bookmarks ───────────────────
+// Stored in journal store under key 'studyNotes'
+// studyNotes = { [itemId]: { note, bookmark:{q,total,date}, sessions:[...] } }
+
+async function getStudyNotes() {
+    const d = await jnlGet('studyNotes');
+    return d || {};
+}
+
+async function saveStudyNote(itemId, note) {
+    const all = await getStudyNotes();
+    if (!all[itemId]) all[itemId] = {};
+    all[itemId].note = note;
+    all[itemId].noteDate = new Date().toISOString();
+    await jnlSet('studyNotes', all);
+}
+
+async function saveStudyBookmark(quizId, questionIndex, total, score, totalQ) {
+    const all = await getStudyNotes();
+    if (!all[quizId]) all[quizId] = {};
+    all[quizId].bookmark = {
+        q:     questionIndex + 1,   // 1-based
+        total,
+        score,
+        totalQ,
+        date:  new Date().toISOString()
+    };
+    // Save session
+    if (!all[quizId].sessions) all[quizId].sessions = [];
+    all[quizId].sessions.unshift({
+        date:   new Date().toISOString(),
+        fromQ:  1,
+        toQ:    questionIndex + 1,
+        score,
+        total:  totalQ
+    });
+    if (all[quizId].sessions.length > 5) all[quizId].sessions = all[quizId].sessions.slice(0, 5);
+    await jnlSet('studyNotes', all);
+}
+
+async function clearStudyBookmark(quizId) {
+    const all = await getStudyNotes();
+    if (all[quizId]) { delete all[quizId].bookmark; await jnlSet('studyNotes', all); }
+}
