@@ -111,16 +111,22 @@ function renderSubfolders() {
     getStudyNotes().then(notes => {
         el.innerHTML = subs.map(f => {
             const n    = notes[f.id];
-            const note = n?.note ? `<div class="item-note" onclick="event.stopPropagation()">
-                <span class="item-note-text" id="note-text-${f.id}">${escHtml(n.note)}</span>
-                <button class="item-note-edit" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">✏️</button>
-            </div>` : `<button class="item-note-add" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">📝 Add note</button>`;
+            const noteIcon = n?.note
+                ? `<div class="item-note-wrap">
+                    <div class="item-note-icon" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">
+                        📝
+                        <div class="item-note-tooltip">${escHtml(n.note)}</div>
+                    </div>
+                   </div>`
+                : `<div class="item-note-wrap">
+                    <button class="item-note-add" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">📝</button>
+                   </div>`;
             return `
-            <div class="folder-card glass-card" onclick="navigateToId('${f.id}')" style="cursor:pointer;">
+            <div class="folder-card glass-card" onclick="navigateToId('${f.id}')" style="cursor:pointer;position:relative;">
                 <div class="folder-icon"><i class="fas fa-folder"></i></div>
                 <div class="folder-name">${escHtml(f.name)}</div>
                 <div class="folder-meta">${f.children?.filter(c => c.type === 'quiz').length || 0} quiz(zes)</div>
-                ${note}
+                ${noteIcon}
                 <div class="folder-actions">
                     <button class="icon-btn small" onclick="event.stopPropagation();renameItem('${f.id}')" title="Rename"><i class="fas fa-edit"></i></button>
                     <button class="icon-btn small danger" onclick="event.stopPropagation();deleteItemById('${f.id}')" title="Delete"><i class="fas fa-trash"></i></button>
@@ -138,10 +144,16 @@ function renderQuizzes() {
     getStudyNotes().then(notes => {
         el.innerHTML = quizzes.map(q => {
             const n    = notes[q.id];
-            const note = n?.note ? `<div class="item-note">
-                <span class="item-note-text">${escHtml(n.note)}</span>
-                <button class="item-note-edit" onclick="openNoteEditor('${q.id}','quiz')">✏️</button>
-            </div>` : `<button class="item-note-add" onclick="openNoteEditor('${q.id}','quiz')">📝 Add note</button>`;
+            const noteIcon = n?.note
+                ? `<div class="item-note-wrap" style="top:8px;right:8px;">
+                    <div class="item-note-icon" onclick="openNoteEditor('${q.id}','quiz')">
+                        📝
+                        <div class="item-note-tooltip">${escHtml(n.note)}</div>
+                    </div>
+                   </div>`
+                : `<div class="item-note-wrap" style="top:8px;right:8px;">
+                    <button class="item-note-add" onclick="openNoteEditor('${q.id}','quiz')">📝</button>
+                   </div>`;
 
             // Bookmark banner
             const bm = n?.bookmark;
@@ -159,15 +171,15 @@ function renderQuizzes() {
                 : '';
 
             return `
-            <div class="quiz-card glass-card">
+            <div class="quiz-card glass-card" style="position:relative;">
                 <div class="quiz-header">
                     <i class="fas fa-file-alt"></i>
                     <h4>${escHtml(q.name)}</h4>
                     <span class="question-count">${q.questions?.length || 0} questions</span>
                 </div>
-                ${sessionInfo ? `<div style="padding:0 14px 6px;font-size:0.75rem;color:#aaa;">${sessionInfo}</div>` : ''}
+                ${noteIcon}
+                ${sessionInfo ? `<div class="quiz-session-info">${sessionInfo}</div>` : ''}
                 ${bmBanner}
-                ${note}
                 <div class="quiz-actions">
                     <button class="primary-btn small"   onclick="startQuiz('${q.id}')"><i class="fas fa-play"></i> Start</button>
                     <button class="secondary-btn small" onclick="displayFlashcards('${q.id}')"><i class="fas fa-layer-group"></i> Cards</button>
