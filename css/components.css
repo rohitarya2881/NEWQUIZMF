@@ -265,7 +265,7 @@
 /* ── Study Notes on cards — icon only, tooltip on hover ── */
 .item-note-wrap {
     position: absolute;
-    top: 8px; right: 44px;   /* sits left of rename/delete buttons */
+    top: 8px; left: 12px;   /* sits left of rename/delete buttons */
     z-index: 5;
 }
 .item-note-icon {
