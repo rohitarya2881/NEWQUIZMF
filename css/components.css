@@ -262,32 +262,74 @@
     .folder-actions-bar button { width: 100%; }
 }
 
-/* ── Study Notes on cards ── */
-.item-note {
-    display: flex; align-items: flex-start; gap: 6px;
-    padding: 6px 12px; background: rgba(74,111,165,0.07);
-    border-left: 3px solid #4a6fa5; margin: 4px 0;
-    border-radius: 0 4px 4px 0;
+/* ── Study Notes on cards — icon only, tooltip on hover ── */
+.item-note-wrap {
+    position: absolute;
+    top: 8px; right: 44px;   /* sits left of rename/delete buttons */
+    z-index: 5;
 }
-.dark-theme .item-note { background: rgba(74,111,165,0.12); }
-.item-note-text {
-    flex: 1; font-size: 0.78rem; color: #555; line-height: 1.4;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.item-note-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(74,111,165,0.12);
+    border: 1px solid rgba(74,111,165,0.25);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.9rem;
+    transition: background 0.15s;
+    position: relative;
 }
-.dark-theme .item-note-text { color: #aaa; }
-.item-note-edit {
-    background: none; border: none; cursor: pointer;
-    font-size: 0.78rem; padding: 0 2px; opacity: 0.6;
-    flex-shrink: 0;
+.item-note-icon:hover { background: #4a6fa5; }
+.item-note-icon:hover .item-note-tooltip { display: block; }
+
+/* Tooltip */
+.item-note-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    background: #222;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    max-width: 220px;
+    min-width: 120px;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 100;
+    pointer-events: none;
 }
-.item-note-edit:hover { opacity: 1; }
+.item-note-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%; right: 10px;
+    border: 5px solid transparent;
+    border-top-color: #222;
+}
+
+/* Add-note button — icon only too */
 .item-note-add {
-    background: none; border: 1px dashed #ccc; border-radius: 4px;
-    cursor: pointer; font-size: 0.72rem; color: #aaa;
-    padding: 4px 10px; margin: 4px 12px; transition: all 0.15s;
-    font-family: inherit; width: calc(100% - 24px);
+    width: 28px; height: 28px; border-radius: 50%;
+    background: none;
+    border: 1px dashed #ccc;
+    cursor: pointer; font-size: 0.82rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; color: #aaa;
+    position: relative;
 }
-.item-note-add:hover { border-color: #4a6fa5; color: #4a6fa5; background: rgba(74,111,165,0.05); }
+.item-note-add:hover {
+    border-color: #4a6fa5; color: #4a6fa5;
+    background: rgba(74,111,165,0.08);
+}
+.item-note-add:hover::after {
+    content: 'Add note';
+    position: absolute;
+    bottom: calc(100% + 6px); right: 0;
+    background: #222; color: #fff;
+    font-size: 0.72rem; padding: 4px 8px;
+    border-radius: 4px; white-space: nowrap;
+    pointer-events: none;
+}
 
 /* ── Bookmark bar on quiz card ── */
 .quiz-bookmark-bar {
@@ -298,4 +340,7 @@
 }
 .dark-theme .quiz-bookmark-bar { background: rgba(243,156,18,0.12); }
 .quiz-bookmark-bar span { flex: 1; }
-.quiz-session-info { font-size: 0.73rem; color: #aaa; }
+.quiz-session-info { font-size: 0.73rem; color: #aaa; padding: 0 12px 4px; display: block; }
+
+body:not(.dark-theme) .icon-btn { color: #4a6fa5; }
+body:not(.dark-theme) .icon-btn:hover { background: rgba(74,111,165,0.1); }
