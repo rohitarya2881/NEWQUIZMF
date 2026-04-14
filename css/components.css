@@ -1,265 +1,346 @@
 /* =============================================
-   folders.js — Folder/Quiz CRUD & Rendering
+   components.css — Buttons, Modals, Forms, Cards
+   Old-style: #4a6fa5 blue, Poppins, border-radius 4-8px
    ============================================= */
 
-// ── Create ────────────────────────────────────
-function createNewFolder() {
-    const name = prompt('Enter folder name:');
-    if (!name || !name.trim()) return;
-    const parentPath = currentFolder ? (currentFolder.path || '/') : '/';
-    const newPath = (parentPath === '/' ? '' : parentPath) + '/' + name.trim();
-    const newF = {
-        id: generateId(), name: name.trim(), type: 'folder',
-        parentId: currentFolder ? currentFolder.id : 'root',
-        children: [],
-        path: newPath,
-        metadata: { created: new Date().toISOString(), modified: new Date().toISOString() }
-    };
-    saveItem(newF).then(() => loadFolderStructure().then(() => {
-        refreshView();
-        showToast(`Folder "${name.trim()}" created`, 'success');
-    }));
+/* ── Icon Button (hamburger etc) ── */
+.icon-btn {
+    background: none; border: none; color: white;
+    font-size: 1.2rem; cursor: pointer; padding: 5px 8px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-sm); transition: var(--transition);
+}
+.icon-btn:hover { background: rgba(255,255,255,0.15); }
+.icon-btn.small { font-size: 1rem; padding: 4px 6px; }
+.icon-btn.danger:hover { background: var(--danger); }
+
+/* ── Primary Button ── */
+.primary-btn {
+    padding: 10px 16px; background-color: var(--primary); color: white;
+    border: none; border-radius: var(--radius-sm); cursor: pointer;
+    font-family: inherit; font-size: 0.9rem; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: var(--transition);
+}
+.primary-btn:hover { background-color: var(--primary-dark); }
+.primary-btn.large { padding: 12px 22px; font-size: 1rem; }
+.primary-btn.small { padding: 6px 12px; font-size: 0.82rem; }
+.dark-theme .primary-btn { background-color: #3498db; }
+.dark-theme .primary-btn:hover { background-color: #2980b9; }
+
+/* ── Secondary Button ── */
+.secondary-btn {
+    padding: 10px 16px; background-color: transparent; color: var(--primary);
+    border: 1px solid var(--primary); border-radius: var(--radius-sm);
+    cursor: pointer; font-family: inherit; font-size: 0.9rem; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: var(--transition);
+}
+.secondary-btn:hover { background-color: var(--primary); color: white; }
+.secondary-btn.small { padding: 6px 12px; font-size: 0.82rem; }
+.dark-theme .secondary-btn { color: #3498db; border-color: #3498db; }
+.dark-theme .secondary-btn:hover { background-color: #3498db; color: white; }
+
+/* ── Danger Button ── */
+.danger-btn {
+    padding: 10px 16px; background-color: var(--danger); color: white;
+    border: none; border-radius: var(--radius-sm); cursor: pointer;
+    font-family: inherit; font-size: 0.9rem; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: var(--transition);
+}
+.danger-btn:hover { background-color: var(--danger-dark); }
+.danger-btn.small { padding: 6px 12px; font-size: 0.82rem; }
+
+/* ── Folder / Quiz View ── */
+.folder-actions-bar {
+    display: flex; gap: 8px; padding: 14px 16px;
+    margin-bottom: 16px; flex-wrap: wrap;
+    background-color: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); border: 1px solid #e0e0e0;
+}
+.dark-theme .folder-actions-bar { background-color: var(--dark-card); border-color: rgba(255,255,255,0.1); }
+
+.folder-info { margin-bottom: 16px; padding: 4px 6px; }
+.folder-stats { display: flex; align-items: center; gap: 20px; padding: 12px; flex-wrap: wrap; }
+.stat-item { display: flex; flex-direction: column; align-items: center; min-width: 80px; }
+.stat-item i { font-size: 1.6rem; color: var(--primary); margin-bottom: 4px; }
+.stat-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 0.75rem; color: #666; }
+.dark-theme .stat-label { color: #aaa; }
+
+.subfolders-section, .quizzes-section { margin-bottom: 24px; }
+.subfolders-section h3, .quizzes-section h3 { margin-bottom: 12px; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1rem; }
+.dark-theme .subfolders-section h3, .dark-theme .quizzes-section h3 { color: #3498db; }
+
+.folders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin: 12px 0; }
+
+.folder-card {
+    padding: 16px; text-align: center; cursor: pointer;
+    background: white; border-radius: var(--radius);
+    border: 1px solid #e0e0e0; box-shadow: var(--shadow-sm);
+    transition: var(--transition); position: relative;
+}
+.dark-theme .folder-card { background: var(--dark-card2); border-color: rgba(255,255,255,0.08); }
+.folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+.folder-icon i { font-size: 2.2rem; color: var(--primary); margin-bottom: 8px; display: block; }
+.dark-theme .folder-icon i { color: #3498db; }
+.folder-name { font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; word-break: break-word; }
+.folder-meta { font-size: 0.75rem; color: #666; }
+.dark-theme .folder-meta { color: #aaa; }
+.folder-actions { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s; }
+.folder-card:hover .folder-actions { opacity: 1; }
+.folder-actions .icon-btn { color: #666; font-size: 0.85rem; padding: 3px 5px; }
+.folder-actions .icon-btn:hover { color: var(--primary); background: rgba(74,111,165,0.1); }
+.folder-actions .icon-btn.danger:hover { color: var(--danger); background: rgba(231,76,60,0.1); }
+.dark-theme .folder-actions .icon-btn { color: #aaa; }
+
+.quizzes-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+.quiz-card {
+    padding: 14px 16px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px;
+    background: white; border-radius: var(--radius);
+    border: 1px solid #e0e0e0; box-shadow: var(--shadow-sm);
+    cursor: pointer; transition: var(--transition);
+}
+.dark-theme .quiz-card { background: var(--dark-card2); border-color: rgba(255,255,255,0.08); }
+.quiz-card:hover { transform: translateX(3px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+.quiz-header { display: flex; align-items: center; gap: 10px; }
+.quiz-header i { font-size: 1.2rem; color: var(--primary); }
+.dark-theme .quiz-header i { color: #3498db; }
+.quiz-header h4 { margin: 0; font-size: 0.95rem; }
+.question-count { background: rgba(74,111,165,0.12); padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; color: var(--primary); }
+.dark-theme .question-count { background: rgba(52,152,219,0.15); color: #3498db; }
+.quiz-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.quick-upload-area {
+    margin-bottom: 16px; padding: 18px; text-align: center;
+    border: 2px dashed var(--primary); border-radius: var(--radius);
+    cursor: pointer; transition: var(--transition);
+    background: white;
+}
+.dark-theme .quick-upload-area { background: var(--dark-card); border-color: #3498db; }
+.quick-upload-area:hover { background: rgba(74,111,165,0.05); }
+.quick-upload-area h4 { margin-bottom: 6px; color: var(--primary); font-size: 0.95rem; }
+.quick-upload-area p { color: #666; font-size: 0.85rem; }
+.dark-theme .quick-upload-area p { color: #aaa; }
+.upload-options { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+
+.empty-state {
+    text-align: center; padding: 30px; color: #999;
+    font-style: italic; background: rgba(0,0,0,0.02);
+    border-radius: var(--radius); font-size: 0.9rem;
+}
+.dark-theme .empty-state { background: rgba(255,255,255,0.02); color: #666; }
+
+/* ── Modal ── */
+.modal {
+    position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.6); display: flex;
+    align-items: center; justify-content: center; z-index: 2000;
+}
+.modal-content {
+    width: 90%; max-width: 560px; max-height: 90vh;
+    overflow-y: auto; padding: 22px;
+    background: white; border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    animation: slideUp 0.25s ease;
+    -webkit-overflow-scrolling: touch;
+}
+.dark-theme .modal-content { background: var(--dark-card); color: var(--dark-text); border: 1px solid rgba(255,255,255,0.1); }
+.modal-content.large { max-width: 720px; }
+
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px; padding-bottom: 14px;
+    border-bottom: 2px solid #e74c3c;
+}
+.modal-header h3 { margin: 0; color: var(--primary); font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+.dark-theme .modal-header h3 { color: #3498db; }
+.dark-theme .modal-header { border-bottom-color: #334155; }
+
+.close-btn {
+    width: 30px; height: 30px; border: none; border-radius: 50%;
+    background: rgba(0,0,0,0.06); cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition); color: #666;
+}
+.dark-theme .close-btn { background: rgba(255,255,255,0.08); color: #aaa; }
+.close-btn:hover { background: var(--danger); color: white; }
+
+.modal-footer {
+    display: flex; justify-content: flex-end; gap: 10px;
+    margin-top: 20px; padding-top: 14px;
+    border-top: 1px solid #e0e0e0; flex-wrap: wrap;
+}
+.dark-theme .modal-footer { border-top-color: #334155; }
+
+/* ── Forms ── */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.88rem; color: #555; }
+.dark-theme .form-group label { color: #aaa; }
+.form-group textarea, .form-group input[type="text"], .form-group input[type="number"] {
+    width: 100%; padding: 8px 10px; border: 1px solid #ddd;
+    border-radius: var(--radius-sm); font-size: 0.9rem;
+    font-family: inherit; transition: var(--transition);
+}
+.dark-theme .form-group textarea, .dark-theme .form-group input { background: #333; color: white; border-color: #555; }
+.form-group textarea:focus, .form-group input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+.dark-theme .form-group textarea:focus, .dark-theme .form-group input:focus { outline-color: #3498db; }
+
+.options-input-list { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.option-input-row { display: flex; align-items: center; gap: 8px; padding: 6px; background: rgba(0,0,0,0.02); border-radius: var(--radius-sm); }
+.dark-theme .option-input-row { background: rgba(255,255,255,0.03); }
+.option-input-row .opt-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.78rem; flex-shrink: 0; }
+.option-input-row input[type="text"] { flex: 1; padding: 7px 10px; border: 1px solid #ddd; border-radius: var(--radius-sm); font-family: inherit; }
+.dark-theme .option-input-row input[type="text"] { background: #333; color: white; border-color: #555; }
+.option-input-row input[type="radio"] { width: 16px; height: 16px; accent-color: var(--primary); }
+.add-option-btn {
+    width: 100%; padding: 8px; background: none;
+    border: 1px dashed var(--primary); border-radius: var(--radius-sm);
+    color: var(--primary); cursor: pointer; font-family: inherit; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 6px; transition: var(--transition);
+}
+.add-option-btn:hover { background: rgba(74,111,165,0.08); }
+.remove-opt-btn { width: 26px; height: 26px; border: none; border-radius: 50%; background: rgba(231,76,60,0.1); color: var(--danger); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+.remove-opt-btn:hover { background: var(--danger); color: white; }
+
+/* ── Tabs ── */
+.tabs { display: flex; border-bottom: 2px solid #e0e0e0; margin-bottom: 16px; gap: 2px; }
+.dark-theme .tabs { border-bottom-color: #334155; }
+.tab-btn { padding: 8px 16px; border: none; background: none; cursor: pointer; color: #666; font-size: 0.88rem; font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); font-family: inherit; }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.dark-theme .tab-btn.active { color: #3498db; border-bottom-color: #3498db; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Upload / Import ── */
+.upload-info-box { background: rgba(74,111,165,0.08); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 16px; border-left: 3px solid var(--primary); font-size: 0.88rem; }
+.dark-theme .upload-info-box { background: rgba(52,152,219,0.1); border-left-color: #3498db; }
+.upload-info-box ul { margin-top: 6px; padding-left: 18px; }
+.upload-info-box li { margin-bottom: 4px; color: #666; font-size: 0.85rem; }
+.dark-theme .upload-info-box li { color: #aaa; }
+.file-type-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; background: var(--primary); color: white; }
+.preview-area { background: rgba(0,0,0,0.02); border-radius: var(--radius-sm); padding: 12px; max-height: 250px; overflow-y: auto; font-size: 0.85rem; }
+.dark-theme .preview-area { background: rgba(255,255,255,0.03); }
+.sample-preview ul { list-style: none; padding: 0; }
+.sample-preview li { padding: 6px; margin: 3px 0; background: rgba(74,111,165,0.06); border-radius: 3px; font-size: 0.82rem; }
+.json-textarea { width: 100%; min-height: 160px; padding: 10px; border: 1px solid #ddd; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.88rem; resize: vertical; }
+.dark-theme .json-textarea { background: #333; color: white; border-color: #555; }
+
+/* ── Backup options ── */
+.backup-options-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 14px 0; }
+.backup-option { padding: 16px; background: rgba(74,111,165,0.06); border-radius: var(--radius); text-align: center; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
+.backup-option:hover { background: rgba(74,111,165,0.12); border-color: var(--primary); transform: translateY(-2px); }
+.backup-option i { font-size: 1.6rem; color: var(--primary); margin-bottom: 8px; display: block; }
+.backup-option h4 { margin: 0 0 4px 0; color: var(--primary); font-size: 0.9rem; }
+.backup-option p { font-size: 0.78rem; color: #666; margin: 0; }
+.dark-theme .backup-option h4 { color: #3498db; }
+
+/* ── Quiz Selector ── */
+.quiz-selector-list { max-height: 320px; overflow-y: auto; }
+.quiz-selector-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; border-radius: var(--radius-sm); transition: var(--transition); font-size: 0.9rem; }
+.quiz-selector-item:hover { background: rgba(74,111,165,0.1); transform: translateX(3px); }
+.quiz-selector-item i { color: var(--primary); }
+.dark-theme .quiz-selector-item i { color: #3498db; }
+.quiz-selector-item .badge { margin-left: auto; background: rgba(74,111,165,0.1); padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; white-space: nowrap; color: var(--primary); }
+.dark-theme .quiz-selector-item .badge { color: #3498db; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .folders-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    .quiz-card { flex-direction: column; align-items: stretch; }
+    .quiz-actions { justify-content: stretch; }
+    .quiz-actions button { flex: 1; }
+    .backup-options-grid { grid-template-columns: 1fr; }
+    .folder-stats { flex-direction: column; align-items: stretch; gap: 10px; }
+    .stat-item { flex-direction: row; justify-content: space-between; width: 100%; }
+}
+@media (max-width: 480px) {
+    .folder-actions-bar { flex-direction: column; }
+    .folder-actions-bar button { width: 100%; }
 }
 
-function createNewQuiz() {
-    if (!currentFolder) { showToast('Navigate into a folder first', 'warning'); return; }
-    const name = prompt('Enter quiz name:');
-    if (!name || !name.trim()) return;
-    const parentPath = currentFolder.path || '/';
-    const newPath = (parentPath === '/' ? '' : parentPath) + '/' + name.trim();
-    const newQ = {
-        id: generateId(), name: name.trim(), type: 'quiz',
-        parentId: currentFolder.id, questions: [],
-        path: newPath,
-        metadata: { created: new Date().toISOString(), modified: new Date().toISOString(), questionCount: 0 }
-    };
-    saveItem(newQ).then(() => loadFolderStructure().then(() => {
-        refreshView();
-        showToast(`Quiz "${name.trim()}" created`, 'success');
-    }));
+/* ── Study Notes on cards — icon only, tooltip on hover ── */
+.item-note-wrap {
+    position: absolute;
+    top: 8px; right: 44px;   /* sits left of rename/delete buttons */
+    z-index: 5;
+}
+.item-note-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(74,111,165,0.12);
+    border: 1px solid rgba(74,111,165,0.25);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.9rem;
+    transition: background 0.15s;
+    position: relative;
+}
+.item-note-icon:hover { background: #4a6fa5; }
+.item-note-icon:hover .item-note-tooltip { display: block; }
+
+/* Tooltip */
+.item-note-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    background: #222;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    max-width: 220px;
+    min-width: 120px;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 100;
+    pointer-events: none;
+}
+.item-note-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%; right: 10px;
+    border: 5px solid transparent;
+    border-top-color: #222;
 }
 
-// ── Rename / Delete ───────────────────────────
-function renameCurrentItem() {
-    if (!currentFolder || currentFolder.id === 'root') return;
-    const newName = prompt('New name:', currentFolder.name);
-    if (!newName || !newName.trim()) return;
-    const updated = { ...currentFolder, name: newName.trim(), path: currentFolder.path.replace(/\/[^/]+$/, '/' + newName.trim()) };
-    saveItem(updated).then(() => loadFolderStructure().then(() => {
-        navigateTo(updated.path);
-        showToast('Renamed', 'success');
-    }));
+/* Add-note button — icon only too */
+.item-note-add {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: none;
+    border: 1px dashed #ccc;
+    cursor: pointer; font-size: 0.82rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; color: #aaa;
+    position: relative;
+}
+.item-note-add:hover {
+    border-color: #4a6fa5; color: #4a6fa5;
+    background: rgba(74,111,165,0.08);
+}
+.item-note-add:hover::after {
+    content: 'Add note';
+    position: absolute;
+    bottom: calc(100% + 6px); right: 0;
+    background: #222; color: #fff;
+    font-size: 0.72rem; padding: 4px 8px;
+    border-radius: 4px; white-space: nowrap;
+    pointer-events: none;
 }
 
-function renameItem(id) {
-    const item = findItemById(id); if (!item) return;
-    const newName = prompt('New name:', item.name);
-    if (!newName || !newName.trim()) return;
-    const updated = { ...item, name: newName.trim(), path: item.path.replace(/\/[^/]+$/, '/' + newName.trim()) };
-    saveItem(updated).then(() => loadFolderStructure().then(() => { refreshView(); showToast('Renamed', 'success'); }));
+/* ── Bookmark bar on quiz card ── */
+.quiz-bookmark-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 6px 12px; background: rgba(243,156,18,0.08);
+    border-left: 3px solid #f39c12; margin: 4px 0;
+    font-size: 0.78rem; color: #f39c12; font-weight: 600;
 }
+.dark-theme .quiz-bookmark-bar { background: rgba(243,156,18,0.12); }
+.quiz-bookmark-bar span { flex: 1; }
+.quiz-session-info { font-size: 0.73rem; color: #aaa; padding: 0 12px 4px; display: block; }
 
-async function deleteItemById(id) {
-    const item = findItemById(id); if (!item) return;
-    if (!confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
-    const ids = [];
-    const q   = [item];
-    while (q.length) { const c = q.shift(); ids.push(c.id); if (c.children) q.push(...c.children); }
-    for (const iid of ids) await deleteItemFromDB(iid);
-    await loadFolderStructure();
-    refreshView();
-    showToast(`"${item.name}" deleted`, 'success');
-}
-
-function deleteCurrentFolder() {
-    if (!currentFolder || currentFolder.id === 'root') { showToast('Cannot delete root', 'warning'); return; }
-    if (!confirm(`Delete folder "${currentFolder.name}" and all its contents?`)) return;
-    const toDelete = []; const q = [currentFolder];
-    while (q.length) { const c = q.shift(); toDelete.push(c.id); if (c.children) q.push(...c.children); }
-    Promise.all(toDelete.map(id => deleteItemFromDB(id)))
-        .then(() => loadFolderStructure())
-        .then(() => { navigateToParent(); showToast('Deleted', 'success'); });
-}
-
-function clearMemory() {
-    if (confirm('Reset all "timesIncorrect" flags to 0?')) showToast('Memory cleared', 'success');
-}
-
-// ── Rendering ─────────────────────────────────
-function renderCurrentView() { if (!currentFolder) return; renderFolderInfo(); renderSubfolders(); renderQuizzes(); updateMedalDisplay(); }
-function refreshView()        { renderCurrentView(); }
-
-function renderFolderInfo() {
-    const el = document.getElementById('folderInfo'); if (!el) return;
-    const subF  = currentFolder.children?.filter(c => c.type === 'folder').length || 0;
-    const quizC = currentFolder.children?.filter(c => c.type === 'quiz').length || 0;
-    const totQ  = currentFolder.children?.reduce((s, c) => s + (c.type === 'quiz' ? (c.questions?.length || 0) : 0), 0) || 0;
-    el.innerHTML = `<div class="folder-stats">
-        <div class="stat-item"><i class="fas fa-folder"></i><span class="stat-value">${subF}</span><span class="stat-label">Subfolders</span></div>
-        <div class="stat-item"><i class="fas fa-file-alt"></i><span class="stat-value">${quizC}</span><span class="stat-label">Quizzes</span></div>
-        <div class="stat-item"><i class="fas fa-question-circle"></i><span class="stat-value">${totQ}</span><span class="stat-label">Questions</span></div>
-        ${currentPath !== '/' ? `<button class="secondary-btn small" onclick="navigateToParent()"><i class="fas fa-arrow-up"></i> Up</button>` : ''}
-        ${currentFolder.id !== 'root' ? `<button class="danger-btn small" onclick="deleteCurrentFolder()"><i class="fas fa-trash"></i> Delete Folder</button>` : ''}
-    </div>`;
-}
-
-function renderSubfolders() {
-    const el   = document.getElementById('subfoldersGrid'); if (!el) return;
-    const subs = currentFolder.children?.filter(c => c.type === 'folder') || [];
-    if (!subs.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No subfolders yet.</div>'; return; }
-
-    getStudyNotes().then(notes => {
-        el.innerHTML = subs.map(f => {
-            const n    = notes[f.id];
-            const noteIcon = n?.note
-                ? `<div class="item-note-wrap">
-                    <div class="item-note-icon" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">
-                        📝
-                        <div class="item-note-tooltip">${escHtml(n.note)}</div>
-                    </div>
-                   </div>`
-                : `<div class="item-note-wrap">
-                    <button class="item-note-add" onclick="event.stopPropagation();openNoteEditor('${f.id}','folder')">📝</button>
-                   </div>`;
-            return `
-            <div class="folder-card glass-card" onclick="navigateToId('${f.id}')" style="cursor:pointer;position:relative;">
-                <div class="folder-icon"><i class="fas fa-folder"></i></div>
-                <div class="folder-name">${escHtml(f.name)}</div>
-                <div class="folder-meta">${f.children?.filter(c => c.type === 'quiz').length || 0} quiz(zes)</div>
-                ${noteIcon}
-                <div class="folder-actions">
-                    <button class="icon-btn small" onclick="event.stopPropagation();renameItem('${f.id}')" title="Rename"><i class="fas fa-edit"></i></button>
-                    <button class="icon-btn small danger" onclick="event.stopPropagation();deleteItemById('${f.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`;
-        }).join('');
-    });
-}
-
-function renderQuizzes() {
-    const el      = document.getElementById('quizzesList'); if (!el) return;
-    const quizzes = currentFolder.children?.filter(c => c.type === 'quiz') || [];
-    if (!quizzes.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No quizzes yet. Create one or upload JSON!</div>'; return; }
-
-    getStudyNotes().then(notes => {
-        el.innerHTML = quizzes.map(q => {
-            const n    = notes[q.id];
-            const noteIcon = n?.note
-                ? `<div class="item-note-wrap" style="top:8px;right:8px;">
-                    <div class="item-note-icon" onclick="openNoteEditor('${q.id}','quiz')">
-                        📝
-                        <div class="item-note-tooltip">${escHtml(n.note)}</div>
-                    </div>
-                   </div>`
-                : `<div class="item-note-wrap" style="top:8px;right:8px;">
-                    <button class="item-note-add" onclick="openNoteEditor('${q.id}','quiz')">📝</button>
-                   </div>`;
-
-            // Bookmark banner
-            const bm = n?.bookmark;
-            const bmBanner = bm ? `<div class="quiz-bookmark-bar">
-                <span>📍 Stopped at Q${bm.q}/${bm.totalQ} · ${_daysAgoStr(bm.date)}</span>
-                <button class="primary-btn small" onclick="continueFromBookmark('${q.id}',${bm.q})">▶ Continue</button>
-                <button class="icon-btn small" onclick="clearStudyBookmark('${q.id}').then(renderCurrentView)" title="Clear bookmark">✕</button>
-            </div>` : '';
-
-            // Session history
-            const sessions = n?.sessions || [];
-            const lastSession = sessions[0];
-            const sessionInfo = lastSession
-                ? `<span class="quiz-session-info">Last: ${_daysAgoStr(lastSession.date)} · ${lastSession.score}/${lastSession.total} correct</span>`
-                : '';
-
-            return `
-            <div class="quiz-card glass-card" style="position:relative;">
-                <div class="quiz-header">
-                    <i class="fas fa-file-alt"></i>
-                    <h4>${escHtml(q.name)}</h4>
-                    <span class="question-count">${q.questions?.length || 0} questions</span>
-                </div>
-                ${noteIcon}
-                ${sessionInfo ? `<div class="quiz-session-info">${sessionInfo}</div>` : ''}
-                ${bmBanner}
-                <div class="quiz-actions">
-                    <button class="primary-btn small"   onclick="startQuiz('${q.id}')"><i class="fas fa-play"></i> Start</button>
-                    <button class="secondary-btn small" onclick="displayFlashcards('${q.id}')"><i class="fas fa-layer-group"></i> Cards</button>
-                    <button class="secondary-btn small" onclick="showAddQuestionToQuizDialog('${q.id}')"><i class="fas fa-plus"></i> Add Q</button>
-                    <button class="danger-btn small"    onclick="deleteItemById('${q.id}')"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`;
-        }).join('');
-    });
-}
-
-function _daysAgoStr(isoDate) {
-    if (!isoDate) return '';
-    const diff = Math.floor((Date.now() - new Date(isoDate)) / 86400000);
-    if (diff === 0) return 'Today';
-    if (diff === 1) return '1 day ago';
-    return `${diff} days ago`;
-}
-
-// ── Note editor ───────────────────────────────
-function openNoteEditor(itemId, type) {
-    const existing = document.getElementById('noteEditorModal');
-    if (existing) existing.remove();
-
-    getStudyNotes().then(notes => {
-        const current = notes[itemId]?.note || '';
-        const m = document.createElement('div'); m.className = 'modal'; m.id = 'noteEditorModal';
-        m.innerHTML = `<div class="modal-content" style="max-width:460px;">
-            <div class="modal-header" style="border-color:#4a6fa5;">
-                <h3 style="color:#4a6fa5;">📝 ${type === 'folder' ? 'Folder' : 'Quiz'} Note</h3>
-                <button class="close-btn" onclick="document.getElementById('noteEditorModal').remove()">✕</button>
-            </div>
-            <p style="font-size:0.82rem;color:#aaa;margin-bottom:10px;">
-                Write what you want to remember — where you left off, what to focus on, etc.
-            </p>
-            <textarea id="noteEditorText" rows="5"
-                style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-family:inherit;font-size:0.9rem;resize:vertical;box-sizing:border-box;"
-                placeholder="e.g. Studied till Mughal Empire · Need to revise Maurya dynasty">${escHtml(current)}</textarea>
-            <div class="modal-footer">
-                ${current ? `<button class="danger-btn" onclick="_clearNote('${itemId}')">🗑 Clear</button>` : '<div></div>'}
-                <div style="display:flex;gap:8px;">
-                    <button class="secondary-btn" onclick="document.getElementById('noteEditorModal').remove()">Cancel</button>
-                    <button class="primary-btn"   onclick="_saveNote('${itemId}')">💾 Save</button>
-                </div>
-            </div>
-        </div>`;
-        document.body.appendChild(m);
-        document.getElementById('noteEditorText')?.focus();
-    });
-}
-
-async function _saveNote(itemId) {
-    const text = document.getElementById('noteEditorText')?.value.trim() || '';
-    await saveStudyNote(itemId, text);
-    document.getElementById('noteEditorModal')?.remove();
-    renderCurrentView();
-    showToast('Note saved', 'success');
-}
-
-async function _clearNote(itemId) {
-    const all = await getStudyNotes();
-    if (all[itemId]) { delete all[itemId].note; delete all[itemId].noteDate; await jnlSet('studyNotes', all); }
-    document.getElementById('noteEditorModal')?.remove();
-    renderCurrentView();
-}
-
-// ── Continue from bookmark ────────────────────
-function continueFromBookmark(quizId, fromQ) {
-    // Open quiz settings with range pre-set to bookmark position
-    const quiz = findItemById(quizId);
-    if (!quiz) return;
-    startQuiz(quizId);
-    // Pre-fill start after dialog opens
-    setTimeout(() => {
-        const startEl = document.getElementById('qsdStart');
-        if (startEl) { startEl.value = fromQ; startEl.dispatchEvent(new Event('input')); }
-    }, 100);
-}
-
-function showQuickUploadArea() {
-    const area = document.getElementById('quickUploadArea');
-    if (area) area.classList.toggle('hidden', !currentFolder || currentFolder.id === 'root');
-}
+body:not(.dark-theme) .icon-btn { color: #4a6fa5; }
+body:not(.dark-theme) .icon-btn:hover { background: rgba(74,111,165,0.1); }
