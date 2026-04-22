@@ -1,6 +1,6 @@
 /* =============================================
    pomodoro.js — Full Pomodoro Learning Flow
-   Setup → Study (flashcards) → Quiz → Break → repeat 
+   Setup → Study (flashcards) → Quiz → Break → repeat
    ============================================= */
 
 // ── Settings & State ─────────────────────────
@@ -168,8 +168,13 @@ function _buildPomodoroShell() {
 }
 
 function _updateTopbar() {
-    const phases={study:{tag:'📚 Study',c:'var(--primary-color)'},quiz:{tag:'✏️ Quiz',c:'#8b5cf6'},
-        break:{tag:'☕ Break',c:'var(--secondary-color)'},results:{tag:'📊 Results',c:'var(--warning-color)'},finish:{tag:'🏆 Done',c:'#f59e0b'}};
+    const phases={
+        study  :{tag:'📚 Study',  c:'#4a6fa5'},
+        quiz   :{tag:'✏️ Quiz',   c:'#8b5cf6'},
+        break  :{tag:'☕ Break',  c:'#27ae60'},
+        results:{tag:'📊 Results',c:'#f39c12'},
+        finish :{tag:'🏆 Done',   c:'#f39c12'}
+    };
     const p=phases[pomodoroState.phase]||phases.study;
     const tag=document.getElementById('pomoPhaseTag'); if(tag){tag.textContent=p.tag;tag.style.background=p.c;}
     const inf=document.getElementById('pomoSectionInfo'); if(inf) inf.textContent=`Section ${pomodoroState.currentSection+1}/${pomodoroState.totalSections}`;
@@ -216,6 +221,7 @@ function enterPomodoroStudy() {
 
     const cardsHTML = pomodoroState.currentQuestions.map((q, i) => `
         <div class="flashcard">
+            <button class="fc-search-btn" onclick="event.stopPropagation();fcSearchQuestion(this)" data-q="${escHtml(q.question)}" title="Search on Google">🔍</button>
             <div class="flashcard-inner">
                 <div class="flashcard-front">
                     <div class="flashcard-content">
