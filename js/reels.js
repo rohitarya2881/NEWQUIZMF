@@ -125,6 +125,7 @@ function _renderCard() {
         const letters = ['A','B','C','D'];
         front.innerHTML = `
             <div class="reels-q-num">Q ${_reelIndex + 1}</div>
+            <button class="reels-search-btn" onclick="event.stopPropagation();window.open('https://www.google.com/search?q='+encodeURIComponent(q.question),'_blank','noopener')" title="Search on Google">🔍</button>
             <div class="reels-q-text">${escHtml(q.question)}</div>
             <div class="reels-options">
                 ${(q.options||[]).map((opt,i) => `
@@ -151,7 +152,11 @@ function _renderCard() {
             <div class="reels-nav-hint">Swipe ▲ for next · ▼ for previous</div>`;
     }
 
-    if (card) card.onclick = () => { if (_reelAnswered && !_reelFlipped) _flipCard(); };
+    if (card) card.onclick = (e) => {
+        // Don't trigger if click came from an option button
+        if (e.target.closest('.reels-opt')) return;
+        if (_reelAnswered && !_reelFlipped) _flipCard();
+    };
 }
 
 // ══════════════════════════════════════════════
@@ -174,20 +179,26 @@ function _reelsAnswer(chosen, correct) {
     const hint = document.getElementById('reelsTapHint');
     if (hint) hint.style.display = 'block';
 
-    setTimeout(() => { if (!_reelFlipped) _flipCard(); }, 1500);
+    setTimeout(() => { if (!_reelFlipped && !_flipLock) _flipCard(); }, 1500);
 }
 
 function _flipCard() {
-    if (_flipLock) return;
+    if (_flipLock || _reelFlipped) return;  // double guard
     _flipLock    = true;
     _reelFlipped = true;
-    const card   = document.getElementById('reelsCard');
-    if (card) card.classList.add('flipped');
+
+    const card = document.getElementById('reelsCard');
+    if (card) {
+        card.onclick = null;  // remove click handler immediately to prevent re-trigger
+        card.classList.add('flipped');
+    }
 
     if (_autoNextOnFlip) {
-        setTimeout(_reelsNext, 600);
+        setTimeout(_reelsNext, 800);
     }
-    setTimeout(() => { _flipLock = false; }, 500);
+
+    // unlock only after CSS transition completes (500ms)
+    setTimeout(() => { _flipLock = false; }, 600);
 }
 
 // ══════════════════════════════════════════════
