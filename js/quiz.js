@@ -526,6 +526,14 @@ function showFlashcards() {
     else showQuizSelectorModal(quizzes, displayFlashcards, 'Select Quiz for Flashcards');
 }
 
+// ── Flashcard Google Search ───────────────────
+function fcSearchQuestion(btn) {
+    const q = btn?.dataset?.q || '';
+    if (!q) return;
+    const url = 'https://www.google.com/search?q=' + encodeURIComponent(q);
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 function displayFlashcards(quizId) {
     const quiz = typeof quizId === 'string' ? findItemById(quizId) : quizId;
     if (!quiz || quiz.type !== 'quiz' || !quiz.questions?.length) {
@@ -541,6 +549,7 @@ function displayFlashcards(quizId) {
     const cardsHTML = quiz.questions.map((q, i) => `
         <div class="flashcard" data-idx="${i}">
             <button class="fc-edit-btn" onclick="event.stopPropagation();openFlashcardEdit('${quiz.id}',${i})" title="Edit">✏️</button>
+            <button class="fc-search-btn" onclick="event.stopPropagation();fcSearchQuestion(this)" data-q="${escHtml(q.question)}" title="Search on Google">🔍</button>
             <div class="flashcard-inner">
                 <!-- FRONT -->
                 <div class="flashcard-front">
