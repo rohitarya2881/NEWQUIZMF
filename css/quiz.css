@@ -166,7 +166,7 @@
     border: 1px solid #e0e0e0; border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     margin-bottom: 14px;
-    position: sticky; top: -30px; z-index: 50;
+    position: sticky; top: 56px; z-index: 50;
 }
 @media (max-width: 600px) {
     .fc-toolbar { top: 0; flex-wrap: nowrap; overflow-x: auto; gap: 5px; padding: 8px 10px;
@@ -388,6 +388,27 @@
 .flashcard:hover .fc-edit-btn { opacity: 1; }
 .fc-edit-btn:hover { background: #4a6fa5; color: white; }
 .dark-theme .fc-edit-btn:hover { background: #3498db; }
+
+/* 🔍 Search button — top-left, opposite to edit */
+.fc-search-btn {
+    position: absolute;
+    top: 6px; left: 6px;
+    z-index: 10;
+    width: 26px; height: 26px;
+    border: none; border-radius: 50%;
+    background: rgba(39,174,96,0.12);
+    color: #27ae60;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    line-height: 1;
+}
+.dark-theme .fc-search-btn { background: rgba(39,174,96,0.2); color: #2ecc71; }
+.flashcard:hover .fc-search-btn { opacity: 1; }
+.fc-search-btn:hover { background: #27ae60; color: white; transform: scale(1.1); }
+.dark-theme .fc-search-btn:hover { background: #2ecc71; }
 
 /* Responsive — old site: single column on mobile */
 @media (max-width: 768px) {
