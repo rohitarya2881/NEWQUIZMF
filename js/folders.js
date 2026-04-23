@@ -128,6 +128,7 @@ function renderSubfolders() {
                 <div class="folder-meta">${f.children?.filter(c => c.type === 'quiz').length || 0} quiz(zes)</div>
                 ${noteIcon}
                 <div class="folder-actions">
+                    <button class="icon-btn small" onclick="event.stopPropagation();shareItem('${f.id}')" title="Share folder">🔗</button>
                     <button class="icon-btn small" onclick="event.stopPropagation();renameItem('${f.id}')" title="Rename"><i class="fas fa-edit"></i></button>
                     <button class="icon-btn small danger" onclick="event.stopPropagation();deleteItemById('${f.id}')" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
@@ -183,6 +184,7 @@ function renderQuizzes() {
                 <div class="quiz-actions">
                     <button class="primary-btn small"   onclick="startQuiz('${q.id}')"><i class="fas fa-play"></i> Start</button>
                     <button class="secondary-btn small" onclick="displayFlashcards('${q.id}')"><i class="fas fa-layer-group"></i> Cards</button>
+                    <button class="secondary-btn small" onclick="shareItem('${q.id}')">🔗 Share</button>
                     <button class="secondary-btn small" onclick="showAddQuestionToQuizDialog('${q.id}')"><i class="fas fa-plus"></i> Add Q</button>
                     <button class="danger-btn small"    onclick="deleteItemById('${q.id}')"><i class="fas fa-trash"></i></button>
                 </div>
