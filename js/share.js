@@ -11,42 +11,34 @@ const SHARE_BASE_URL = 'https://rohitarya2881.github.io/NEWQUIZMF/';
 // ══════════════════════════════════════════════
 async function shareItem(itemId) {
     const item = findItemById(itemId);
-    if (!item) { showToast('Item not found', 'warning'); return; }
+    if (!item) return;
 
     const payload = _buildSharePayload(item);
-    showToast('Generating share link…', 'info');
 
     try {
-        const resp = await fetch(JSONBIN_BASE, {
-            method: 'POST',
+        const resp = await fetch("https://api.jsonbin.io/v3/b", {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-Master-Key": JSONBIN_KEY
+                "X-Master-Key": JSONBIN_KEY,
+                "X-Bin-Private": "false"
             },
             body: JSON.stringify(payload)
         });
 
-        const text = await resp.text();
+        const data = await resp.json();
 
-        if (!resp.ok) {
-            console.error("JSONBIN ERROR:", text);
-            throw new Error("Upload failed");
-        }
-
-        const data = JSON.parse(text);
         const binId = data.metadata?.id;
+        if (!binId) throw new Error("No ID");
 
-        if (!binId) throw new Error("No bin ID");
-
-        const shareUrl = `${SHARE_BASE_URL}?import=${binId}`;
-        _showShareModal(item.name, item.type, shareUrl, payload);
+        const url = `${SHARE_BASE_URL}?import=${binId}`;
+        _showShareModal(item.name, item.type, url, payload);
 
     } catch (err) {
         console.error(err);
-        showToast('❌ Share failed: ' + err.message, 'error');
+        showToast("❌ Share failed", "error");
     }
 }
-
 // ══════════════════════════════════════════════
 // BUILD PAYLOAD
 // ══════════════════════════════════════════════
