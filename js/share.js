@@ -1,9 +1,9 @@
 /* =============================================
    share.js — Quiz/Folder Sharing via JSONBin
-   (Frontend version — works but not fully secure)
    ============================================= */
 
-const JSONBIN_KEY = "$2a$10$JaUwsK9x3kbNvhFmOHXcDenDiyQYNb5wQ7VJjj0ubekAhbtmkv5ke";const JSONBIN_BASE = "https://api.jsonbin.io/v3/b";
+const JSONBIN_KEY  = "$2a$10$JaUwsK9x3kbNvhFmOHXcDenDiyQYNb5wQ7VJjj0ubekAhbtmkv5ke";
+const JSONBIN_BASE = "https://api.jsonbin.io/v3/";
 const SHARE_BASE_URL = 'https://rohitarya2881.github.io/NEWQUIZMF/';
 
 // ══════════════════════════════════════════════
@@ -11,12 +11,13 @@ const SHARE_BASE_URL = 'https://rohitarya2881.github.io/NEWQUIZMF/';
 // ══════════════════════════════════════════════
 async function shareItem(itemId) {
     const item = findItemById(itemId);
-    if (!item) return;
+    if (!item) { showToast('Item not found', 'warning'); return; }
 
     const payload = _buildSharePayload(item);
+    showToast('Generating share link…', 'info');
 
     try {
-        const resp = await fetch("https://api.jsonbin.io/v3/b", {
+        const resp = await fetch(JSONBIN_BASE, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -28,17 +29,23 @@ async function shareItem(itemId) {
 
         const data = await resp.json();
 
-        const binId = data.metadata?.id;
-        if (!binId) throw new Error("No ID");
+        if (!resp.ok) {
+            console.error("JSONBIN ERROR:", data);
+            throw new Error("Upload failed");
+        }
 
-        const url = `${SHARE_BASE_URL}?import=${binId}`;
-        _showShareModal(item.name, item.type, url, payload);
+        const binId = data.metadata?.id;
+        if (!binId) throw new Error("No bin ID returned");
+
+        const shareUrl = `${SHARE_BASE_URL}?import=${binId}`;
+        _showShareModal(item.name, item.type, shareUrl, payload);
 
     } catch (err) {
         console.error(err);
-        showToast("❌ Share failed", "error");
+        showToast('❌ Share failed: ' + err.message, 'error');
     }
 }
+
 // ══════════════════════════════════════════════
 // BUILD PAYLOAD
 // ══════════════════════════════════════════════
@@ -100,9 +107,13 @@ async function checkImportUrl() {
             }
         });
 
-        if (!resp.ok) throw new Error('Fetch failed');
-
         const data = await resp.json();
+
+        if (!resp.ok) {
+            console.error("IMPORT ERROR:", data);
+            throw new Error("Fetch failed");
+        }
+
         const payload = data.record;
 
         if (payload?.type !== 'qmp_share') {
