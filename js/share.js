@@ -2,9 +2,10 @@
    share.js — Quiz/Folder Sharing via JSONBin
    ============================================= */
 
-const JSONBIN_KEY  = "$2a$10$JaUwsK9x3kbNvhFmOHXcDenDiyQYNb5wQ7VJjj0ubekAhbtmkv5ke";
-const JSONBIN_BASE = "https://api.jsonbin.io/v3/";
-const SHARE_BASE_URL = 'https://rohitarya2881.github.io/NEWQUIZMF/';
+const JSONBIN_KEY     = "$2a$10$JaUwsK9x3kbNvhFmOHXcDenDiyQYNb5wQ7VJjj0ubekAhbtmkv5ke";
+const JSONBIN_BASE    = "https://api.jsonbin.io/v3/b";   // ✅ FIX: was missing "/b"
+const SHARE_BASE_URL  = 'https://rohitarya2881.github.io/NEWQUIZMF/';
+const MAX_PAYLOAD_KB  = 90;   // JSONBin free tier limit is 100 KB; use 90 KB as safe margin
 
 // ══════════════════════════════════════════════
 // SHARE
@@ -14,28 +15,50 @@ async function shareItem(itemId) {
     if (!item) { showToast('Item not found', 'warning'); return; }
 
     const payload = _buildSharePayload(item);
-    showToast('Generating share link…', 'info');
+
+    // ✅ FIX: Check payload size BEFORE uploading to avoid 413 error
+    const payloadStr = JSON.stringify(payload);
+    const sizeKB = new Blob([payloadStr]).size / 1024;
+
+    if (sizeKB > MAX_PAYLOAD_KB) {
+        showToast(
+            `❌ Too large to share (${sizeKB.toFixed(1)} KB). Max allowed: ${MAX_PAYLOAD_KB} KB. Try removing images or reducing questions.`,
+            'error'
+        );
+        return;
+    }
+
+    showToast(`Generating share link… (${sizeKB.toFixed(1)} KB)`, 'info');
 
     try {
-        const resp = await fetch(JSONBIN_BASE, {
+        const resp = await fetch(JSONBIN_BASE, {   // ✅ FIX: correct endpoint
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-Master-Key": JSONBIN_KEY,
                 "X-Bin-Private": "false"
             },
-            body: JSON.stringify(payload)
+            body: payloadStr
         });
 
-        const data = await resp.json();
+        // ✅ FIX: Parse response safely (handle non-JSON responses too)
+        let data;
+        try {
+            data = await resp.json();
+        } catch {
+            throw new Error(`Server returned status ${resp.status} with non-JSON body`);
+        }
 
         if (!resp.ok) {
             console.error("JSONBIN ERROR:", data);
-            throw new Error("Upload failed");
+            if (resp.status === 413) {
+                throw new Error(`Payload too large (${sizeKB.toFixed(1)} KB). JSONBin rejected it.`);
+            }
+            throw new Error(data?.message || `Upload failed with status ${resp.status}`);
         }
 
         const binId = data.metadata?.id;
-        if (!binId) throw new Error("No bin ID returned");
+        if (!binId) throw new Error("No bin ID returned from JSONBin");
 
         const shareUrl = `${SHARE_BASE_URL}?import=${binId}`;
         _showShareModal(item.name, item.type, shareUrl, payload);
@@ -47,7 +70,7 @@ async function shareItem(itemId) {
 }
 
 // ══════════════════════════════════════════════
-// BUILD PAYLOAD
+// BUILD PAYLOAD  (trimmed to reduce size)
 // ══════════════════════════════════════════════
 function _buildSharePayload(item) {
     const payload = {
@@ -62,9 +85,10 @@ function _buildSharePayload(item) {
     if (item.type === 'quiz') {
         payload.data = {
             name: item.name,
-            questions: item.questions || []
+            // ✅ FIX: Strip heavy/unused fields (e.g. base64 images) from each question
+            questions: _trimQuestions(item.questions || [])
         };
-        payload.questionCount = item.questions?.length || 0;
+        payload.questionCount = payload.data.questions.length;
 
     } else if (item.type === 'folder') {
         const quizzes = [];
@@ -73,7 +97,7 @@ function _buildSharePayload(item) {
             if (node.type === 'quiz') {
                 quizzes.push({
                     name: node.name,
-                    questions: node.questions || []
+                    questions: _trimQuestions(node.questions || [])
                 });
             }
             (node.children || []).forEach(collect);
@@ -81,12 +105,38 @@ function _buildSharePayload(item) {
 
         collect(item);
 
-        payload.data = { name: item.name, quizzes };
-        payload.quizCount = quizzes.length;
-        payload.questionCount = quizzes.reduce((s,q) => s + q.questions.length, 0);
+        payload.data        = { name: item.name, quizzes };
+        payload.quizCount   = quizzes.length;
+        payload.questionCount = quizzes.reduce((s, q) => s + q.questions.length, 0);
     }
 
     return payload;
+}
+
+// ✅ NEW: Keep only essential text fields; drop blobs, base64, and unknown large fields
+function _trimQuestions(questions) {
+    return questions.map(q => {
+        const trimmed = {};
+
+        // Keep known safe text fields
+        const textFields = [
+            'question', 'q', 'text',
+            'options', 'choices', 'answers',
+            'answer', 'correct', 'correctAnswer', 'correctIndex',
+            'explanation', 'hint', 'tags', 'type', 'difficulty', 'marks', 'points'
+        ];
+
+        for (const key of textFields) {
+            if (q[key] !== undefined) {
+                trimmed[key] = q[key];
+            }
+        }
+
+        // ✅ Drop any base64 image fields (they are huge)
+        // If you want to keep image URLs (not base64), add 'imageUrl' to textFields above
+
+        return trimmed;
+    });
 }
 
 // ══════════════════════════════════════════════
@@ -101,23 +151,29 @@ async function checkImportUrl() {
     showToast('Loading shared content…', 'info');
 
     try {
+        // ✅ FIX: correct read endpoint — JSONBIN_BASE already has /b, so append /{id}/latest
         const resp = await fetch(`${JSONBIN_BASE}/${binId}/latest`, {
             headers: {
                 "X-Master-Key": JSONBIN_KEY
             }
         });
 
-        const data = await resp.json();
+        let data;
+        try {
+            data = await resp.json();
+        } catch {
+            throw new Error(`Server returned status ${resp.status} with non-JSON body`);
+        }
 
         if (!resp.ok) {
             console.error("IMPORT ERROR:", data);
-            throw new Error("Fetch failed");
+            throw new Error(data?.message || `Fetch failed with status ${resp.status}`);
         }
 
         const payload = data.record;
 
         if (payload?.type !== 'qmp_share') {
-            throw new Error('Invalid share data');
+            throw new Error('Invalid share data — not a QMP share payload');
         }
 
         _showImportModal(payload);
@@ -141,19 +197,24 @@ function _showShareModal(name, type, url, payload) {
     m.className = 'modal';
     m.id = 'shareModal';
 
+    // ✅ Safe encoding for onclick attributes
+    const encodedUrl  = encodeURIComponent(url);
+    const encodedName = encodeURIComponent(name);
+
     m.innerHTML = `
     <div class="modal-content">
         <h3>🔗 Share Link Ready!</h3>
-        <p><b>${name}</b></p>
+        <p><b>${_escapeHtml(name)}</b></p>
         <p>${type === 'quiz' ? '📄 Quiz' : '📁 Folder'} · ${qCount} questions${extra}</p>
 
-        <input id="shareUrlInput" value="${url}" readonly style="width:100%;padding:8px;">
+        <input id="shareUrlInput" value="${_escapeHtml(url)}" readonly style="width:100%;padding:8px;box-sizing:border-box;">
 
-        <div style="margin-top:10px;">
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;">
             <button onclick="_copyShareUrl()">📋 Copy</button>
-            <button onclick="_shareWhatsApp('${encodeURIComponent(url)}','${encodeURIComponent(name)}')">WhatsApp</button>
-            <button onclick="_shareTelegram('${encodeURIComponent(url)}','${encodeURIComponent(name)}')">Telegram</button>
-            <button onclick="window.open('${url}','_blank')">Open</button>
+            <button onclick="_shareWhatsApp('${encodedUrl}','${encodedName}')">WhatsApp</button>
+            <button onclick="_shareTelegram('${encodedUrl}','${encodedName}')">Telegram</button>
+            <button onclick="window.open('${_escapeHtml(url)}','_blank')">🔗 Open</button>
+            <button onclick="document.getElementById('shareModal').remove()">✖ Close</button>
         </div>
     </div>
     `;
@@ -170,6 +231,9 @@ function _showImportModal(payload) {
     document.getElementById('importModal')?.remove();
     _pendingImportPayload = payload;
 
+    const qCount = payload.questionCount || 0;
+    const extra  = payload.itemType === 'folder' ? ` · ${payload.quizCount || 0} quizzes` : '';
+
     const m = document.createElement('div');
     m.className = 'modal';
     m.id = 'importModal';
@@ -177,10 +241,14 @@ function _showImportModal(payload) {
     m.innerHTML = `
     <div class="modal-content">
         <h3>📦 Import Content</h3>
-        <p><b>${payload.name}</b></p>
+        <p><b>${_escapeHtml(payload.name)}</b></p>
+        <p>${payload.itemType === 'quiz' ? '📄 Quiz' : '📁 Folder'} · ${qCount} questions${extra}</p>
+        <p style="font-size:0.85em;color:#888;">Shared on: ${new Date(payload.sharedAt).toLocaleString()}</p>
 
-        <button onclick="_doImport()">✅ Import</button>
-        <button onclick="document.getElementById('importModal').remove()">Cancel</button>
+        <div style="margin-top:10px;display:flex;gap:8px;">
+            <button onclick="_doImport()">✅ Import</button>
+            <button onclick="document.getElementById('importModal').remove()">Cancel</button>
+        </div>
     </div>
     `;
 
@@ -193,6 +261,10 @@ function _showImportModal(payload) {
 async function _doImport() {
     const payload = _pendingImportPayload;
     if (!payload) return;
+
+    // Disable button to prevent double-click
+    const btn = document.querySelector('#importModal button');
+    if (btn) btn.disabled = true;
 
     try {
         if (payload.itemType === 'quiz') {
@@ -217,20 +289,22 @@ async function _doImport() {
             }
         }
 
-        showToast('✅ Imported!', 'success');
+        showToast('✅ Imported successfully!', 'success');
         document.getElementById('importModal')?.remove();
+        _pendingImportPayload = null;
 
         await loadFolderStructure();
         navigateToRoot();
 
     } catch (err) {
         console.error(err);
-        showToast('❌ Import failed', 'error');
+        showToast('❌ Import failed: ' + err.message, 'error');
+        if (btn) btn.disabled = false;
     }
 }
 
 // ══════════════════════════════════════════════
-// IMPORT QUIZ
+// IMPORT QUIZ HELPER
 // ══════════════════════════════════════════════
 async function _importQuiz(quizData, parentId, parentPath) {
     const quiz = {
@@ -250,16 +324,33 @@ async function _importQuiz(quizData, parentId, parentPath) {
 // ══════════════════════════════════════════════
 function _copyShareUrl() {
     const inp = document.getElementById('shareUrlInput');
+    if (!inp) return;
     navigator.clipboard.writeText(inp.value)
-        .then(() => showToast('✅ Copied!', 'success'));
+        .then(() => showToast('✅ Link copied!', 'success'))
+        .catch(() => {
+            // Fallback for older browsers
+            inp.select();
+            document.execCommand('copy');
+            showToast('✅ Link copied!', 'success');
+        });
 }
 
-function _shareWhatsApp(url, name) {
-    window.open(`https://wa.me/?text=${name}%20${url}`, '_blank');
+function _shareWhatsApp(encodedUrl, encodedName) {
+    window.open(`https://wa.me/?text=${encodedName}%20${encodedUrl}`, '_blank');
 }
 
-function _shareTelegram(url, name) {
-    window.open(`https://t.me/share/url?url=${url}&text=${name}`, '_blank');
+function _shareTelegram(encodedUrl, encodedName) {
+    window.open(`https://t.me/share/url?url=${encodedUrl}&text=${encodedName}`, '_blank');
+}
+
+// ✅ NEW: Prevent XSS in modal HTML
+function _escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // ══════════════════════════════════════════════
