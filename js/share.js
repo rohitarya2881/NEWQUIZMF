@@ -1,12 +1,13 @@
 /* =============================================
-   share.js — Quiz/Folder Sharing via npoint.io
-   (No API key, no CORS issues)
+   share.js — Quiz/Folder Sharing via JSONBin
+   (Frontend version — works but not fully secure)
    ============================================= */
 
+const JSONBIN_KEY = "$2a$10$JaUwsK9x3kbNvhFmOHXcDenDiyQYNb5wQ7VJjj0ubekAhbtmkv5ke";const JSONBIN_BASE = "https://api.jsonbin.io/v3/b";
 const SHARE_BASE_URL = 'https://rohitarya2881.github.io/NEWQUIZMF/';
 
 // ══════════════════════════════════════════════
-// SHARE — Upload and get link
+// SHARE
 // ══════════════════════════════════════════════
 async function shareItem(itemId) {
     const item = findItemById(itemId);
@@ -16,19 +17,26 @@ async function shareItem(itemId) {
     showToast('Generating share link…', 'info');
 
     try {
-        const resp = await fetch('https://api.npoint.io', {
+        const resp = await fetch(JSONBIN_BASE, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": JSONBIN_KEY
+            },
             body: JSON.stringify(payload)
         });
 
-        if (!resp.ok) throw new Error('Upload failed');
+        const text = await resp.text();
 
-        const data = await resp.json();
+        if (!resp.ok) {
+            console.error("JSONBIN ERROR:", text);
+            throw new Error("Upload failed");
+        }
 
-        // npoint returns key like: { key: "abcd1234" }
-        const binId = data.key;
-        if (!binId) throw new Error('No ID returned');
+        const data = JSON.parse(text);
+        const binId = data.metadata?.id;
+
+        if (!binId) throw new Error("No bin ID");
 
         const shareUrl = `${SHARE_BASE_URL}?import=${binId}`;
         _showShareModal(item.name, item.type, shareUrl, payload);
@@ -44,12 +52,12 @@ async function shareItem(itemId) {
 // ══════════════════════════════════════════════
 function _buildSharePayload(item) {
     const payload = {
-        version:   '1.0',
-        type:      'qmp_share',
-        itemType:  item.type,
-        name:      item.name,
-        sharedAt:  new Date().toISOString(),
-        data:      null
+        version: '1.0',
+        type: 'qmp_share',
+        itemType: item.type,
+        name: item.name,
+        sharedAt: new Date().toISOString(),
+        data: null
     };
 
     if (item.type === 'quiz') {
@@ -83,24 +91,27 @@ function _buildSharePayload(item) {
 }
 
 // ══════════════════════════════════════════════
-// IMPORT — Load from URL
+// IMPORT
 // ══════════════════════════════════════════════
 async function checkImportUrl() {
     const params = new URLSearchParams(window.location.search);
     const binId  = params.get('import');
     if (!binId) return;
 
-    // Clean URL
     window.history.replaceState({}, '', window.location.pathname);
-
     showToast('Loading shared content…', 'info');
 
     try {
-        const resp = await fetch(`https://api.npoint.io/${binId}`);
+        const resp = await fetch(`${JSONBIN_BASE}/${binId}/latest`, {
+            headers: {
+                "X-Master-Key": JSONBIN_KEY
+            }
+        });
 
         if (!resp.ok) throw new Error('Fetch failed');
 
-        const payload = await resp.json();
+        const data = await resp.json();
+        const payload = data.record;
 
         if (payload?.type !== 'qmp_share') {
             throw new Error('Invalid share data');
@@ -115,6 +126,39 @@ async function checkImportUrl() {
 }
 
 // ══════════════════════════════════════════════
+// SHARE MODAL
+// ══════════════════════════════════════════════
+function _showShareModal(name, type, url, payload) {
+    document.getElementById('shareModal')?.remove();
+
+    const qCount = payload.questionCount || 0;
+    const extra  = type === 'folder' ? ` · ${payload.quizCount} quizzes` : '';
+
+    const m = document.createElement('div');
+    m.className = 'modal';
+    m.id = 'shareModal';
+
+    m.innerHTML = `
+    <div class="modal-content">
+        <h3>🔗 Share Link Ready!</h3>
+        <p><b>${name}</b></p>
+        <p>${type === 'quiz' ? '📄 Quiz' : '📁 Folder'} · ${qCount} questions${extra}</p>
+
+        <input id="shareUrlInput" value="${url}" readonly style="width:100%;padding:8px;">
+
+        <div style="margin-top:10px;">
+            <button onclick="_copyShareUrl()">📋 Copy</button>
+            <button onclick="_shareWhatsApp('${encodeURIComponent(url)}','${encodeURIComponent(name)}')">WhatsApp</button>
+            <button onclick="_shareTelegram('${encodeURIComponent(url)}','${encodeURIComponent(name)}')">Telegram</button>
+            <button onclick="window.open('${url}','_blank')">Open</button>
+        </div>
+    </div>
+    `;
+
+    document.body.appendChild(m);
+}
+
+// ══════════════════════════════════════════════
 // IMPORT MODAL
 // ══════════════════════════════════════════════
 let _pendingImportPayload = null;
@@ -122,10 +166,6 @@ let _pendingImportPayload = null;
 function _showImportModal(payload) {
     document.getElementById('importModal')?.remove();
     _pendingImportPayload = payload;
-
-    const isFolder = payload.itemType === 'folder';
-    const qCount   = payload.questionCount || 0;
-    const quizzes  = payload.data?.quizzes || [];
 
     const m = document.createElement('div');
     m.className = 'modal';
@@ -135,7 +175,6 @@ function _showImportModal(payload) {
     <div class="modal-content">
         <h3>📦 Import Content</h3>
         <p><b>${payload.name}</b></p>
-        <p>${isFolder ? quizzes.length + ' quizzes · ' : ''}${qCount} questions</p>
 
         <button onclick="_doImport()">✅ Import</button>
         <button onclick="document.getElementById('importModal').remove()">Cancel</button>
@@ -175,7 +214,7 @@ async function _doImport() {
             }
         }
 
-        showToast('✅ Imported successfully!', 'success');
+        showToast('✅ Imported!', 'success');
         document.getElementById('importModal')?.remove();
 
         await loadFolderStructure();
@@ -202,3 +241,25 @@ async function _importQuiz(quizData, parentId, parentPath) {
 
     await saveItem(quiz);
 }
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function _copyShareUrl() {
+    const inp = document.getElementById('shareUrlInput');
+    navigator.clipboard.writeText(inp.value)
+        .then(() => showToast('✅ Copied!', 'success'));
+}
+
+function _shareWhatsApp(url, name) {
+    window.open(`https://wa.me/?text=${name}%20${url}`, '_blank');
+}
+
+function _shareTelegram(url, name) {
+    window.open(`https://t.me/share/url?url=${url}&text=${name}`, '_blank');
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', checkImportUrl);
