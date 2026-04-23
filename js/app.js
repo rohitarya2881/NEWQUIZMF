@@ -187,6 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     _startSessionTracker();       // time-on-site tracking
     initDriveBackup();            // Google Drive backup
     _updateDriveStatus();
+    checkImportUrl();             // Check for shared quiz link
     console.log('QuizMaster Pro ready!');
 });
 
