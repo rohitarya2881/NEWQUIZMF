@@ -7,6 +7,8 @@ const CACHE_NAME    = 'quizmaster-v1';
 const STATIC_ASSETS = [
     '/NEWQUIZMF/',
     '/NEWQUIZMF/index.html',
+       '/NEWQUIZMF/index2.html',
+
     '/NEWQUIZMF/css/base.css',
     '/NEWQUIZMF/css/components.css',
     '/NEWQUIZMF/css/quiz.css',
