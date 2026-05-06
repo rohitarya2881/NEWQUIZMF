@@ -166,7 +166,7 @@
     border: 1px solid #e0e0e0; border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     margin-bottom: 14px;
-    position: sticky; top: 56px; z-index: 50;
+    position: sticky; top: -30px; z-index: 50;
 }
 @media (max-width: 600px) {
     .fc-toolbar { top: 0; flex-wrap: nowrap; overflow-x: auto; gap: 5px; padding: 8px 10px;
@@ -329,8 +329,10 @@
 }
 .dark-theme .flashcard-option { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.03); }
 .flashcard-option.correct-option {
-    background: rgba(46,204,113,0.12); border-color: rgba(46,204,113,0.25);
-    color: #27ae60; font-weight: 600;
+   /* 
+ background: rgba(46,204,113,0.12); border-color: rgba(46,204,113,0.25);
+    color: #27ae60;*/
+ font-weight: 600;
 }
 .dark-theme .flashcard-option.correct-option { color: #a8d5b5; }
 .flashcard-opt-letter {
@@ -341,7 +343,7 @@
     flex-shrink: 0; margin-top: 1px;
 }
 .dark-theme .flashcard-opt-letter { background: #444; color: #aaa; }
-.flashcard-option.correct-option .flashcard-opt-letter { background: #27ae60; color: white; }
+.flashcard-option.correct-option .flashcard-opt-letter {/* background: #27ae60; */color: white; }
 .flashcard-hint {
     font-size: 0.7rem; color: #bbb; text-align: center;
     margin-top: auto; padding-top: 8px;
