@@ -217,6 +217,11 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
   font-family:'Syne',sans-serif;transition:all 0.2s;}
 .notes-filter-btn:hover{border-color:var(--border2);color:var(--text);}
 .notes-filter-btn.active{background:#1a1800;border-color:var(--accent);color:var(--accent);}
+.bar-range-btn{background:var(--card2);border:1px solid var(--border);color:var(--muted);
+  padding:3px 10px;border-radius:7px;cursor:pointer;font-size:0.7rem;font-weight:700;
+  font-family:'Space Mono',monospace;transition:all 0.2s;}
+.bar-range-btn:hover{border-color:var(--border2);color:var(--text);}
+.bar-range-btn.active{background:#1a1800;border-color:var(--accent);color:var(--accent);}
 .notes-empty{text-align:center;color:var(--muted);font-family:'Space Mono',monospace;
   font-size:0.78rem;padding:24px 0;}
 
@@ -268,6 +273,35 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .delete-btn{background:transparent;border:1px solid transparent;color:#604040;cursor:pointer;
   font-size:0.9rem;padding:3px 7px;border-radius:6px;transition:all 0.2s;flex-shrink:0;}
 .delete-btn:hover{color:#f06060;border-color:#602020;background:#1a0808;}
+.edit-btn{background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;
+  font-size:0.75rem;padding:4px 10px;border-radius:6px;transition:all 0.2s;flex-shrink:0;
+  font-family:'Syne',sans-serif;font-weight:700;}
+.edit-btn:hover{color:var(--accent2);border-color:var(--accent2);background:rgba(62,207,207,0.06);}
+.edit-btn.active{color:var(--accent2);border-color:var(--accent2);background:rgba(62,207,207,0.08);}
+
+/* INLINE EDIT PANEL */
+.edit-panel{display:none;background:#09111e;border:1px solid var(--border2);border-top:none;
+  border-radius:0 0 10px 10px;padding:14px;margin-top:-6px;margin-bottom:6px;}
+.edit-panel.open{display:block;animation:notesSlideDown 0.18s ease;}
+.edit-panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.edit-panel input,.edit-panel select{
+  background:var(--bg);border:1px solid var(--border2);color:var(--text);
+  padding:8px 10px;border-radius:8px;font-family:'Syne',sans-serif;font-size:0.82rem;
+  outline:none;transition:border 0.2s;width:100%;}
+.edit-panel input:focus,.edit-panel select:focus{border-color:var(--accent2);}
+.edit-panel input::placeholder{color:var(--muted);}
+.edit-name-input{grid-column:1/-1;}
+.edit-actions{display:flex;gap:8px;justify-content:flex-end;}
+.edit-save-btn{background:var(--accent2);border:none;color:#000;padding:7px 18px;border-radius:8px;
+  cursor:pointer;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;transition:all 0.2s;}
+.edit-save-btn:hover{background:#4fe0e0;}
+.edit-cancel-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);
+  padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;
+  font-size:0.78rem;font-weight:700;transition:all 0.2s;}
+.edit-cancel-btn:hover{border-color:var(--muted);color:var(--text);}
+.manage-task-wrap{display:flex;flex-direction:column;}
+.manage-task-wrap .manage-task-row{border-radius:10px;margin-bottom:0;}
+.manage-task-wrap.editing .manage-task-row{border-radius:10px 10px 0 0;border-bottom-color:var(--border2);}
 .add-form{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;
   display:flex;flex-direction:column;gap:10px;}
 .add-form input,.add-form select{background:var(--bg);border:1px solid var(--border2);color:var(--text);
@@ -481,7 +515,14 @@ body.neon-mode .fd-hourglass-wrap{
     </div>
   </div>
   <div class="analytics-card">
-    <h3>// Daily Score — Last 30 Days</h3>
+    <h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span>// Daily Score</span>
+      <div style="display:flex;gap:6px;">
+        <button onclick="setBarRange(30)" id="barBtn30" class="bar-range-btn active">30D</button>
+        <button onclick="setBarRange(90)" id="barBtn90" class="bar-range-btn">90D</button>
+        <button onclick="setBarRange(0)" id="barBtnAll" class="bar-range-btn">All</button>
+      </div>
+    </h3>
     <div class="bar-chart" id="barChart"></div>
   </div>
 </div>
@@ -582,14 +623,12 @@ const DEFAULT_TASKS = [
   {id:'v1',  cat:'english',   sec:'subah',   name:'Vocab — 7 new words (Morning)',            dur:'25 min'},
   {id:'g1',  cat:'english',   sec:'subah',   name:'Grammar — PYQ attempt',                    dur:'25 min'},
   {id:'gs1', cat:'gs',        sec:'subah',   name:'GS — New chapter',                         dur:'90 min'},
-  {id:'m1',  cat:'maths',     sec:'subah',   name:'Maths — MOCK (Morning)',               dur:'60 min'},
-  {id:'r1',  cat:'reasoning', sec:'subah',   name:'Reasoning — MOCK',                     dur:'60 min'},
+  {id:'m1',  cat:'maths',     sec:'subah',   name:'Maths — Practice (Morning)',               dur:'60 min'},
+  {id:'r1',  cat:'reasoning', sec:'subah',   name:'Reasoning — Practice',                     dur:'60 min'},
   {id:'v2',  cat:'english',   sec:'dopahar', name:'Vocab — Afternoon recall + 7 new',         dur:'15 min'},
   {id:'gs2', cat:'gs',        sec:'dopahar', name:'GS — Morning topic revise + continue',     dur:'60 min'},
-    {id:'r2',  cat:'reasoning', sec:'dopahar',   name:'Reasoning — PRACTICE',                     dur:'60 min'},
-
   {id:'m2',  cat:'maths',     sec:'dopahar', name:'Maths — Practice (Afternoon)',             dur:'60 min'},
-  {id:'gi1', cat:'english',   sec:'dopahar', name:'Grammar + Idioms — REVISE',              dur:'60 min'},
+  {id:'gi1', cat:'english',   sec:'dopahar', name:'Grammar + Idioms — Practice',              dur:'60 min'},
   {id:'v3',  cat:'english',   sec:'shaam',   name:'Vocab — Evening recall + 7 new',           dur:'45 min'},
   {id:'gs3', cat:'gs',        sec:'shaam',   name:'GS — Evening revision',                    dur:'90 min'},
   {id:'gs4', cat:'gs',        sec:'shaam',   name:'GS — Static or Science',                   dur:'60 min'},
@@ -631,6 +670,7 @@ function loadStore(){
 function save(){localStorage.setItem('ssc_v5',JSON.stringify(store));}
 function dayData(k){if(!store.days[k])store.days[k]={};return store.days[k];}
 function calcScore(k){const d=dayData(k);return store.tasks.filter(t=>d[t.id]).length;}
+function localDateKey(dt){return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
 function calcMax(){return store.tasks.length;}
 function calcStreak(){
   let s=0,k=todayKey();
@@ -1322,7 +1362,19 @@ function renderToday(){
   const score=calcScore(currentKey);
   const total=calcMax();
   const pct=total?Math.round(score/total*100):0;
-  document.getElementById('todayScore').textContent=score;
+  const scoreEl=document.getElementById('todayScore');
+  const prevScore=parseInt(scoreEl.textContent)||0;
+  scoreEl.textContent=score;
+  if(score!==prevScore){
+    scoreEl.style.transition='none';
+    scoreEl.style.transform='scale(1.3)';
+    scoreEl.style.color=score>prevScore?'#6adb91':'var(--accent)';
+    setTimeout(()=>{
+      scoreEl.style.transition='all 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+      scoreEl.style.transform='scale(1)';
+      scoreEl.style.color='var(--accent)';
+    },10);
+  }
   document.getElementById('scoreTotal').textContent=total;
   document.getElementById('progressFill').style.width=pct+'%';
   document.getElementById('progressPct').textContent=pct+'% complete';
@@ -1541,8 +1593,8 @@ function renderAnalytics(){
 
   const cells=[];
   const cur=new Date(start);
-  while(cur<=end){cells.push(cur.toISOString().slice(0,10));cur.setDate(cur.getDate()+1);}
-  while(cur.getDay()!==0){cells.push(cur.toISOString().slice(0,10));cur.setDate(cur.getDate()+1);}
+  while(cur<=end){cells.push(localDateKey(cur));cur.setDate(cur.getDate()+1);}
+  while(cur.getDay()!==0){cells.push(localDateKey(cur));cur.setDate(cur.getDate()+1);}
 
   const totalWeeks = cells.length / 7;
   let lastM = -1;
@@ -1569,17 +1621,40 @@ function renderAnalytics(){
     calGrid.appendChild(cell);
   });
 
+  renderBarChart();
+}
+
+let barRange = 30; // default 30 days
+function setBarRange(n){
+  barRange = n;
+  document.querySelectorAll('.bar-range-btn').forEach(b=>b.classList.remove('active'));
+  const map = {30:'barBtn30',90:'barBtn90',0:'barBtnAll'};
+  const el = document.getElementById(map[n]);
+  if(el) el.classList.add('active');
+  renderBarChart();
+}
+
+function renderBarChart(){
+  const max=calcMax();
   const barChart=document.getElementById('barChart');
+  if(!barChart) return;
   barChart.innerHTML='';
   const today=new Date(todayKey()+'T00:00:00');
-  let firstKey = keys.length ? keys[0] : addDays(todayKey(), -29);
-  const firstDate = new Date(firstKey+'T00:00:00');
-  const diffDays = Math.round((today - firstDate)/(1000*60*60*24));
-  const barDays = Math.max(diffDays, 0);
+  const keys=Object.keys(store.days).sort();
+  let barDays;
+  if(barRange===0){
+    // All time
+    let firstKey = keys.length ? keys[0] : addDays(todayKey(),-29);
+    const firstDate = new Date(firstKey+'T00:00:00');
+    const diffDays = Math.round((today - firstDate)/(1000*60*60*24));
+    barDays = Math.max(diffDays, 29);
+  } else {
+    barDays = barRange - 1;
+  }
 
   for(let i=barDays;i>=0;i--){
     const d=new Date(today);d.setDate(d.getDate()-i);
-    const dk=d.toISOString().slice(0,10);
+    const dk=localDateKey(d);
     const s=calcScore(dk);
     const h=max?Math.max(4,Math.round((s/max)*110)):4;
     const isT=dk===todayKey();
@@ -1591,6 +1666,7 @@ function renderAnalytics(){
     bar.style.background=isT?'var(--accent)':barColor(s,max);
     if(isT)bar.style.boxShadow='0 0 10px var(--accent)';
     bar.setAttribute('data-tip',`${shortDate(dk)}: ${s}/${max}`);
+    bar.addEventListener('click',()=>{currentKey=dk;switchTab('today');});
     const lbl2=document.createElement('div');
     lbl2.className='bar-label';
     lbl2.style.color=isT?'var(--accent)':'var(--muted)';
@@ -1612,6 +1688,9 @@ function renderManage(){
   const list=document.getElementById('manageTaskList');
   list.innerHTML='';
   const catLabels={english:'English',gs:'GS',maths:'Maths',reasoning:'Reasoning',analysis:'Analysis'};
+  const catOptions=Object.keys(catLabels).map(v=>`<option value="${v}">${catLabels[v]}</option>`).join('');
+  const secOptions=SECTIONS.map(s=>`<option value="${s.key}">${s.label}</option>`).join('');
+
   SECTIONS.forEach(sec=>{
     const tasks=store.tasks.filter(t=>t.sec===sec.key);
     if(!tasks.length)return;
@@ -1619,25 +1698,103 @@ function renderManage(){
     hdr.style.cssText='font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);padding:10px 0 5px;font-weight:700;font-family:"Space Mono",monospace;';
     hdr.textContent=sec.label;
     list.appendChild(hdr);
+
     tasks.forEach(task=>{
+      // Outer wrapper
+      const wrap=document.createElement('div');
+      wrap.className='manage-task-wrap';
+      wrap.style.marginBottom='6px';
+
+      // Row
       const row=document.createElement('div');
       row.className='manage-task-row';
+      row.style.marginBottom='0';
+
       const dot=document.createElement('div');
       dot.style.cssText=`width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--${task.cat});`;
+
       const nm=document.createElement('div');
-      nm.style.cssText='flex:1;font-size:0.85rem;font-weight:600;';
+      nm.style.cssText='flex:1;font-size:0.85rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
       nm.textContent=task.name;
+
       const dur=document.createElement('div');
       dur.className='task-dur-badge';
       dur.textContent=task.dur;
+
       const badge=document.createElement('span');
       badge.className=`cat-badge cat-${task.cat}`;
       badge.textContent=catLabels[task.cat];
+
+      const editBtn=document.createElement('button');
+      editBtn.className='edit-btn';
+      editBtn.textContent='✏ Edit';
+
       const del=document.createElement('button');
-      del.className='delete-btn';del.textContent='✕';
+      del.className='delete-btn';
+      del.textContent='✕';
       del.addEventListener('click',()=>deleteTask(task.id));
-      row.append(dot,nm,dur,badge,del);
-      list.appendChild(row);
+
+      row.append(dot,nm,dur,badge,editBtn,del);
+
+      // Inline edit panel
+      const editPanel=document.createElement('div');
+      editPanel.className='edit-panel';
+      editPanel.innerHTML=`
+        <div class="edit-panel-grid">
+          <input class="edit-name-input" type="text" placeholder="Task name" value="${task.name.replace(/"/g,'&quot;')}" />
+          <input type="text" placeholder="Duration (e.g. 25 min)" value="${task.dur==='—'?'':task.dur}" />
+          <select class="edit-cat-sel">${catOptions.replace(`value="${task.cat}"`,`value="${task.cat}" selected`)}</select>
+          <select class="edit-sec-sel">${secOptions.replace(`value="${task.sec}"`,`value="${task.sec}" selected`)}</select>
+        </div>
+        <div class="edit-actions">
+          <button class="edit-cancel-btn">Cancel</button>
+          <button class="edit-save-btn">💾 Save</button>
+        </div>
+      `;
+
+      // Toggle edit panel
+      editBtn.addEventListener('click',()=>{
+        const isOpen=editPanel.classList.contains('open');
+        // Close all other edit panels first
+        document.querySelectorAll('.edit-panel.open').forEach(p=>{
+          p.classList.remove('open');
+          const w=p.closest('.manage-task-wrap');
+          if(w) w.classList.remove('editing');
+          const eb=w&&w.querySelector('.edit-btn');
+          if(eb){eb.classList.remove('active');eb.textContent='✏ Edit';}
+        });
+        if(!isOpen){
+          editPanel.classList.add('open');
+          wrap.classList.add('editing');
+          editBtn.classList.add('active');
+          editBtn.textContent='✕ Close';
+          editPanel.querySelector('.edit-name-input').focus();
+        }
+      });
+
+      // Cancel
+      editPanel.querySelector('.edit-cancel-btn').addEventListener('click',()=>{
+        editPanel.classList.remove('open');
+        wrap.classList.remove('editing');
+        editBtn.classList.remove('active');
+        editBtn.textContent='✏ Edit';
+      });
+
+      // Save
+      editPanel.querySelector('.edit-save-btn').addEventListener('click',()=>{
+        const newName=editPanel.querySelector('.edit-name-input').value.trim();
+        if(!newName){showToast('⚠ Name cannot be empty!','warn');return;}
+        const newDur=editPanel.querySelectorAll('input')[1].value.trim()||'—';
+        const newCat=editPanel.querySelector('.edit-cat-sel').value;
+        const newSec=editPanel.querySelector('.edit-sec-sel').value;
+        const t=store.tasks.find(x=>x.id===task.id);
+        if(t){t.name=newName;t.dur=newDur;t.cat=newCat;t.sec=newSec;}
+        save();renderManage();renderToday();
+        showToast('✅ Task updated!');
+      });
+
+      wrap.append(row,editPanel);
+      list.appendChild(wrap);
     });
   });
 }
