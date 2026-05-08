@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SSC Daily Tracker v5</title>
+<title>SSC Daily Tracker v6</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -21,11 +21,9 @@ html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;padding-bottom:80px;
   background-image:radial-gradient(ellipse 80% 50% at 50% -10%, #1a2240 0%, transparent 70%);}
 
-/* NOISE TEXTURE */
 body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z-index:0;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 
-/* HEADER */
 .header-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:16px 20px;max-width:760px;margin:0 auto;position:relative;z-index:1;}
 .header-left h1{font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:0.5px;}
@@ -36,7 +34,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
   font-size:0.8rem;font-weight:700;transition:all 0.2s;white-space:nowrap;}
 .nav-btn-top:hover{border-color:var(--accent);color:var(--accent);}
 
-/* TABS */
 .tabs{display:flex;justify-content:center;gap:6px;padding:20px 16px 0;max-width:760px;margin:0 auto;position:relative;z-index:1;}
 .tab{flex:1;padding:10px 6px;border-radius:10px;border:1px solid var(--border);background:var(--card);
   color:var(--muted);font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.25s;text-align:center;}
@@ -46,7 +43,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .panel{display:none;max-width:760px;margin:0 auto;padding:20px 16px;position:relative;z-index:1;}
 .panel.active{display:block;}
 
-/* SCORE BAR */
 .score-bar{background:var(--card);border:1px solid var(--border2);border-radius:18px;
   padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
   box-shadow:0 4px 30px rgba(0,0,0,0.4);}
@@ -62,7 +58,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
   color:var(--accent);font-size:0.8rem;font-weight:700;padding:6px 14px;border-radius:999px;
   font-family:'Space Mono',monospace;}
 
-/* FOCUS TIMER BAR (global active timer) */
 #globalTimerBar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;
   background:linear-gradient(135deg,#1a1200,#0d1a1a);border-bottom:1px solid var(--accent2);
   padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap;}
@@ -83,7 +78,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 #gDoneBtn{background:var(--accent);color:#000;display:none;}
 #gDoneBtn:hover{background:#ffe066;}
 
-/* DATE NAV */
 .date-nav{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
   padding:7px 14px;border-radius:9px;cursor:pointer;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:600;
@@ -94,7 +88,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .today-btn:hover:not(:disabled){background:#2a2200 !important;}
 .date-display{font-size:0.9rem;font-weight:700;min-width:200px;text-align:center;}
 
-/* TASKS */
 .tasks-grid{display:flex;flex-direction:column;gap:6px;}
 .section-label{font-size:0.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
   padding:12px 4px 4px;display:flex;align-items:center;gap:8px;}
@@ -102,9 +95,14 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .section-count{background:var(--border);color:var(--muted);font-family:'Space Mono',monospace;
   font-size:0.65rem;padding:1px 7px;border-radius:99px;}
 
+/* TASK ROW — now a wrapper with row + notes panel */
+.task-wrap{display:flex;flex-direction:column;gap:0;}
+
 .task-row{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
   padding:10px 12px;display:flex;align-items:center;gap:10px;transition:all 0.2s;user-select:none;
   position:relative;overflow:hidden;}
+/* When notes are open, flatten bottom corners */
+.task-wrap.notes-open .task-row{border-radius:var(--radius) var(--radius) 0 0;border-bottom:1px solid var(--border2);}
 .task-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
 .task-row.english::before{background:var(--english);}
 .task-row.gs::before{background:var(--gs);}
@@ -136,7 +134,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 
 .task-name{flex:1;font-size:0.88rem;font-weight:600;cursor:pointer;line-height:1.3;}
 
-/* TIMER SECTION IN TASK */
 .task-timer-area{display:flex;align-items:center;gap:6px;flex-shrink:0;}
 .task-dur-badge{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);
   background:var(--bg);padding:2px 8px;border-radius:6px;flex-shrink:0;}
@@ -153,7 +150,76 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .task-pts{font-size:0.72rem;font-weight:700;color:var(--accent);flex-shrink:0;min-width:20px;
   text-align:right;font-family:'Space Mono',monospace;}
 
-/* TOAST */
+/* ── NOTES BUTTON ── */
+.notes-btn{display:inline-flex;align-items:center;gap:3px;background:transparent;
+  border:1px solid var(--border);color:var(--muted);padding:4px 9px;border-radius:8px;
+  cursor:pointer;font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;
+  transition:all 0.2s;flex-shrink:0;white-space:nowrap;position:relative;}
+.notes-btn:hover{border-color:var(--accent);color:var(--accent);}
+.notes-btn.has-note{border-color:#3a4a20;color:#6adb91;background:#0a1a08;}
+.notes-btn.active{border-color:var(--accent);color:var(--accent);background:#1a1800;}
+.notes-dot{width:5px;height:5px;border-radius:50%;background:#6adb91;
+  position:absolute;top:-2px;right:-2px;display:none;}
+.notes-btn.has-note .notes-dot{display:block;}
+
+/* ── NOTES PANEL ── */
+.notes-panel{display:none;background:#0c1018;border:1px solid var(--border);
+  border-top:none;border-radius:0 0 var(--radius) var(--radius);
+  padding:12px 14px;position:relative;overflow:hidden;}
+.notes-panel::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.task-wrap.english .notes-panel::before{background:var(--english);}
+.task-wrap.gs .notes-panel::before{background:var(--gs);}
+.task-wrap.maths .notes-panel::before{background:var(--maths);}
+.task-wrap.reasoning .notes-panel::before{background:var(--reasoning);}
+.task-wrap.analysis .notes-panel::before{background:var(--analysis);}
+.notes-panel.open{display:block;}
+
+.notes-header{font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+  font-family:'Space Mono',monospace;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.notes-date-lbl{color:var(--accent2);font-size:0.6rem;}
+
+.notes-textarea{width:100%;background:#080c14;border:1px solid var(--border2);color:var(--text);
+  border-radius:9px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:0.8rem;
+  line-height:1.6;resize:vertical;min-height:72px;outline:none;transition:border 0.2s;
+  scrollbar-width:thin;}
+.notes-textarea::placeholder{color:var(--muted);font-style:italic;}
+.notes-textarea:focus{border-color:var(--accent2);}
+
+.notes-actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px;flex-wrap:wrap;}
+.notes-save-btn{background:var(--accent2);border:none;color:#000;padding:6px 16px;border-radius:8px;
+  cursor:pointer;font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;transition:all 0.2s;}
+.notes-save-btn:hover{background:#4fe0e0;}
+.notes-clear-btn{background:transparent;border:1px solid #3a1a1a;color:#804040;padding:6px 12px;
+  border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;font-size:0.75rem;font-weight:600;transition:all 0.2s;}
+.notes-clear-btn:hover{border-color:#f06060;color:#f06060;}
+.notes-char-count{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);}
+
+/* NOTES HISTORY in analytics */
+.notes-history-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:18px;}
+.notes-history-card h3{font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+  margin-bottom:16px;font-family:'Space Mono',monospace;}
+.notes-entry{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;
+  margin-bottom:8px;position:relative;overflow:hidden;}
+.notes-entry::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.notes-entry.english::before{background:var(--english);}
+.notes-entry.gs::before{background:var(--gs);}
+.notes-entry.maths::before{background:var(--maths);}
+.notes-entry.reasoning::before{background:var(--reasoning);}
+.notes-entry.analysis::before{background:var(--analysis);}
+.notes-entry-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.notes-entry-task{font-size:0.78rem;font-weight:700;color:var(--text);}
+.notes-entry-date{font-size:0.65rem;color:var(--muted);font-family:'Space Mono',monospace;}
+.notes-entry-text{font-size:0.8rem;color:var(--text);line-height:1.6;opacity:0.85;
+  white-space:pre-wrap;font-family:'Space Mono',monospace;}
+.notes-filter-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.notes-filter-btn{background:var(--card2);border:1px solid var(--border);color:var(--muted);
+  padding:5px 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;
+  font-family:'Syne',sans-serif;transition:all 0.2s;}
+.notes-filter-btn:hover{border-color:var(--border2);color:var(--text);}
+.notes-filter-btn.active{background:#1a1800;border-color:var(--accent);color:var(--accent);}
+.notes-empty{text-align:center;color:var(--muted);font-family:'Space Mono',monospace;
+  font-size:0.78rem;padding:24px 0;}
+
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
   background:#1a2a1a;border:1px solid #3a5a3a;color:#6adb91;font-family:'Space Mono',monospace;
   font-size:0.78rem;padding:10px 20px;border-radius:10px;z-index:200;opacity:0;transition:all 0.3s;
@@ -161,7 +227,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.warn{background:#2a1a0a;border-color:#5a3810;color:var(--accent);}
 
-/* ANALYTICS */
 .analytics-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:18px;
   box-shadow:0 4px 20px rgba(0,0,0,0.3);}
 .analytics-card h3{font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;
@@ -189,7 +254,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .cal-legend span{font-size:0.68rem;color:var(--muted);font-family:'Space Mono',monospace;}
 .leg-cell{width:12px;height:12px;border-radius:2px;}
 
-/* MANAGE */
 .manage-section{margin-bottom:24px;}
 .manage-section h3{font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
   margin-bottom:12px;font-family:'Space Mono',monospace;}
@@ -222,7 +286,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
   border-radius:9px;cursor:pointer;font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;}
 .reset-btn:hover{border-color:#f06060;color:#f06060;}
 
-/* FOCUS DIALOG OVERLAY */
 #focusOverlay{display:none;position:fixed;inset:0;z-index:300;
   background:rgba(4,6,14,0.85);backdrop-filter:blur(6px);
   align-items:center;justify-content:center;}
@@ -239,7 +302,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
 .fd-full-name{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:20px;line-height:1.3;}
 
-/* HOURGLASS SVG AREA */
 .fd-hourglass-wrap{
   position:relative;width:100px;height:120px;margin:0 auto 18px;
   transition:transform 0.6s cubic-bezier(0.4,0,0.2,1),filter 0.4s;
@@ -266,7 +328,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 }
 .fd-hourglass-wrap.shaking{animation:hgShake 0.35s ease;}
 
-/* NEON MODE */
 body.neon-mode{background:#020408;}
 body.neon-mode #focusDialog{
   background:#060c18;
@@ -283,14 +344,12 @@ body.neon-mode .fd-hourglass-wrap{
 }
 .neon-btn.on{border-color:#3ecfcf;color:#3ecfcf;text-shadow:0 0 8px #3ecfcf;}
 
-/* FOCUS PULSE */
 @keyframes focusPulse{
   0%,100%{filter:drop-shadow(0 0 4px rgba(245,200,66,0.2));}
   50%{filter:drop-shadow(0 0 14px rgba(245,200,66,0.5));}
 }
 .fd-hourglass-wrap.pulsing-glow{animation:focusPulse 2s ease-in-out infinite;}
 
-/* CLOCK RING */
 .fd-ring-wrap{position:relative;width:140px;height:140px;margin:0 auto 4px;}
 #fdRingSvg{width:140px;height:140px;}
 .fd-clock-inside{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
@@ -299,7 +358,6 @@ body.neon-mode .fd-hourglass-wrap{
 
 .fd-pct{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--accent2);margin-bottom:18px;letter-spacing:1px;}
 
-/* DIALOG BUTTONS */
 .fd-btns{display:flex;gap:8px;justify-content:center;}
 .fd-btn{border-radius:10px;padding:9px 18px;font-family:'Syne',sans-serif;font-weight:700;
   font-size:0.82rem;cursor:pointer;border:1px solid;transition:all 0.18s;flex:1;}
@@ -310,22 +368,22 @@ body.neon-mode .fd-hourglass-wrap{
 .fd-btn-stop{background:transparent;border-color:#3a1a1a;color:#804040;flex:0 0 auto;padding:9px 14px;}
 .fd-btn-stop:hover{border-color:#f06060;color:#f06060;}
 
-/* TIME UP STATE */
 .fd-timeup-msg{display:none;font-size:0.82rem;color:var(--accent);font-family:'Space Mono',monospace;
   margin-bottom:12px;animation:blinkPulse 1s ease-in-out infinite;}
 @keyframes blinkPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 .fd-timeup-msg.show{display:block;}
 
-/* COMPLETE ANIMATION */
 @keyframes completePop{0%{transform:scale(1);}40%{transform:scale(1.04);}100%{transform:scale(1);}}
 .task-row.just-done{animation:completePop 0.3s ease-out;}
 
 @keyframes timerPulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
 .task-timer-display.pulsing{animation:timerPulse 1s ease-in-out infinite;}
 
-/* MOBILE */
+/* Notes slide-down animation */
+@keyframes notesSlideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.notes-panel.open{animation:notesSlideDown 0.2s ease;}
+
 @media(max-width:480px){
-  header h1{font-size:1.6rem;}
   .tabs{gap:4px;padding:14px 10px 0;}
   .tab{font-size:0.78rem;padding:8px 4px;}
   .panel{padding:14px 10px;}
@@ -334,6 +392,7 @@ body.neon-mode .fd-hourglass-wrap{
   .task-row{padding:9px 10px;gap:8px;}
   .task-name{font-size:0.82rem;}
   .start-btn{padding:3px 8px;font-size:0.68rem;}
+  .notes-btn{padding:3px 7px;font-size:0.65rem;}
   .task-dur-badge{display:none;}
   .stat-pill{padding:10px;}
   .stat-pill .val{font-size:1.4rem;}
@@ -344,7 +403,6 @@ body.neon-mode .fd-hourglass-wrap{
 </head>
 <body>
 
-<!-- GLOBAL TIMER BAR -->
 <div id="globalTimerBar">
   <span>⏱️</span>
   <div id="gTimerName">Task name</div>
@@ -371,6 +429,7 @@ body.neon-mode .fd-hourglass-wrap{
 <div class="tabs" id="tabBar">
   <button class="tab active" data-tab="today">📋 Today</button>
   <button class="tab" data-tab="analytics">📊 Stats</button>
+  <button class="tab" data-tab="notes-tab">📝 Notes</button>
   <button class="tab" data-tab="manage">⚙️ Manage</button>
 </div>
 
@@ -427,6 +486,22 @@ body.neon-mode .fd-hourglass-wrap{
   </div>
 </div>
 
+<!-- NOTES TAB -->
+<div class="panel" id="tab-notes-tab">
+  <div class="notes-history-card">
+    <h3>// My Study Notes</h3>
+    <div class="notes-filter-bar" id="notesFilterBar">
+      <button class="notes-filter-btn active" data-filter="all">All</button>
+      <button class="notes-filter-btn" data-filter="english">🔤 English</button>
+      <button class="notes-filter-btn" data-filter="gs">🌍 GS</button>
+      <button class="notes-filter-btn" data-filter="maths">🔢 Maths</button>
+      <button class="notes-filter-btn" data-filter="reasoning">🧠 Reasoning</button>
+      <button class="notes-filter-btn" data-filter="analysis">📊 Analysis</button>
+    </div>
+    <div id="notesHistoryList"></div>
+  </div>
+</div>
+
 <!-- MANAGE -->
 <div class="panel" id="tab-manage">
   <div class="manage-section">
@@ -470,13 +545,9 @@ body.neon-mode .fd-hourglass-wrap{
     <div class="fd-task-name" id="fdTaskLabel">TASK</div>
     <div class="fd-full-name" id="fdTaskFull">Task Name</div>
     <button class="neon-btn" id="neonBtn" onclick="toggleNeon()">◈ NEON</button>
-
-    <!-- Hourglass Canvas Animation -->
     <div class="fd-hourglass-wrap" id="hgWrap">
       <canvas id="fdHourglassCanvas" width="100" height="120"></canvas>
     </div>
-
-    <!-- Circular countdown ring -->
     <div class="fd-ring-wrap">
       <svg id="fdRingSvg" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
         <circle cx="70" cy="70" r="58" fill="none" stroke="#1e2538" stroke-width="8"/>
@@ -496,10 +567,8 @@ body.neon-mode .fd-hourglass-wrap{
         <div class="fd-clock-label" id="fdClockLabel">REMAINING</div>
       </div>
     </div>
-
     <div class="fd-pct" id="fdPct">0% done</div>
     <div class="fd-timeup-msg" id="fdTimeupMsg">⏰ Time's up! Great work!</div>
-
     <div class="fd-btns">
       <button class="fd-btn fd-btn-pause" id="fdPauseBtn" onclick="dialogPauseResume()">⏸ Pause</button>
       <button class="fd-btn fd-btn-done" id="fdDoneBtn" onclick="dialogMarkDone()">✓ Mark Done</button>
@@ -509,7 +578,6 @@ body.neon-mode .fd-hourglass-wrap{
 </div>
 
 <script>
-// ── DEFAULT DATA ──
 const DEFAULT_TASKS = [
   {id:'v1',  cat:'english',   sec:'subah',   name:'Vocab — 7 new words (Morning)',            dur:'25 min'},
   {id:'g1',  cat:'english',   sec:'subah',   name:'Grammar — PYQ attempt',                    dur:'25 min'},
@@ -539,14 +607,10 @@ const SECTIONS = [
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const WDAYS  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-// ── STATE ──
 let currentKey = todayKey();
 let store = loadStore();
 let activeTab = 'today';
 let dragSrc = null;
-
-// ── TIMER STATE ──
-// { id, name, totalSecs, elapsed, startedAt, interval, durBadgeEl, timerDisplayEl, startBtnEl, taskRowEl }
 let activeTimer = null;
 
 function todayKey(){
@@ -558,8 +622,9 @@ function loadStore(){
     const s=JSON.parse(localStorage.getItem('ssc_v5')||'{}');
     if(!s.tasks) s.tasks=JSON.parse(JSON.stringify(DEFAULT_TASKS));
     if(!s.days)  s.days={};
+    if(!s.notes) s.notes={};   // NEW: notes storage { "datekey_taskid": "note text" }
     return s;
-  }catch(e){return {tasks:JSON.parse(JSON.stringify(DEFAULT_TASKS)),days:{}};}
+  }catch(e){return {tasks:JSON.parse(JSON.stringify(DEFAULT_TASKS)),days:{},notes:{}};}
 }
 function save(){localStorage.setItem('ssc_v5',JSON.stringify(store));}
 function dayData(k){if(!store.days[k])store.days[k]={};return store.days[k];}
@@ -590,6 +655,152 @@ function goDay(delta){
   renderToday();
 }
 
+// ── NOTES HELPERS ──
+function noteKey(dateKey, taskId){ return dateKey + '__' + taskId; }
+function getNote(dateKey, taskId){ return (store.notes || {})[noteKey(dateKey, taskId)] || ''; }
+function setNote(dateKey, taskId, text){
+  if(!store.notes) store.notes = {};
+  const k = noteKey(dateKey, taskId);
+  if(text.trim() === ''){
+    delete store.notes[k];
+  } else {
+    store.notes[k] = text.trim();
+  }
+  save();
+}
+function hasNote(dateKey, taskId){ return !!getNote(dateKey, taskId); }
+
+// Toggle notes panel open/close
+function toggleNotes(wrapEl, dateKey, taskId, taskName, taskCat){
+  const panel = wrapEl.querySelector('.notes-panel');
+  const btn = wrapEl.querySelector('.notes-btn');
+  const isOpen = panel.classList.contains('open');
+
+  // Close all other open panels first
+  document.querySelectorAll('.notes-panel.open').forEach(p => {
+    p.classList.remove('open');
+    const w = p.closest('.task-wrap');
+    if(w) w.classList.remove('notes-open');
+    const b = w && w.querySelector('.notes-btn');
+    if(b) b.classList.remove('active');
+  });
+
+  if(!isOpen){
+    panel.classList.add('open');
+    wrapEl.classList.add('notes-open');
+    btn.classList.add('active');
+    const ta = panel.querySelector('.notes-textarea');
+    ta.value = getNote(dateKey, taskId);
+    updateCharCount(panel);
+    setTimeout(()=> ta.focus(), 50);
+  }
+}
+
+function updateCharCount(panel){
+  const ta = panel.querySelector('.notes-textarea');
+  const cc = panel.querySelector('.notes-char-count');
+  if(cc) cc.textContent = ta.value.length + ' chars';
+}
+
+function saveNoteFromPanel(panel, dateKey, taskId){
+  const ta = panel.querySelector('.notes-textarea');
+  const text = ta.value;
+  setNote(dateKey, taskId, text);
+  // Update notes-btn appearance
+  const wrapEl = panel.closest('.task-wrap');
+  const btn = wrapEl && wrapEl.querySelector('.notes-btn');
+  if(btn){
+    if(text.trim()){
+      btn.classList.add('has-note');
+    } else {
+      btn.classList.remove('has-note');
+    }
+  }
+  showToast('📝 Note saved!');
+}
+
+function clearNoteFromPanel(panel, dateKey, taskId){
+  const ta = panel.querySelector('.notes-textarea');
+  ta.value = '';
+  setNote(dateKey, taskId, '');
+  const wrapEl = panel.closest('.task-wrap');
+  const btn = wrapEl && wrapEl.querySelector('.notes-btn');
+  if(btn) btn.classList.remove('has-note');
+  updateCharCount(panel);
+  showToast('🗑 Note cleared');
+}
+
+// ── RENDER NOTES TAB ──
+let notesFilter = 'all';
+function renderNotesTab(){
+  const list = document.getElementById('notesHistoryList');
+  const notes = store.notes || {};
+  const entries = [];
+
+  // Collect all note entries
+  Object.keys(notes).forEach(k => {
+    if(!notes[k]) return;
+    const [dateKey, taskId] = k.split('__');
+    const task = store.tasks.find(t => t.id === taskId);
+    if(!task) return;
+    if(notesFilter !== 'all' && task.cat !== notesFilter) return;
+    entries.push({ dateKey, taskId, task, text: notes[k] });
+  });
+
+  // Sort by date descending
+  entries.sort((a,b) => b.dateKey.localeCompare(a.dateKey));
+
+  if(!entries.length){
+    list.innerHTML = '<div class="notes-empty">No notes yet.<br>Use the 📝 button on any task to add notes!</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  let lastDate = '';
+  entries.forEach(e => {
+    if(e.dateKey !== lastDate){
+      const dateSep = document.createElement('div');
+      dateSep.style.cssText = 'font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);padding:10px 0 5px;font-family:"Space Mono",monospace;border-bottom:1px solid var(--border);margin-bottom:8px;';
+      dateSep.textContent = fmtDate(e.dateKey);
+      list.appendChild(dateSep);
+      lastDate = e.dateKey;
+    }
+
+    const entry = document.createElement('div');
+    entry.className = `notes-entry ${e.task.cat}`;
+
+    const hdr = document.createElement('div');
+    hdr.className = 'notes-entry-header';
+
+    const taskName = document.createElement('div');
+    taskName.className = 'notes-entry-task';
+    taskName.textContent = e.task.name;
+
+    const catBadge = document.createElement('span');
+    catBadge.className = `cat-badge cat-${e.task.cat}`;
+    catBadge.textContent = e.task.cat.charAt(0).toUpperCase() + e.task.cat.slice(1);
+
+    hdr.append(taskName, catBadge);
+
+    const text = document.createElement('div');
+    text.className = 'notes-entry-text';
+    text.textContent = e.text;
+
+    entry.append(hdr, text);
+    list.appendChild(entry);
+  });
+}
+
+// Filter buttons
+document.getElementById('notesFilterBar').addEventListener('click', e => {
+  const btn = e.target.closest('.notes-filter-btn');
+  if(!btn) return;
+  document.querySelectorAll('.notes-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  notesFilter = btn.dataset.filter;
+  renderNotesTab();
+});
+
 // ── TOAST ──
 let toastTimer=null;
 function showToast(msg,type=''){
@@ -602,7 +813,6 @@ function showToast(msg,type=''){
 
 // ── TIMER LOGIC ──
 function parseDuration(durStr){
-  // Parse "25 min", "90 min", "1h30m", "—" etc.
   if(!durStr||durStr==='—')return 0;
   const minMatch=durStr.match(/(\d+)\s*min/i);
   const hrMatch=durStr.match(/(\d+)\s*h/i);
@@ -670,7 +880,6 @@ function tickTimer(){
 function pauseResumeTimer(startBtnEl){
   if(!activeTimer||activeTimer.id!==getTaskIdFromBtn(startBtnEl)) return;
   if(activeTimer.interval){
-    // pause
     clearInterval(activeTimer.interval);
     activeTimer.interval=null;
     startBtnEl.textContent='▶ Resume';
@@ -679,7 +888,6 @@ function pauseResumeTimer(startBtnEl){
     document.getElementById('gPauseBtn').textContent='▶ Resume';
     showToast('⏸ Timer paused');
   } else {
-    // resume — reset startedAt so fractional-second animation is accurate
     activeTimer.startedAt = Date.now() - (activeTimer.elapsed * 1000);
     activeTimer.interval=setInterval(tickTimer,1000);
     startBtnEl.textContent='⏸ Pause';
@@ -717,9 +925,7 @@ function stopActiveTimer(notify=true){
 
 function globalPauseResume(){
   if(!activeTimer)return;
-  if(activeTimer.startBtnEl){
-    pauseResumeTimer(activeTimer.startBtnEl);
-  }
+  if(activeTimer.startBtnEl){pauseResumeTimer(activeTimer.startBtnEl);}
 }
 function globalStop(){stopActiveTimer();}
 function globalMarkDone(){
@@ -737,8 +943,7 @@ function globalMarkDone(){
 // ── FOCUS DIALOG ──
 let sandAnimFrame = null;
 let sandParticles = [];
-let smoothPct = 0;          // visually interpolated pct for hourglass
-let lastFrameTime = 0;      // for delta-time based lerp
+let neonOn = false;
 
 function openFocusDialog(task, totalSecs){
   const overlay = document.getElementById('focusOverlay');
@@ -748,11 +953,6 @@ function openFocusDialog(task, totalSecs){
   document.getElementById('fdPauseBtn').disabled = false;
   document.getElementById('fdPauseBtn').style.opacity = '';
   document.getElementById('fdPauseBtn').textContent = '⏸ Pause';
-  // Start visual pct from where timer actually is — then advance smoothly from here
-  smoothPct = activeTimer && activeTimer.totalSecs > 0
-    ? Math.min(1, activeTimer.elapsed / activeTimer.totalSecs)
-    : 0;
-  lastFrameTime = 0;
   overlay.classList.add('show');
   updateFocusDialog();
   startSandAnimation();
@@ -767,47 +967,14 @@ function updateFocusDialog(){
   const rem = tot > 0 ? Math.max(0, tot - el) : el;
   const pct = tot > 0 ? Math.min(1, el / tot) : 0;
   const sandCol = getSandColor(pct);
-
-  // Clock — color shifts yellow→orange→red
   const clockEl = document.getElementById('fdClock');
   if(clockEl){ clockEl.textContent = tot > 0 ? fmtSecs(rem) : '+' + fmtSecs(el); clockEl.style.color = sandCol; }
   const lblEl = document.getElementById('fdClockLabel');
   if(lblEl) lblEl.textContent = tot > 0 ? 'REMAINING' : 'ELAPSED';
-
-  // Ring color shifts with progress
   const ring = document.getElementById('fdRingProgress');
   if(ring){ ring.style.strokeDashoffset = (364.4 * (1 - pct)).toFixed(1); ring.style.stroke = sandCol; }
-
-  // Pct text
   const pctEl = document.getElementById('fdPct');
   if(pctEl) pctEl.textContent = Math.round(pct * 100) + '% done';
-
-  // Hourglass — driven by animation loop
-  updateHourglass(pct);
-}
-
-function updateHourglass(pct){
-  // Top sand: full polygon clips to shrink from bottom as pct increases
-  // We animate the clipRect height for top (shrinks) and bot (grows)
-  const topRect = document.getElementById('topClipRect');
-  const botRect = document.getElementById('botClipRect');
-  const stream = document.getElementById('fdSandStream');
-
-  if(topRect){
-    // top clip: y stays at 10, height shrinks from 47 to 0
-    const topH = Math.max(0, 47 * (1 - pct));
-    topRect.setAttribute('y', 10);
-    topRect.setAttribute('height', topH.toFixed(1));
-  }
-  if(botRect){
-    // bottom clip: fills from bottom — y moves up as more sand fills
-    const botFull = 47;
-    const botH = Math.min(botFull, botFull * pct);
-    botRect.setAttribute('y', (112 - botH).toFixed(1));
-    botRect.setAttribute('height', botH.toFixed(1));
-  }
-  // Hide stream when done
-  if(stream) stream.style.opacity = pct >= 1 ? '0' : '1';
 }
 
 function startSandAnimation(){
@@ -815,28 +982,22 @@ function startSandAnimation(){
   sandParticles = [];
   function loop(timestamp){
     if(!document.getElementById('focusOverlay').classList.contains('show')) return;
-
-    // Compute true visual pct using wall-clock time for smooth 60fps animation
     let visualPct = 0;
     if(activeTimer && activeTimer.totalSecs > 0){
       let trueElapsedMs;
       if(activeTimer.interval && activeTimer.startedAt){
-        // startedAt is set so that (now - startedAt) = total elapsed ms
         trueElapsedMs = Date.now() - activeTimer.startedAt;
       } else {
-        // paused — use integer elapsed
         trueElapsedMs = activeTimer.elapsed * 1000;
       }
       visualPct = Math.min(1, Math.max(0, trueElapsedMs / (activeTimer.totalSecs * 1000)));
     }
-
     drawHourglass(visualPct);
     sandAnimFrame = requestAnimationFrame(loop);
   }
   sandAnimFrame = requestAnimationFrame(loop);
 }
 
-// Spawn a new falling particle from neck
 let particleTick = 0;
 function spawnParticle(){
   sandParticles.push({
@@ -849,8 +1010,6 @@ function spawnParticle(){
   });
 }
 
-// ── INSANE MODE ──
-let neonOn = false;
 function toggleNeon(){
   neonOn = !neonOn;
   document.body.classList.toggle('neon-mode', neonOn);
@@ -858,7 +1017,6 @@ function toggleNeon(){
   if(btn) btn.classList.toggle('on', neonOn);
 }
 
-// Mouse tilt parallax
 function initTilt(){
   const wrap = document.getElementById('hgWrap');
   if(!wrap) return;
@@ -873,8 +1031,6 @@ function initTilt(){
   });
 }
 
-// Focus pulse every 4s
-let focusPulseTimer = null;
 function startFocusPulse(){
   const wrap = document.getElementById('hgWrap');
   if(!wrap) return;
@@ -885,11 +1041,9 @@ function stopFocusPulse(){
   if(wrap) wrap.classList.remove('pulsing-glow');
 }
 
-// Wave time for liquid sand
 let waveTime = 0;
 function waveOffset(x, t){ return Math.sin(x * 0.09 + t * 0.003) * 1.8; }
 
-// Glass 3D shine overlay
 function drawGlassShine(ctx){
   const g = ctx.createLinearGradient(0, 0, 100, 0);
   g.addColorStop(0,   'rgba(255,255,255,0.13)');
@@ -900,7 +1054,6 @@ function drawGlassShine(ctx){
   ctx.fillStyle = g;
   ctx.beginPath(); ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath(); ctx.fill();
   ctx.beginPath(); ctx.moveTo(50,63); ctx.lineTo(88,113); ctx.lineTo(12,113); ctx.closePath(); ctx.fill();
-  // left edge inner highlight
   ctx.strokeStyle = 'rgba(255,255,255,0.08)';
   ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(14,9); ctx.lineTo(50,55); ctx.stroke();
@@ -908,9 +1061,7 @@ function drawGlassShine(ctx){
   ctx.restore();
 }
 
-
 function getSandColor(pct){
-  // yellow → orange → red as time runs out
   const r = Math.min(255, Math.floor(245 + 10*pct));
   const g = Math.floor(200 - 120*pct);
   const b = Math.floor(66 - 40*pct);
@@ -927,7 +1078,6 @@ function flipHourglass(){
 function finishEffect(){
   const el = document.getElementById('hgWrap');
   if(!el) return;
-  // shake first, then blast glow
   el.classList.add('shaking');
   setTimeout(()=>{
     el.classList.remove('shaking');
@@ -935,7 +1085,6 @@ function finishEffect(){
     setTimeout(()=> el.classList.remove('finish-glow'), 700);
   }, 350);
 }
-
 
 function sandGradient(ctx, x1, y1, x2, y2, dark, pct){
   const mid = getSandColor(pct || 0);
@@ -965,10 +1114,8 @@ function drawHourglass(pct){
   const ctx = canvas.getContext('2d');
   const W = 100, H = 120;
   ctx.clearRect(0,0,W,H);
-
   const running = activeTimer && !!activeTimer.interval;
 
-  // ── GLASS FRAME (background) ──
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath();
@@ -980,22 +1127,17 @@ function drawHourglass(pct){
   ctx.strokeStyle='#3a4f72'; ctx.lineWidth=1.5; ctx.stroke();
   ctx.restore();
 
-  // ── TOP SAND ──
   const sandSurfY = 7 + 50 * pct;
   if(pct < 1){
     const tlx = 12 + 36*(sandSurfY-7)/50;
     const trx = 88 - 36*(sandSurfY-7)/50;
-
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath();
     ctx.clip();
-
     ctx.shadowColor = getSandColor(pct);
     ctx.shadowBlur = 6;
     waveTime = Date.now();
-
-    // 🌊 Liquid wave surface
     ctx.beginPath();
     ctx.moveTo(tlx, sandSurfY + waveOffset(tlx, waveTime));
     for(let x = tlx; x <= trx; x += 2){
@@ -1008,53 +1150,43 @@ function drawHourglass(pct){
     ctx.restore();
   }
 
-  // ── BOTTOM SAND ──
   const botSandSurfY = 113 - 50 * pct;
   if(pct > 0){
     const blx = 12 + 36*(113 - botSandSurfY)/50;
     const brx = 88 - 36*(113 - botSandSurfY)/50;
-    // mound capped so it never goes above botSandSurfY
     const mound = Math.min(8, (5 + 9*pct) * (brx - blx) / 76);
-
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(50,63); ctx.lineTo(88,113); ctx.lineTo(12,113); ctx.closePath();
     ctx.clip();
-
     ctx.shadowColor = getSandColor(pct);
     ctx.shadowBlur = 6;
-
-    // Draw: left-bottom corner → right-bottom → right surface → mound peak → left surface → close
     ctx.beginPath();
-    ctx.moveTo(12, 113);          // bottom-left
-    ctx.lineTo(88, 113);          // bottom-right
-    ctx.lineTo(brx, botSandSurfY); // right surface edge
-    ctx.quadraticCurveTo(50, botSandSurfY - mound, blx, botSandSurfY); // mound curve
-    ctx.closePath();              // back to (12,113)
+    ctx.moveTo(12, 113);
+    ctx.lineTo(88, 113);
+    ctx.lineTo(brx, botSandSurfY);
+    ctx.quadraticCurveTo(50, botSandSurfY - mound, blx, botSandSurfY);
+    ctx.closePath();
     ctx.fillStyle = sandGradient(ctx, 50, 113, 50, botSandSurfY, true, pct);
     ctx.fill();
     ctx.restore();
   }
 
-  // ── FALLING PARTICLES (physics) ──
   if(running && pct < 1){
     particleTick++;
     if(particleTick % 3 === 0) spawnParticle();
     sandParticles = sandParticles.filter(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.25; // gravity
-
-      // bounce + settle on sand surface
+      p.vy += 0.25;
       if(p.y >= botSandSurfY){
         p.y = botSandSurfY;
-        p.vy *= -0.2;          // small bounce
-        p.vx *= 0.6;           // friction
-        p.x += (Math.random()-0.5) * 2; // spread
-        if(Math.abs(p.vy) < 0.3) return false; // settled
+        p.vy *= -0.2;
+        p.vx *= 0.6;
+        p.x += (Math.random()-0.5) * 2;
+        if(Math.abs(p.vy) < 0.3) return false;
       }
       if(p.y > 114) return false;
-
       ctx.save();
       ctx.globalAlpha = p.alpha * Math.min(1,(botSandSurfY - p.y)/14);
       ctx.shadowColor = getSandColor(pct);
@@ -1063,7 +1195,6 @@ function drawHourglass(pct){
       ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
       ctx.fillStyle = getSandColor(pct);
       ctx.fill();
-      // ✨ sparkle — occasional bright white pixel
       if(Math.random() < 0.12){
         ctx.globalAlpha = 0.9;
         ctx.fillStyle = '#fff8c0';
@@ -1076,12 +1207,10 @@ function drawHourglass(pct){
     sandParticles = [];
   }
 
-  // ── GLASS OUTLINE OVERDRAW ──
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath();
   ctx.strokeStyle='#5a70a0'; ctx.lineWidth=1.5; ctx.stroke();
-  // glass highlight
   ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(14,7); ctx.lineTo(50,55); ctx.stroke();
   ctx.beginPath();
@@ -1089,14 +1218,12 @@ function drawHourglass(pct){
   ctx.strokeStyle='#5a70a0'; ctx.lineWidth=1.5; ctx.stroke();
   ctx.restore();
 
-  // ── NECK / MIDDLE BAR ──
   ctx.save();
   ctx.beginPath(); ctx.roundRect(44,56,12,8,3);
   ctx.fillStyle='#1a2540'; ctx.fill();
   ctx.strokeStyle='#5a70a0'; ctx.lineWidth=1.2; ctx.stroke();
   ctx.restore();
 
-  // ── CAPS ──
   ctx.save();
   ctx.beginPath(); ctx.roundRect(8,2,84,6,3);
   ctx.fillStyle='#1e2d4a'; ctx.fill();
@@ -1106,11 +1233,8 @@ function drawHourglass(pct){
   ctx.strokeStyle='#4a6090'; ctx.lineWidth=1; ctx.stroke();
   ctx.restore();
 
-  // ── 😳 FAKE 3D GLASS SHINE (last — renders on top) ──
   drawGlassShine(ctx);
 }
-
-function updateHourglass(pct){ /* driven by drawHourglass in animation loop */ }
 
 function closeFocusDialog(){
   cancelAnimationFrame(sandAnimFrame);
@@ -1171,6 +1295,7 @@ function switchTab(name){
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='analytics')renderAnalytics();
   if(name==='manage')renderManage();
+  if(name==='notes-tab')renderNotesTab();
 }
 
 // ── TOGGLE TASK ──
@@ -1219,6 +1344,12 @@ function renderToday(){
     tasks.forEach(task=>{
       const done=!!day[task.id];
       const isActive=activeTimer&&activeTimer.id===task.id;
+
+      // ── TASK WRAP (outer container) ──
+      const wrap = document.createElement('div');
+      wrap.className = `task-wrap ${task.cat}`;
+
+      // ── TASK ROW ──
       const row=document.createElement('div');
       row.className=`task-row ${task.cat}${done?' done':''}${isActive?' active-timer':''}`;
       row.dataset.id=task.id;
@@ -1316,9 +1447,62 @@ function renderToday(){
         });
       }
 
-      timerArea.append(durBadge, timerDisplay, startBtn);
+      // ── NOTES BUTTON ──
+      const notesBtn = document.createElement('button');
+      notesBtn.className = 'notes-btn' + (hasNote(currentKey, task.id) ? ' has-note' : '');
+      notesBtn.title = 'Add/view notes for this task';
+      notesBtn.innerHTML = '📝 Notes<span class="notes-dot"></span>';
+      notesBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleNotes(wrap, currentKey, task.id, task.name, task.cat);
+      });
+
+      timerArea.append(durBadge, timerDisplay, startBtn, notesBtn);
       row.append(handle, check, name, timerArea);
-      grid.appendChild(row);
+
+      // ── NOTES PANEL ──
+      const notesPanel = document.createElement('div');
+      notesPanel.className = 'notes-panel';
+
+      const notesHeader = document.createElement('div');
+      notesHeader.className = 'notes-header';
+      notesHeader.innerHTML = `<span>📝 What did you do?</span><span class="notes-date-lbl">${shortDate(currentKey)}</span>`;
+
+      const textarea = document.createElement('textarea');
+      textarea.className = 'notes-textarea';
+      textarea.placeholder = 'Write what you studied, covered, problems attempted, how it went...\ne.g. Did 2 chapters of Polity, solved 15 maths questions, revised vocab from Set 3...';
+      textarea.rows = 3;
+      textarea.addEventListener('input', () => updateCharCount(notesPanel));
+      // Save on Ctrl+Enter
+      textarea.addEventListener('keydown', e => {
+        if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+          e.preventDefault();
+          saveNoteFromPanel(notesPanel, currentKey, task.id);
+        }
+      });
+
+      const notesActions = document.createElement('div');
+      notesActions.className = 'notes-actions';
+
+      const charCount = document.createElement('span');
+      charCount.className = 'notes-char-count';
+      charCount.textContent = '0 chars';
+
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'notes-save-btn';
+      saveBtn.textContent = '💾 Save (Ctrl+Enter)';
+      saveBtn.addEventListener('click', () => saveNoteFromPanel(notesPanel, currentKey, task.id));
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'notes-clear-btn';
+      clearBtn.textContent = '✕ Clear';
+      clearBtn.addEventListener('click', () => clearNoteFromPanel(notesPanel, currentKey, task.id));
+
+      notesActions.append(charCount, clearBtn, saveBtn);
+      notesPanel.append(notesHeader, textarea, notesActions);
+
+      wrap.append(row, notesPanel);
+      grid.appendChild(wrap);
     });
   });
 }
@@ -1334,12 +1518,14 @@ function renderAnalytics(){
   const totalDays=scores.length;
   const best=scores.length?Math.max(...scores):0;
   const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
+  const totalNotes = Object.keys(store.notes||{}).filter(k=>(store.notes||{})[k]).length;
 
   document.getElementById('statRow').innerHTML=`
     <div class="stat-pill"><div class="val">${calcStreak()}</div><div class="lbl">Day Streak 🔥</div></div>
     <div class="stat-pill"><div class="val">${totalDays}</div><div class="lbl">Days Active</div></div>
     <div class="stat-pill"><div class="val">${best}</div><div class="lbl">Best Score</div></div>
     <div class="stat-pill"><div class="val">${avg}</div><div class="lbl">Avg Score</div></div>
+    <div class="stat-pill"><div class="val">${totalNotes}</div><div class="lbl">Notes Written 📝</div></div>
   `;
 
   const calGrid=document.getElementById('calGrid');
@@ -1356,7 +1542,6 @@ function renderAnalytics(){
   while(cur<=end){cells.push(cur.toISOString().slice(0,10));cur.setDate(cur.getDate()+1);}
   while(cur.getDay()!==0){cells.push(cur.toISOString().slice(0,10));cur.setDate(cur.getDate()+1);}
 
-  // Month labels — one per week column, aligned with grid
   const totalWeeks = cells.length / 7;
   let lastM = -1;
   for(let w = 0; w < totalWeeks; w++){
@@ -1382,12 +1567,9 @@ function renderAnalytics(){
     calGrid.appendChild(cell);
   });
 
-  // Bar chart — all days from first active day to today
   const barChart=document.getElementById('barChart');
   barChart.innerHTML='';
   const today=new Date(todayKey()+'T00:00:00');
-
-  // Find earliest day with any data, else show 30 days
   let firstKey = keys.length ? keys[0] : addDays(todayKey(), -29);
   const firstDate = new Date(firstKey+'T00:00:00');
   const diffDays = Math.round((today - firstDate)/(1000*60*60*24));
@@ -1407,14 +1589,13 @@ function renderAnalytics(){
     bar.style.background=isT?'var(--accent)':barColor(s,max);
     if(isT)bar.style.boxShadow='0 0 10px var(--accent)';
     bar.setAttribute('data-tip',`${shortDate(dk)}: ${s}/${max}`);
-    const lbl=document.createElement('div');
-    lbl.className='bar-label';
-    lbl.style.color=isT?'var(--accent)':'var(--muted)';
-    lbl.textContent=isT?'•':['S','M','T','W','T','F','S'][d.getDay()];
-    col.append(bar,lbl);
+    const lbl2=document.createElement('div');
+    lbl2.className='bar-label';
+    lbl2.style.color=isT?'var(--accent)':'var(--muted)';
+    lbl2.textContent=isT?'•':['S','M','T','W','T','F','S'][d.getDay()];
+    col.append(bar,lbl2);
     barChart.appendChild(col);
   }
-  // Scroll bar chart to end (today)
   barChart.scrollLeft = barChart.scrollWidth;
 }
 
@@ -1494,11 +1675,9 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
 renderToday();
 renderManage();
 
-// Click outside dialog to close
 document.getElementById('focusOverlay').addEventListener('click', function(e){
   if(e.target === this) dialogStop();
 });
-// Escape key
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape' && document.getElementById('focusOverlay').classList.contains('show')) dialogStop();
 });
