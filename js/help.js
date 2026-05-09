@@ -513,14 +513,14 @@ function addAIFloatingButton() {
 
     btn.style.cssText = `
         position:fixed;
-        right:18px;
-        bottom:90px;
+        left:10px;
+        bottom:40px;
         z-index:4000;
 
         border:none;
         border-radius:999px;
 
-        padding:14px 18px;
+        padding:4px 8px;
 
         background:#6c5ce7;
         color:white;
