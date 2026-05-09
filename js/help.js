@@ -193,7 +193,24 @@ function showHelp() {
                     display:flex;align-items:center;justify-content:center;">✕</button>
             </div>
 
-            <!-- Quick nav -->
+            <!-- Quick nav --><!-- AI Generator Button -->
+<div style="margin-bottom:18px;">
+    <button onclick="showAIPromptModal()"
+        style="
+            width:100%;
+            border:none;
+            border-radius:14px;
+            padding:16px;
+            background:#6c5ce7;
+            color:white;
+            font-size:1rem;
+            font-weight:800;
+            cursor:pointer;
+            box-shadow:0 10px 30px rgba(108,92,231,0.35);
+        ">
+        🤖 Open AI Question Generator
+    </button>
+</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
                 ${HELP_SECTIONS.map((s,i) => `
                     <button onclick="document.getElementById('helpSec${i}').scrollIntoView({behavior:'smooth',block:'start'})"
