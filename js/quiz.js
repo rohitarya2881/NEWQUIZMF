@@ -559,7 +559,7 @@ function displayFlashcards(quizId) {
                         <p class="flashcard-question">${escHtml(q.question)}</p>
                         <div class="flashcard-options">
                             ${q.options.map((o, j) => `
-                                <div class="flashcard-option${j === q.correctIndex ? ' correct-option' : ''}">
+                                <div class="flashcard-option">
                                     <span class="flashcard-opt-letter">${letters[j]}</span>
                                     <span>${escHtml(o)}</span>
                                 </div>`).join('')}
