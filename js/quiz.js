@@ -238,6 +238,9 @@ function buildQuizInterface() {
             <button class="mark-difficult-btn" id="markDifficultBtn" onclick="markCurrentAsDifficult()">
                 <i class="fas fa-flag"></i> Mark Difficult
             </button>
+            <button class="bm-quiz-btn" id="quizBookmarkBtn" onclick="_bookmarkCurrentQuestion()" title="Bookmark this question">
+                🔖 Bookmark
+            </button>
         </div>`;
 
     // Start total timer if needed
@@ -329,6 +332,14 @@ function loadQuestion(index) {
         if (box) box.classList.remove('timer-warning');
     }
 
+    // Update bookmark button state
+    const bmBtn = document.getElementById('quizBookmarkBtn');
+    if (bmBtn && currentQuiz) {
+        const bm = isBookmarked(q, currentQuiz.id);
+        bmBtn.textContent = bm ? '✅🔖 Bookmarked' : '🔖 Bookmark';
+        bmBtn.classList.toggle('bookmarked', bm);
+    }
+
     const opts    = document.getElementById('options'); opts.innerHTML = '';
     const letters = ['A','B','C','D','E','F','G','H'];
     q.options.forEach((opt, i) => {
@@ -402,6 +413,13 @@ function restartQuiz() {
     showQuizSettingsDialog(currentQuiz);
 }
 function exitQuiz() { stopQuizTimer(); goHome(); }
+
+function _bookmarkCurrentQuestion() {
+    if (!currentQuizQuestions || currentQuestionIndex >= currentQuizQuestions.length) return;
+    const q   = currentQuizQuestions[currentQuestionIndex];
+    const btn = document.getElementById('quizBookmarkBtn');
+    toggleBookmark(q, currentQuiz?.id, btn);
+}
 
 function markCurrentAsDifficult() {
     if (!currentQuizQuestions || currentQuestionIndex >= currentQuizQuestions.length) return;
@@ -534,6 +552,19 @@ function fcSearchQuestion(btn) {
     window.open(url, '_blank', 'noopener,noreferrer');
 }
 
+// ── Flashcard Bookmark Toggle ─────────────────
+let _fcCurrentQuiz = null; // store quiz ref for bookmark access
+
+function _fcToggleBookmark(btn) {
+    const qIdx   = parseInt(btn.dataset.qidx);
+    const quizId = btn.dataset.quizid;
+    const quiz   = findItemById(quizId);
+    if (!quiz) return;
+    const q = quiz.questions[qIdx];
+    if (!q) return;
+    toggleBookmark(q, quizId, btn);
+}
+
 function displayFlashcards(quizId) {
     const quiz = typeof quizId === 'string' ? findItemById(quizId) : quizId;
     if (!quiz || quiz.type !== 'quiz' || !quiz.questions?.length) {
@@ -546,10 +577,17 @@ function displayFlashcards(quizId) {
     const letters = ['A','B','C','D','E','F','G','H'];
 
     // Build cards with exact old site HTML structure
-    const cardsHTML = quiz.questions.map((q, i) => `
+    const cardsHTML = quiz.questions.map((q, i) => {
+        const bm = isBookmarked(q, quiz.id);
+        return `
         <div class="flashcard" data-idx="${i}">
             <button class="fc-edit-btn" onclick="event.stopPropagation();openFlashcardEdit('${quiz.id}',${i})" title="Edit">✏️</button>
             <button class="fc-search-btn" onclick="event.stopPropagation();fcSearchQuestion(this)" data-q="${escHtml(q.question)}" title="Search on Google">🔍</button>
+            <button class="fc-bm-btn ${bm?'bookmarked':''}" data-qidx="${i}" data-quizid="${quiz.id}"
+                onclick="event.stopPropagation();_fcToggleBookmark(this)"
+                title="${bm?'Bookmarked — click to remove':'Bookmark'}">
+                ${bm?'✅🔖':'🔖'}
+            </button>
             <div class="flashcard-inner">
                 <!-- FRONT -->
                 <div class="flashcard-front">
@@ -578,7 +616,8 @@ function displayFlashcards(quizId) {
                     </div>
                 </div>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 
     fc.innerHTML = `
         <div class="fc-toolbar">
@@ -587,6 +626,7 @@ function displayFlashcards(quizId) {
             <input class="fc-search" id="fcSearch" type="text" placeholder="🔍 Search questions…">
             <button class="fc-btn" onclick="fcRevealAll(true)">Reveal All</button>
             <button class="fc-btn" onclick="fcRevealAll(false)">Hide All</button>
+            <button class="fc-btn" onclick="showAllBookmarks()">🔖 My Bookmarks</button>
             <button class="fc-btn danger" onclick="goHome()">← Back</button>
         </div>
         <div class="flashcard-main-container" id="fcGrid">
