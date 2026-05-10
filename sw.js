@@ -22,6 +22,8 @@ const STATIC_ASSETS = [
     '/NEWQUIZMF/js/quiz.js',
     '/NEWQUIZMF/js/difficult.js',
     '/NEWQUIZMF/js/rapid.js',
+       '/NEWQUIZMF/js/bookmarks.js',
+
     '/NEWQUIZMF/js/mixed.js',
     '/NEWQUIZMF/js/pomodoro.js',
     '/NEWQUIZMF/js/notes.js',
