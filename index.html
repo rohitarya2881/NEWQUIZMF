@@ -93,6 +93,7 @@
                 <button class="menu-item" onclick="showReels();toggleMenu()"><i class="fas fa-film"></i> Quiz Reels 🎵 <span class="menu-badge">New</span></button>
                 <button class="menu-item" onclick="showNotes();toggleMenu()"><i class="fas fa-book-open"></i> Learning Journal</button>
                 <button class="menu-item" onclick="showPlanner();toggleMenu()"><i class="fas fa-calendar-check"></i> Revision Planner <span class="menu-badge">Smart</span></button>
+                <button class="menu-item" onclick="showAllBookmarks();toggleMenu()"><i class="fas fa-bookmark"></i> All Bookmarks 🔖</button>
             </div>
 
             <div class="menu-section">
@@ -428,6 +429,9 @@
             <div class="planner-panel"        id="ppanel-performance"></div>
         </div>
 
+        <!-- Bookmark Container -->
+        <div id="bookmarkContainer" class="hidden" style="max-width:860px;margin:20px auto;padding:0 16px;"></div>
+
     </main>
 
     <!-- ════════════════ FAB ════════════════ -->
@@ -522,6 +526,7 @@
 <script src="js/planner.js"></script>
 <script src="js/drive.js"></script>
 <script src="js/share.js"></script>
+<script src="js/bookmarks.js"></script>
 <script src="js/help.js"></script>
 <script src="js/reels.js"></script>
 
