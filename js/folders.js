@@ -172,10 +172,10 @@ function renderQuizzes() {
                 : '';
 
             return `
-            <div class="quiz-card glass-card" style="position:relative;">
+            <div class="quiz-card glass-card" style="position:relative;${q.metadata?.isBookmarkQuiz?'border-left:3px solid #f39c12;':''}">
                 <div class="quiz-header">
-                    <i class="fas fa-file-alt"></i>
-                    <h4>${escHtml(q.name)}</h4>
+                    <i class="fas fa-${q.metadata?.isBookmarkQuiz?'bookmark':'file-alt'}" style="${q.metadata?.isBookmarkQuiz?'color:#f39c12;':''}"></i>
+                    <h4>${escHtml(q.name)}${q.metadata?.isBookmarkQuiz?` <span style="font-size:0.68rem;background:rgba(243,156,18,0.12);color:#f39c12;padding:2px 7px;border-radius:10px;font-weight:700;">🔖 Bookmarks</span>`:''}</h4>
                     <span class="question-count">${q.questions?.length || 0} questions</span>
                 </div>
                 ${noteIcon}
@@ -185,8 +185,11 @@ function renderQuizzes() {
                     <button class="primary-btn small"   onclick="startQuiz('${q.id}')"><i class="fas fa-play"></i> Start</button>
                     <button class="secondary-btn small" onclick="displayFlashcards('${q.id}')"><i class="fas fa-layer-group"></i> Cards</button>
                     <button class="secondary-btn small" onclick="shareItem('${q.id}')">🔗 Share</button>
-                    <button class="secondary-btn small" onclick="showAddQuestionToQuizDialog('${q.id}')"><i class="fas fa-plus"></i> Add Q</button>
-                    <button class="danger-btn small"    onclick="deleteItemById('${q.id}')"><i class="fas fa-trash"></i></button>
+                    ${q.metadata?.isBookmarkQuiz
+                        ? `<button class="danger-btn small" onclick="_clearBookmarkQuiz('${q.id}')" title="Clear all bookmarks">🔖✕ Clear Bookmarks</button>`
+                        : `<button class="secondary-btn small" onclick="showAddQuestionToQuizDialog('${q.id}')"><i class="fas fa-plus"></i> Add Q</button>
+                    <button class="danger-btn small"    onclick="deleteItemById('${q.id}')"><i class="fas fa-trash"></i></button>`
+                    }
                 </div>
             </div>`;
         }).join('');
