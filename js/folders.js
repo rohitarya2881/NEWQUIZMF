@@ -20,7 +20,21 @@ function createNewFolder() {
         showToast(`Folder "${name.trim()}" created`, 'success');
     }));
 }
-
+// ── Recursive path updater ────────────────────
+async function _updateChildPaths(item, oldParentPath, newParentPath) {
+    if (!item.children || !item.children.length) return;
+    for (const child of item.children) {
+        const updatedChild = {
+            ...child,
+            path: child.path.replace(oldParentPath, newParentPath)
+        };
+        await saveItem(updatedChild);
+        // Agar child bhi folder hai toh uske andar bhi jaao
+        if (child.type === 'folder' && child.children?.length) {
+            await _updateChildPaths(child, oldParentPath, newParentPath);
+        }
+    }
+}
 function createNewQuiz() {
     if (!currentFolder) { showToast('Navigate into a folder first', 'warning'); return; }
     const name = prompt('Enter quiz name:');
@@ -44,19 +58,30 @@ function renameCurrentItem() {
     if (!currentFolder || currentFolder.id === 'root') return;
     const newName = prompt('New name:', currentFolder.name);
     if (!newName || !newName.trim()) return;
-    const updated = { ...currentFolder, name: newName.trim(), path: currentFolder.path.replace(/\/[^/]+$/, '/' + newName.trim()) };
-    saveItem(updated).then(() => loadFolderStructure().then(() => {
-        navigateTo(updated.path);
-        showToast('Renamed', 'success');
-    }));
+
+    const oldPath = currentFolder.path;
+    const newPath = currentFolder.path.replace(/\/[^/]+$/, '/' + newName.trim());
+    const updated = { ...currentFolder, name: newName.trim(), path: newPath };
+
+    saveItem(updated)
+        .then(() => _updateChildPaths(currentFolder, oldPath, newPath))  // ← children update
+        .then(() => loadFolderStructure())
+        .then(() => { navigateTo(newPath); showToast('Renamed', 'success'); });
 }
 
 function renameItem(id) {
     const item = findItemById(id); if (!item) return;
     const newName = prompt('New name:', item.name);
     if (!newName || !newName.trim()) return;
-    const updated = { ...item, name: newName.trim(), path: item.path.replace(/\/[^/]+$/, '/' + newName.trim()) };
-    saveItem(updated).then(() => loadFolderStructure().then(() => { refreshView(); showToast('Renamed', 'success'); }));
+
+    const oldPath = item.path;
+    const newPath = item.path.replace(/\/[^/]+$/, '/' + newName.trim());
+    const updated = { ...item, name: newName.trim(), path: newPath };
+
+    saveItem(updated)
+        .then(() => _updateChildPaths(item, oldPath, newPath))  // ← children update
+        .then(() => loadFolderStructure())
+        .then(() => { refreshView(); showToast('Renamed', 'success'); });
 }
 
 async function deleteItemById(id) {
