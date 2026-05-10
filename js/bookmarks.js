@@ -215,3 +215,17 @@ async function _clearAllBookmarks(bmQuizId) {
     _renderAllBookmarks();
     showToast('All bookmarks cleared', 'info');
 }
+
+// ── Clear bookmark quiz from folder view ──────
+async function _clearBookmarkQuiz(bmQuizId) {
+    const bmQuiz = findItemById(bmQuizId);
+    if (!bmQuiz) return;
+    const count = bmQuiz.questions?.length || 0;
+    if (!confirm(`Clear all ${count} bookmark${count!==1?'s':''} from "${bmQuiz.name}"?\n\nThe quiz will be emptied but kept in the folder.`)) return;
+    bmQuiz.questions = [];
+    bmQuiz.metadata.modified = new Date().toISOString();
+    await saveItem(bmQuiz);
+    await loadFolderStructure();
+    renderCurrentView();
+    showToast(`Cleared ${count} bookmark${count!==1?'s':''}`, 'success');
+}
