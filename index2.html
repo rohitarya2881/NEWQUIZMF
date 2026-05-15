@@ -610,6 +610,19 @@ body.neon-mode .fd-hourglass-wrap{
       <button class="drive-btn drive-btn-signout" id="driveSignoutBtn" onclick="driveSignOut()" style="display:none;">
         Sign Out
       </button>
+      <button class="drive-btn drive-btn-backup" onclick="downloadBackup()">
+  ⬇️ Download Backup
+</button>
+
+<button class="drive-btn drive-btn-restore" onclick="document.getElementById('uploadBackupInput').click()">
+  ⬆️ Upload Backup
+</button>
+
+<input type="file"
+       id="uploadBackupInput"
+       accept=".json"
+       style="display:none"
+       onchange="uploadBackup(event)">
     </div>
     <div style="margin-top:10px;font-size:0.67rem;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.6;">
       * Backup saves all your tasks, daily records &amp; notes to your Google Drive.<br>
@@ -741,6 +754,78 @@ function goDay(delta){
   if(nk>todayKey())return;
   currentKey=nk;
   renderToday();
+}
+
+  // download and upload
+  function downloadBackup() {
+
+  const backupData = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    app: 'SSC Daily Tracker',
+    data: localStorage.getItem('ssc_v5') || '{}'
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(backupData, null, 2)],
+    { type: 'application/json' }
+  );
+
+  const a = document.createElement('a');
+
+  a.href = URL.createObjectURL(blob);
+
+  a.download = 'ssc_tracker_backup.json';
+
+  a.click();
+
+  URL.revokeObjectURL(a.href);
+
+  showToast('✅ Backup downloaded!');
+}
+
+function uploadBackup(event) {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+
+    try {
+
+      const backup = JSON.parse(e.target.result);
+
+      if (!backup.data) {
+        alert('Invalid backup file');
+        return;
+      }
+
+      const confirmRestore = confirm(
+        'Restore backup? Current data will be replaced.'
+      );
+
+      if (!confirmRestore) return;
+
+      localStorage.setItem('ssc_v5', backup.data);
+
+      showToast('✅ Restore successful!');
+
+      setTimeout(() => {
+        location.reload();
+      }, 1200);
+
+    } catch (err) {
+
+      alert('Invalid JSON backup file');
+
+      console.error(err);
+    }
+  };
+
+  reader.readAsText(file);
 }
 
 // ════════════════════════════════════════════════════════════════
