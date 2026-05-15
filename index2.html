@@ -95,13 +95,11 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .section-count{background:var(--border);color:var(--muted);font-family:'Space Mono',monospace;
   font-size:0.65rem;padding:1px 7px;border-radius:99px;}
 
-/* TASK ROW — now a wrapper with row + notes panel */
 .task-wrap{display:flex;flex-direction:column;gap:0;}
 
 .task-row{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
   padding:10px 12px;display:flex;align-items:center;gap:10px;transition:all 0.2s;user-select:none;
   position:relative;overflow:hidden;}
-/* When notes are open, flatten bottom corners */
 .task-wrap.notes-open .task-row{border-radius:var(--radius) var(--radius) 0 0;border-bottom:1px solid var(--border2);}
 .task-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
 .task-row.english::before{background:var(--english);}
@@ -150,7 +148,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .task-pts{font-size:0.72rem;font-weight:700;color:var(--accent);flex-shrink:0;min-width:20px;
   text-align:right;font-family:'Space Mono',monospace;}
 
-/* ── NOTES BUTTON ── */
 .notes-btn{display:inline-flex;align-items:center;gap:3px;background:transparent;
   border:1px solid var(--border);color:var(--muted);padding:4px 9px;border-radius:8px;
   cursor:pointer;font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;
@@ -162,7 +159,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
   position:absolute;top:-2px;right:-2px;display:none;}
 .notes-btn.has-note .notes-dot{display:block;}
 
-/* ── NOTES PANEL ── */
 .notes-panel{display:none;background:#0c1018;border:1px solid var(--border);
   border-top:none;border-radius:0 0 var(--radius) var(--radius);
   padding:12px 14px;position:relative;overflow:hidden;}
@@ -194,7 +190,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .notes-clear-btn:hover{border-color:#f06060;color:#f06060;}
 .notes-char-count{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);}
 
-/* NOTES HISTORY in analytics */
 .notes-history-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:18px;}
 .notes-history-card h3{font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
   margin-bottom:16px;font-family:'Space Mono',monospace;}
@@ -231,6 +226,7 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
   white-space:nowrap;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.warn{background:#2a1a0a;border-color:#5a3810;color:var(--accent);}
+.toast.error{background:#2a0a0a;border-color:#5a1818;color:#f06060;}
 
 .analytics-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:18px;
   box-shadow:0 4px 20px rgba(0,0,0,0.3);}
@@ -279,7 +275,6 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .edit-btn:hover{color:var(--accent2);border-color:var(--accent2);background:rgba(62,207,207,0.06);}
 .edit-btn.active{color:var(--accent2);border-color:var(--accent2);background:rgba(62,207,207,0.08);}
 
-/* INLINE EDIT PANEL */
 .edit-panel{display:none;background:#09111e;border:1px solid var(--border2);border-top:none;
   border-radius:0 0 10px 10px;padding:14px;margin-top:-6px;margin-bottom:6px;}
 .edit-panel.open{display:block;animation:notesSlideDown 0.18s ease;}
@@ -319,6 +314,28 @@ body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z
 .reset-btn{background:transparent;border:1px solid #3a1a1a;color:#804040;padding:8px 16px;
   border-radius:9px;cursor:pointer;font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;}
 .reset-btn:hover{border-color:#f06060;color:#f06060;}
+
+/* ── DRIVE SECTION ── */
+.drive-section{background:#080e1a;border:1px solid #1a2d4a;border-radius:14px;padding:18px;margin-top:14px;}
+.drive-section-title{font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;
+  color:#3ecfcf;margin-bottom:14px;font-weight:700;font-family:'Space Mono',monospace;
+  display:flex;align-items:center;gap:8px;}
+.drive-status-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+#driveStatusDot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0;transition:background 0.3s;}
+#driveStatusText{font-size:0.75rem;font-family:'Space Mono',monospace;color:#666;flex:1;}
+#driveLastBackup{font-size:0.68rem;color:#5a6490;font-family:'Space Mono',monospace;}
+.drive-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.drive-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;
+  cursor:pointer;font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;
+  transition:all 0.2s;border:1px solid;white-space:nowrap;}
+.drive-btn-backup{background:#081820;border-color:#1a4060;color:#3ecfcf;}
+.drive-btn-backup:hover{background:#0d2030;border-color:#3ecfcf;}
+.drive-btn-backup:disabled{opacity:0.4;cursor:not-allowed;}
+.drive-btn-restore{background:#0f0a00;border-color:#3a2800;color:#f5c842;}
+.drive-btn-restore:hover{background:#1a1400;border-color:#f5c842;}
+.drive-btn-restore:disabled{opacity:0.4;cursor:not-allowed;}
+.drive-btn-signout{background:transparent;border-color:#2a2a2a;color:#5a6490;font-size:0.72rem;padding:6px 12px;}
+.drive-btn-signout:hover{border-color:#f06060;color:#f06060;}
 
 #focusOverlay{display:none;position:fixed;inset:0;z-index:300;
   background:rgba(4,6,14,0.85);backdrop-filter:blur(6px);
@@ -413,7 +430,6 @@ body.neon-mode .fd-hourglass-wrap{
 @keyframes timerPulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
 .task-timer-display.pulsing{animation:timerPulse 1s ease-in-out infinite;}
 
-/* Notes slide-down animation */
 @keyframes notesSlideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 .notes-panel.open{animation:notesSlideDown 0.2s ease;}
 
@@ -432,6 +448,7 @@ body.neon-mode .fd-hourglass-wrap{
   .stat-pill .val{font-size:1.4rem;}
   #globalTimerBar{padding:8px 12px;}
   #gTimerClock{font-size:1.1rem;}
+  .drive-btns{flex-direction:column;}
 }
 </style>
 </head>
@@ -574,7 +591,33 @@ body.neon-mode .fd-hourglass-wrap{
       </div>
     </div>
   </div>
-  <div class="danger-zone">
+
+  <!-- ── GOOGLE DRIVE BACKUP ── -->
+  <div class="drive-section">
+    <div class="drive-section-title">☁️ Google Drive Backup</div>
+    <div class="drive-status-row">
+      <span id="driveStatusDot"></span>
+      <span id="driveStatusText">Not connected</span>
+      <span id="driveLastBackup"></span>
+    </div>
+    <div class="drive-btns">
+      <button class="drive-btn drive-btn-backup" id="driveBakBtn" onclick="backupToDrive()">
+        ☁️ Backup to Drive
+      </button>
+      <button class="drive-btn drive-btn-restore" id="driveRestoreBtn" onclick="restoreFromDrive()">
+        ⬇️ Restore from Drive
+      </button>
+      <button class="drive-btn drive-btn-signout" id="driveSignoutBtn" onclick="driveSignOut()" style="display:none;">
+        Sign Out
+      </button>
+    </div>
+    <div style="margin-top:10px;font-size:0.67rem;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.6;">
+      * Backup saves all your tasks, daily records &amp; notes to your Google Drive.<br>
+      * Only you can access this file — it goes to your own Drive account.
+    </div>
+  </div>
+
+  <div class="danger-zone" style="margin-top:14px;">
     <p>⚠ Danger Zone</p>
     <button class="reset-btn" id="resetBtn">🗑 Delete all data & reset</button>
   </div>
@@ -619,6 +662,9 @@ body.neon-mode .fd-hourglass-wrap{
 </div>
 
 <script>
+// ════════════════════════════════════════════════════════════════
+//  APP DATA & HELPERS
+// ════════════════════════════════════════════════════════════════
 const DEFAULT_TASKS = [
   {id:'v1',  cat:'english',   sec:'subah',   name:'Vocab — 7 new words (Morning)',            dur:'25 min'},
   {id:'g1',  cat:'english',   sec:'subah',   name:'Grammar — PYQ attempt',                    dur:'25 min'},
@@ -663,7 +709,7 @@ function loadStore(){
     const s=JSON.parse(localStorage.getItem('ssc_v5')||'{}');
     if(!s.tasks) s.tasks=JSON.parse(JSON.stringify(DEFAULT_TASKS));
     if(!s.days)  s.days={};
-    if(!s.notes) s.notes={};   // NEW: notes storage { "datekey_taskid": "note text" }
+    if(!s.notes) s.notes={};
     return s;
   }catch(e){return {tasks:JSON.parse(JSON.stringify(DEFAULT_TASKS)),days:{},notes:{}};}
 }
@@ -697,163 +743,389 @@ function goDay(delta){
   renderToday();
 }
 
-// ── NOTES HELPERS ──
-function noteKey(dateKey, taskId){ return dateKey + '__' + taskId; }
-function getNote(dateKey, taskId){ return (store.notes || {})[noteKey(dateKey, taskId)] || ''; }
-function setNote(dateKey, taskId, text){
-  if(!store.notes) store.notes = {};
-  const k = noteKey(dateKey, taskId);
-  if(text.trim() === ''){
-    delete store.notes[k];
-  } else {
-    store.notes[k] = text.trim();
+// ════════════════════════════════════════════════════════════════
+//  GOOGLE DRIVE BACKUP / RESTORE
+// ════════════════════════════════════════════════════════════════
+const GDRIVE_CLIENT_ID = '564645485634-rg7sod7v98j4k279e7kro5s3ssa55mj7.apps.googleusercontent.com';
+const GDRIVE_SCOPE     = 'https://www.googleapis.com/auth/drive.file';
+const BACKUP_FILENAME  = 'ssc_tracker_backup.json';
+const FILEID_KEY       = 'gd_ssc_file_id';
+let _driveToken    = null;
+let _driveTokenExp = 0;
+let _gisClient     = null;
+
+function _getStoredToken(){
+  try{
+    const t=JSON.parse(localStorage.getItem('gd_ssc_token')||'null');
+    if(t && t.exp > Date.now()){_driveToken=t.token;_driveTokenExp=t.exp;return true;}
+  }catch(_){}
+  return false;
+}
+function _storeToken(token,expiresIn){
+  const exp=Date.now()+(parseInt(expiresIn)-60)*1000;
+  _driveToken=token;_driveTokenExp=exp;
+  localStorage.setItem('gd_ssc_token',JSON.stringify({token,exp}));
+}
+function _clearToken(){
+  _driveToken=null;_driveTokenExp=0;
+  localStorage.removeItem('gd_ssc_token');
+}
+function _tokenValid(){return _driveToken && Date.now()<_driveTokenExp;}
+
+function _loadGIS(){
+  return new Promise((resolve,reject)=>{
+    if(window.google?.accounts?.oauth2){resolve();return;}
+    const s=document.createElement('script');
+    s.src='https://accounts.google.com/gsi/client';
+    s.onload=resolve;
+    s.onerror=()=>reject(new Error('Google Sign-In load failed. Check your internet connection.'));
+    document.head.appendChild(s);
+  });
+}
+
+async function _ensureToken(){
+  if(_tokenValid()) return _driveToken;
+  if(_getStoredToken()) return _driveToken;
+  await _loadGIS();
+  return new Promise((resolve,reject)=>{
+    _gisClient=google.accounts.oauth2.initTokenClient({
+      client_id:GDRIVE_CLIENT_ID,
+      scope:GDRIVE_SCOPE,
+      callback:(resp)=>{
+        if(resp.error){reject(new Error('Google sign-in failed: '+resp.error));return;}
+        _storeToken(resp.access_token,resp.expires_in);
+        _updateDriveStatus();
+        resolve(_driveToken);
+      }
+    });
+    _gisClient.requestAccessToken({prompt:'consent'});
+  });
+}
+
+async function _driveReq(url,opts={}){
+  const token=await _ensureToken();
+  const resp=await fetch(url,{
+    ...opts,
+    headers:{'Authorization':'Bearer '+token,...(opts.headers||{})}
+  });
+  if(resp.status===401){_clearToken();throw new Error('Session expired — please try again.');}
+  return resp;
+}
+
+async function _findFile(){
+  const cached=localStorage.getItem(FILEID_KEY);
+  if(cached){
+    try{
+      const r=await _driveReq(`https://www.googleapis.com/drive/v3/files/${cached}?fields=id,trashed`);
+      if(r.ok){const f=await r.json();if(!f.trashed)return f.id;}
+    }catch(_){}
+    localStorage.removeItem(FILEID_KEY);
   }
+  const q=encodeURIComponent(`name='${BACKUP_FILENAME}' and trashed=false`);
+  const r=await _driveReq(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&spaces=drive`);
+  const data=await r.json();
+  if(data.files&&data.files.length>0){
+    localStorage.setItem(FILEID_KEY,data.files[0].id);
+    return data.files[0].id;
+  }
+  return null;
+}
+
+function _updateDriveStatus(){
+  const dot=document.getElementById('driveStatusDot');
+  const txt=document.getElementById('driveStatusText');
+  const last=document.getElementById('driveLastBackup');
+  const signoutBtn=document.getElementById('driveSignoutBtn');
+  if(!dot) return;
+
+  if(_tokenValid()){
+    dot.style.cssText='width:8px;height:8px;border-radius:50%;background:#3ecfcf;flex-shrink:0;transition:background 0.3s;';
+    txt.style.color='#3ecfcf';
+    txt.textContent='Connected to Google Drive ✓';
+    if(signoutBtn) signoutBtn.style.display='';
+  } else {
+    dot.style.cssText='width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0;transition:background 0.3s;';
+    txt.style.color='#5a6490';
+    txt.textContent='Not connected';
+    if(signoutBtn) signoutBtn.style.display='none';
+  }
+
+  const ts=localStorage.getItem('gd_ssc_last_backup');
+  if(ts&&last){
+    const d=new Date(parseInt(ts));
+    last.textContent='Last: '+d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+async function backupToDrive(){
+  const btn=document.getElementById('driveBakBtn');
+  const restBtn=document.getElementById('driveRestoreBtn');
+  const orig=btn.innerHTML;
+  try{
+    btn.disabled=true; restBtn.disabled=true;
+    btn.innerHTML='⏳ Signing in…';
+    await _ensureToken();
+
+    btn.innerHTML='⏳ Preparing…';
+    const payload={
+      version:1,
+      exportedAt:new Date().toISOString(),
+      app:'SSC Daily Tracker',
+      data:localStorage.getItem('ssc_v5')||'{}'
+    };
+    const jsonStr=JSON.stringify(payload,null,2);
+    const blob=new Blob([jsonStr],{type:'application/json'});
+
+    btn.innerHTML='⏳ Uploading…';
+    const existingId=await _findFile();
+
+    let resp;
+    if(existingId){
+      // Update existing
+      resp=await _driveReq(
+        `https://www.googleapis.com/upload/drive/v3/files/${existingId}?uploadType=media`,
+        {method:'PATCH',body:blob,headers:{'Content-Type':'application/json'}}
+      );
+    } else {
+      // Create new — multipart
+      const boundary='ssc_bnd_'+Date.now();
+      const meta=JSON.stringify({name:BACKUP_FILENAME,mimeType:'application/json'});
+      const body=[
+        '--'+boundary,
+        'Content-Type: application/json',
+        '',
+        meta,
+        '--'+boundary,
+        'Content-Type: application/json',
+        '',
+        jsonStr,
+        '--'+boundary+'--'
+      ].join('\r\n');
+
+      resp=await _driveReq(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+        {method:'POST',body,headers:{'Content-Type':'multipart/related; boundary='+boundary}}
+      );
+      if(resp.ok){
+        const created=await resp.json();
+        localStorage.setItem(FILEID_KEY,created.id);
+      }
+    }
+
+    if(!resp.ok) throw new Error('Upload failed ('+resp.status+')');
+
+    localStorage.setItem('gd_ssc_last_backup',Date.now().toString());
+    _updateDriveStatus();
+    showToast('✅ Backup to Drive successful!');
+  }catch(err){
+    console.error('[Drive] Backup error:',err);
+    showToast('❌ '+err.message,'error');
+  }finally{
+    btn.innerHTML=orig;
+    btn.disabled=false;
+    restBtn.disabled=false;
+  }
+}
+
+async function restoreFromDrive(){
+  const btn=document.getElementById('driveRestoreBtn');
+  const bakBtn=document.getElementById('driveBakBtn');
+  const orig=btn.innerHTML;
+  try{
+    btn.disabled=true; bakBtn.disabled=true;
+    btn.innerHTML='⏳ Connecting…';
+    await _ensureToken();
+
+    btn.innerHTML='⏳ Finding backup…';
+    const fileId=await _findFile();
+    if(!fileId){
+      showToast('No backup found on Drive. Please backup first.','warn');
+      return;
+    }
+
+    btn.innerHTML='⏳ Downloading…';
+    const r=await _driveReq(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+    if(!r.ok) throw new Error('Download failed ('+r.status+')');
+
+    const payload=await r.json();
+    const exportedAt=payload.exportedAt?new Date(payload.exportedAt).toLocaleString('en-IN'):'Unknown';
+
+    const confirmed=confirm(
+      '⚠️ Restore from Google Drive?\n\nBackup date: '+exportedAt+
+      '\n\nThis will REPLACE ALL current data. This cannot be undone.\n\nContinue?'
+    );
+    if(!confirmed){showToast('Restore cancelled','warn');return;}
+
+    // Restore the ssc_v5 key
+    if(payload.data){
+      localStorage.setItem('ssc_v5',payload.data);
+    } else if(payload.localStorage && payload.localStorage['ssc_v5']){
+      // fallback for old format
+      localStorage.setItem('ssc_v5',payload.localStorage['ssc_v5']);
+    } else {
+      throw new Error('Backup file format not recognized.');
+    }
+
+    localStorage.setItem('gd_ssc_last_backup',Date.now().toString());
+    _updateDriveStatus();
+    showToast('✅ Restore successful! Reloading…');
+    setTimeout(()=>location.reload(),1600);
+
+  }catch(err){
+    console.error('[Drive] Restore error:',err);
+    showToast('❌ '+err.message,'error');
+  }finally{
+    btn.innerHTML=orig;
+    btn.disabled=false;
+    bakBtn.disabled=false;
+  }
+}
+
+function driveSignOut(){
+  if(_driveToken && window.google?.accounts?.oauth2){
+    try{ google.accounts.oauth2.revoke(_driveToken,()=>{}); }catch(_){}
+  }
+  _clearToken();
+  localStorage.removeItem(FILEID_KEY);
+  _updateDriveStatus();
+  showToast('Signed out from Google Drive');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  NOTES HELPERS
+// ════════════════════════════════════════════════════════════════
+function noteKey(dateKey,taskId){return dateKey+'__'+taskId;}
+function getNote(dateKey,taskId){return(store.notes||{})[noteKey(dateKey,taskId)]||'';}
+function setNote(dateKey,taskId,text){
+  if(!store.notes)store.notes={};
+  const k=noteKey(dateKey,taskId);
+  if(text.trim()===''){delete store.notes[k];}
+  else{store.notes[k]=text.trim();}
   save();
 }
-function hasNote(dateKey, taskId){ return !!getNote(dateKey, taskId); }
+function hasNote(dateKey,taskId){return!!getNote(dateKey,taskId);}
 
-// Toggle notes panel open/close
-function toggleNotes(wrapEl, dateKey, taskId, taskName, taskCat){
-  const panel = wrapEl.querySelector('.notes-panel');
-  const btn = wrapEl.querySelector('.notes-btn');
-  const isOpen = panel.classList.contains('open');
-
-  // Close all other open panels first
-  document.querySelectorAll('.notes-panel.open').forEach(p => {
+function toggleNotes(wrapEl,dateKey,taskId,taskName,taskCat){
+  const panel=wrapEl.querySelector('.notes-panel');
+  const btn=wrapEl.querySelector('.notes-btn');
+  const isOpen=panel.classList.contains('open');
+  document.querySelectorAll('.notes-panel.open').forEach(p=>{
     p.classList.remove('open');
-    const w = p.closest('.task-wrap');
-    if(w) w.classList.remove('notes-open');
-    const b = w && w.querySelector('.notes-btn');
-    if(b) b.classList.remove('active');
+    const w=p.closest('.task-wrap');
+    if(w)w.classList.remove('notes-open');
+    const b=w&&w.querySelector('.notes-btn');
+    if(b)b.classList.remove('active');
   });
-
   if(!isOpen){
     panel.classList.add('open');
     wrapEl.classList.add('notes-open');
     btn.classList.add('active');
-    const ta = panel.querySelector('.notes-textarea');
-    ta.value = getNote(dateKey, taskId);
+    const ta=panel.querySelector('.notes-textarea');
+    ta.value=getNote(dateKey,taskId);
     updateCharCount(panel);
-    setTimeout(()=> ta.focus(), 50);
+    setTimeout(()=>ta.focus(),50);
   }
 }
 
 function updateCharCount(panel){
-  const ta = panel.querySelector('.notes-textarea');
-  const cc = panel.querySelector('.notes-char-count');
-  if(cc) cc.textContent = ta.value.length + ' chars';
+  const ta=panel.querySelector('.notes-textarea');
+  const cc=panel.querySelector('.notes-char-count');
+  if(cc)cc.textContent=ta.value.length+' chars';
 }
 
-function saveNoteFromPanel(panel, dateKey, taskId){
-  const ta = panel.querySelector('.notes-textarea');
-  const text = ta.value;
-  setNote(dateKey, taskId, text);
-  // Update notes-btn appearance
-  const wrapEl = panel.closest('.task-wrap');
-  const btn = wrapEl && wrapEl.querySelector('.notes-btn');
-  if(btn){
-    if(text.trim()){
-      btn.classList.add('has-note');
-    } else {
-      btn.classList.remove('has-note');
-    }
-  }
+function saveNoteFromPanel(panel,dateKey,taskId){
+  const ta=panel.querySelector('.notes-textarea');
+  const text=ta.value;
+  setNote(dateKey,taskId,text);
+  const wrapEl=panel.closest('.task-wrap');
+  const btn=wrapEl&&wrapEl.querySelector('.notes-btn');
+  if(btn){text.trim()?btn.classList.add('has-note'):btn.classList.remove('has-note');}
   showToast('📝 Note saved!');
 }
 
-function clearNoteFromPanel(panel, dateKey, taskId){
-  const ta = panel.querySelector('.notes-textarea');
-  ta.value = '';
-  setNote(dateKey, taskId, '');
-  const wrapEl = panel.closest('.task-wrap');
-  const btn = wrapEl && wrapEl.querySelector('.notes-btn');
-  if(btn) btn.classList.remove('has-note');
+function clearNoteFromPanel(panel,dateKey,taskId){
+  const ta=panel.querySelector('.notes-textarea');
+  ta.value='';
+  setNote(dateKey,taskId,'');
+  const wrapEl=panel.closest('.task-wrap');
+  const btn=wrapEl&&wrapEl.querySelector('.notes-btn');
+  if(btn)btn.classList.remove('has-note');
   updateCharCount(panel);
   showToast('🗑 Note cleared');
 }
 
 // ── RENDER NOTES TAB ──
-let notesFilter = 'all';
+let notesFilter='all';
 function renderNotesTab(){
-  const list = document.getElementById('notesHistoryList');
-  const notes = store.notes || {};
-  const entries = [];
-
-  // Collect all note entries
-  Object.keys(notes).forEach(k => {
-    if(!notes[k]) return;
-    const [dateKey, taskId] = k.split('__');
-    const task = store.tasks.find(t => t.id === taskId);
-    if(!task) return;
-    if(notesFilter !== 'all' && task.cat !== notesFilter) return;
-    entries.push({ dateKey, taskId, task, text: notes[k] });
+  const list=document.getElementById('notesHistoryList');
+  const notes=store.notes||{};
+  const entries=[];
+  Object.keys(notes).forEach(k=>{
+    if(!notes[k])return;
+    const[dateKey,taskId]=k.split('__');
+    const task=store.tasks.find(t=>t.id===taskId);
+    if(!task)return;
+    if(notesFilter!=='all'&&task.cat!==notesFilter)return;
+    entries.push({dateKey,taskId,task,text:notes[k]});
   });
-
-  // Sort by date descending
-  entries.sort((a,b) => b.dateKey.localeCompare(a.dateKey));
-
+  entries.sort((a,b)=>b.dateKey.localeCompare(a.dateKey));
   if(!entries.length){
-    list.innerHTML = '<div class="notes-empty">No notes yet.<br>Use the 📝 button on any task to add notes!</div>';
+    list.innerHTML='<div class="notes-empty">No notes yet.<br>Use the 📝 button on any task to add notes!</div>';
     return;
   }
-
-  list.innerHTML = '';
-  let lastDate = '';
-  entries.forEach(e => {
-    if(e.dateKey !== lastDate){
-      const dateSep = document.createElement('div');
-      dateSep.style.cssText = 'font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);padding:10px 0 5px;font-family:"Space Mono",monospace;border-bottom:1px solid var(--border);margin-bottom:8px;';
-      dateSep.textContent = fmtDate(e.dateKey);
+  list.innerHTML='';
+  let lastDate='';
+  entries.forEach(e=>{
+    if(e.dateKey!==lastDate){
+      const dateSep=document.createElement('div');
+      dateSep.style.cssText='font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);padding:10px 0 5px;font-family:"Space Mono",monospace;border-bottom:1px solid var(--border);margin-bottom:8px;';
+      dateSep.textContent=fmtDate(e.dateKey);
       list.appendChild(dateSep);
-      lastDate = e.dateKey;
+      lastDate=e.dateKey;
     }
-
-    const entry = document.createElement('div');
-    entry.className = `notes-entry ${e.task.cat}`;
-
-    const hdr = document.createElement('div');
-    hdr.className = 'notes-entry-header';
-
-    const taskName = document.createElement('div');
-    taskName.className = 'notes-entry-task';
-    taskName.textContent = e.task.name;
-
-    const catBadge = document.createElement('span');
-    catBadge.className = `cat-badge cat-${e.task.cat}`;
-    catBadge.textContent = e.task.cat.charAt(0).toUpperCase() + e.task.cat.slice(1);
-
-    hdr.append(taskName, catBadge);
-
-    const text = document.createElement('div');
-    text.className = 'notes-entry-text';
-    text.textContent = e.text;
-
-    entry.append(hdr, text);
+    const entry=document.createElement('div');
+    entry.className=`notes-entry ${e.task.cat}`;
+    const hdr=document.createElement('div');
+    hdr.className='notes-entry-header';
+    const taskName=document.createElement('div');
+    taskName.className='notes-entry-task';
+    taskName.textContent=e.task.name;
+    const catBadge=document.createElement('span');
+    catBadge.className=`cat-badge cat-${e.task.cat}`;
+    catBadge.textContent=e.task.cat.charAt(0).toUpperCase()+e.task.cat.slice(1);
+    hdr.append(taskName,catBadge);
+    const text=document.createElement('div');
+    text.className='notes-entry-text';
+    text.textContent=e.text;
+    entry.append(hdr,text);
     list.appendChild(entry);
   });
 }
 
-// Filter buttons
-document.getElementById('notesFilterBar').addEventListener('click', e => {
-  const btn = e.target.closest('.notes-filter-btn');
-  if(!btn) return;
-  document.querySelectorAll('.notes-filter-btn').forEach(b => b.classList.remove('active'));
+document.getElementById('notesFilterBar').addEventListener('click',e=>{
+  const btn=e.target.closest('.notes-filter-btn');
+  if(!btn)return;
+  document.querySelectorAll('.notes-filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  notesFilter = btn.dataset.filter;
+  notesFilter=btn.dataset.filter;
   renderNotesTab();
 });
 
-// ── TOAST ──
+// ════════════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════════════
 let toastTimer=null;
 function showToast(msg,type=''){
   const el=document.getElementById('toast');
   el.textContent=msg;
   el.className='toast show'+(type?' '+type:'');
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
 
-// ── TIMER LOGIC ──
+// ════════════════════════════════════════════════════════════════
+//  TIMER LOGIC
+// ════════════════════════════════════════════════════════════════
 function parseDuration(durStr){
   if(!durStr||durStr==='—')return 0;
   const minMatch=durStr.match(/(\d+)\s*min/i);
@@ -868,23 +1140,23 @@ function fmtSecs(s){
   return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-function startTaskTimer(task, rowEl, startBtnEl, timerDisplayEl){
-  if(activeTimer) stopActiveTimer(false);
-  const totalSecs = parseDuration(task.dur);
-  activeTimer = {
-    id: task.id, name: task.name, totalSecs,
-    elapsed: 0, startedAt: Date.now(),
-    rowEl, startBtnEl, timerDisplayEl, interval: null
+function startTaskTimer(task,rowEl,startBtnEl,timerDisplayEl){
+  if(activeTimer)stopActiveTimer(false);
+  const totalSecs=parseDuration(task.dur);
+  activeTimer={
+    id:task.id,name:task.name,totalSecs,
+    elapsed:0,startedAt:Date.now(),
+    rowEl,startBtnEl,timerDisplayEl,interval:null
   };
-  activeTimer.interval = setInterval(tickTimer, 1000);
+  activeTimer.interval=setInterval(tickTimer,1000);
   rowEl.classList.add('active-timer');
-  startBtnEl.textContent = '⏸ Pause';
+  startBtnEl.textContent='⏸ Pause';
   startBtnEl.classList.add('running');
   timerDisplayEl.classList.add('show');
   updateGlobalBar();
   showGlobalBar(true);
   flipHourglass();
-  openFocusDialog(task, totalSecs);
+  openFocusDialog(task,totalSecs);
 }
 
 function tickTimer(){
@@ -896,7 +1168,7 @@ function tickTimer(){
   }
   updateGlobalBar();
   updateFocusDialog();
-  if(activeTimer.totalSecs>0 && activeTimer.elapsed>=activeTimer.totalSecs){
+  if(activeTimer.totalSecs>0&&activeTimer.elapsed>=activeTimer.totalSecs){
     clearInterval(activeTimer.interval);
     activeTimer.interval=null;
     if(activeTimer.startBtnEl){
@@ -920,7 +1192,7 @@ function tickTimer(){
 }
 
 function pauseResumeTimer(startBtnEl){
-  if(!activeTimer||activeTimer.id!==getTaskIdFromBtn(startBtnEl)) return;
+  if(!activeTimer||activeTimer.id!==getTaskIdFromBtn(startBtnEl))return;
   if(activeTimer.interval){
     clearInterval(activeTimer.interval);
     activeTimer.interval=null;
@@ -929,8 +1201,8 @@ function pauseResumeTimer(startBtnEl){
     startBtnEl.classList.add('paused');
     document.getElementById('gPauseBtn').textContent='▶ Resume';
     showToast('⏸ Timer paused');
-  } else {
-    activeTimer.startedAt = Date.now() - (activeTimer.elapsed * 1000);
+  }else{
+    activeTimer.startedAt=Date.now()-(activeTimer.elapsed*1000);
     activeTimer.interval=setInterval(tickTimer,1000);
     startBtnEl.textContent='⏸ Pause';
     startBtnEl.classList.add('running');
@@ -948,7 +1220,7 @@ function getTaskIdFromBtn(btn){
 function stopActiveTimer(notify=true){
   if(!activeTimer)return;
   clearInterval(activeTimer.interval);
-  if(activeTimer.rowEl) activeTimer.rowEl.classList.remove('active-timer');
+  if(activeTimer.rowEl)activeTimer.rowEl.classList.remove('active-timer');
   if(activeTimer.startBtnEl){
     activeTimer.startBtnEl.textContent='▶ Start';
     activeTimer.startBtnEl.classList.remove('running','paused');
@@ -965,36 +1237,31 @@ function stopActiveTimer(notify=true){
   if(notify)showToast('Timer stopped');
 }
 
-function globalPauseResume(){
-  if(!activeTimer)return;
-  if(activeTimer.startBtnEl){pauseResumeTimer(activeTimer.startBtnEl);}
-}
+function globalPauseResume(){if(!activeTimer)return;if(activeTimer.startBtnEl)pauseResumeTimer(activeTimer.startBtnEl);}
 function globalStop(){stopActiveTimer();}
 function globalMarkDone(){
   if(!activeTimer)return;
   const id=activeTimer.id;
   stopActiveTimer(false);
   const d=dayData(currentKey);
-  if(!d[id]){
-    d[id]=true;save();
-    renderToday();
-    showToast('✅ Task marked done!');
-  }
+  if(!d[id]){d[id]=true;save();renderToday();showToast('✅ Task marked done!');}
 }
 
-// ── FOCUS DIALOG ──
-let sandAnimFrame = null;
-let sandParticles = [];
-let neonOn = false;
+// ════════════════════════════════════════════════════════════════
+//  FOCUS DIALOG
+// ════════════════════════════════════════════════════════════════
+let sandAnimFrame=null;
+let sandParticles=[];
+let neonOn=false;
 
-function openFocusDialog(task, totalSecs){
-  const overlay = document.getElementById('focusOverlay');
-  document.getElementById('fdTaskLabel').textContent = task.cat.toUpperCase() + ' · ' + (task.sec==='subah'?'MORNING':task.sec==='dopahar'?'AFTERNOON':task.sec==='shaam'?'EVENING':'NIGHT');
-  document.getElementById('fdTaskFull').textContent = task.name;
+function openFocusDialog(task,totalSecs){
+  const overlay=document.getElementById('focusOverlay');
+  document.getElementById('fdTaskLabel').textContent=task.cat.toUpperCase()+' · '+(task.sec==='subah'?'MORNING':task.sec==='dopahar'?'AFTERNOON':task.sec==='shaam'?'EVENING':'NIGHT');
+  document.getElementById('fdTaskFull').textContent=task.name;
   document.getElementById('fdTimeupMsg').classList.remove('show');
-  document.getElementById('fdPauseBtn').disabled = false;
-  document.getElementById('fdPauseBtn').style.opacity = '';
-  document.getElementById('fdPauseBtn').textContent = '⏸ Pause';
+  document.getElementById('fdPauseBtn').disabled=false;
+  document.getElementById('fdPauseBtn').style.opacity='';
+  document.getElementById('fdPauseBtn').textContent='⏸ Pause';
   overlay.classList.add('show');
   updateFocusDialog();
   startSandAnimation();
@@ -1003,276 +1270,197 @@ function openFocusDialog(task, totalSecs){
 }
 
 function updateFocusDialog(){
-  if(!activeTimer) return;
-  const tot = activeTimer.totalSecs;
-  const el = activeTimer.elapsed;
-  const rem = tot > 0 ? Math.max(0, tot - el) : el;
-  const pct = tot > 0 ? Math.min(1, el / tot) : 0;
-  const sandCol = getSandColor(pct);
-  const clockEl = document.getElementById('fdClock');
-  if(clockEl){ clockEl.textContent = tot > 0 ? fmtSecs(rem) : '+' + fmtSecs(el); clockEl.style.color = sandCol; }
-  const lblEl = document.getElementById('fdClockLabel');
-  if(lblEl) lblEl.textContent = tot > 0 ? 'REMAINING' : 'ELAPSED';
-  const ring = document.getElementById('fdRingProgress');
-  if(ring){ ring.style.strokeDashoffset = (364.4 * (1 - pct)).toFixed(1); ring.style.stroke = sandCol; }
-  const pctEl = document.getElementById('fdPct');
-  if(pctEl) pctEl.textContent = Math.round(pct * 100) + '% done';
+  if(!activeTimer)return;
+  const tot=activeTimer.totalSecs;
+  const el=activeTimer.elapsed;
+  const rem=tot>0?Math.max(0,tot-el):el;
+  const pct=tot>0?Math.min(1,el/tot):0;
+  const sandCol=getSandColor(pct);
+  const clockEl=document.getElementById('fdClock');
+  if(clockEl){clockEl.textContent=tot>0?fmtSecs(rem):'+'+fmtSecs(el);clockEl.style.color=sandCol;}
+  const lblEl=document.getElementById('fdClockLabel');
+  if(lblEl)lblEl.textContent=tot>0?'REMAINING':'ELAPSED';
+  const ring=document.getElementById('fdRingProgress');
+  if(ring){ring.style.strokeDashoffset=(364.4*(1-pct)).toFixed(1);ring.style.stroke=sandCol;}
+  const pctEl=document.getElementById('fdPct');
+  if(pctEl)pctEl.textContent=Math.round(pct*100)+'% done';
 }
 
 function startSandAnimation(){
   cancelAnimationFrame(sandAnimFrame);
-  sandParticles = [];
-  function loop(timestamp){
-    if(!document.getElementById('focusOverlay').classList.contains('show')) return;
-    let visualPct = 0;
-    if(activeTimer && activeTimer.totalSecs > 0){
+  sandParticles=[];
+  function loop(){
+    if(!document.getElementById('focusOverlay').classList.contains('show'))return;
+    let visualPct=0;
+    if(activeTimer&&activeTimer.totalSecs>0){
       let trueElapsedMs;
-      if(activeTimer.interval && activeTimer.startedAt){
-        trueElapsedMs = Date.now() - activeTimer.startedAt;
-      } else {
-        trueElapsedMs = activeTimer.elapsed * 1000;
-      }
-      visualPct = Math.min(1, Math.max(0, trueElapsedMs / (activeTimer.totalSecs * 1000)));
+      if(activeTimer.interval&&activeTimer.startedAt){trueElapsedMs=Date.now()-activeTimer.startedAt;}
+      else{trueElapsedMs=activeTimer.elapsed*1000;}
+      visualPct=Math.min(1,Math.max(0,trueElapsedMs/(activeTimer.totalSecs*1000)));
     }
     drawHourglass(visualPct);
-    sandAnimFrame = requestAnimationFrame(loop);
+    sandAnimFrame=requestAnimationFrame(loop);
   }
-  sandAnimFrame = requestAnimationFrame(loop);
+  sandAnimFrame=requestAnimationFrame(loop);
 }
 
-let particleTick = 0;
+let particleTick=0;
 function spawnParticle(){
-  sandParticles.push({
-    x: 50 + (Math.random()-0.5)*2,
-    y: 61,
-    vy: 1.2 + Math.random()*1.2,
-    vx: (Math.random()-0.5)*0.5,
-    r: 1 + Math.random()*0.8,
-    alpha: 0.9 + Math.random()*0.1
-  });
+  sandParticles.push({x:50+(Math.random()-0.5)*2,y:61,vy:1.2+Math.random()*1.2,vx:(Math.random()-0.5)*0.5,r:1+Math.random()*0.8,alpha:0.9+Math.random()*0.1});
 }
 
 function toggleNeon(){
-  neonOn = !neonOn;
-  document.body.classList.toggle('neon-mode', neonOn);
-  const btn = document.getElementById('neonBtn');
-  if(btn) btn.classList.toggle('on', neonOn);
+  neonOn=!neonOn;
+  document.body.classList.toggle('neon-mode',neonOn);
+  const btn=document.getElementById('neonBtn');
+  if(btn)btn.classList.toggle('on',neonOn);
 }
 
 function initTilt(){
-  const wrap = document.getElementById('hgWrap');
-  if(!wrap) return;
-  wrap.addEventListener('mousemove', e => {
-    const r = wrap.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    wrap.style.transform = `rotateX(${y * -18}deg) rotateY(${x * 18}deg) scale(1.05)`;
+  const wrap=document.getElementById('hgWrap');
+  if(!wrap)return;
+  wrap.addEventListener('mousemove',e=>{
+    const r=wrap.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-0.5;
+    const y=(e.clientY-r.top)/r.height-0.5;
+    wrap.style.transform=`rotateX(${y*-18}deg) rotateY(${x*18}deg) scale(1.05)`;
   });
-  wrap.addEventListener('mouseleave', () => {
-    wrap.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
-  });
+  wrap.addEventListener('mouseleave',()=>{wrap.style.transform='rotateX(0deg) rotateY(0deg) scale(1)';});
 }
 
-function startFocusPulse(){
-  const wrap = document.getElementById('hgWrap');
-  if(!wrap) return;
-  wrap.classList.add('pulsing-glow');
-}
-function stopFocusPulse(){
-  const wrap = document.getElementById('hgWrap');
-  if(wrap) wrap.classList.remove('pulsing-glow');
-}
+function startFocusPulse(){const wrap=document.getElementById('hgWrap');if(wrap)wrap.classList.add('pulsing-glow');}
+function stopFocusPulse(){const wrap=document.getElementById('hgWrap');if(wrap)wrap.classList.remove('pulsing-glow');}
 
-let waveTime = 0;
-function waveOffset(x, t){ return Math.sin(x * 0.09 + t * 0.003) * 1.8; }
+let waveTime=0;
+function waveOffset(x,t){return Math.sin(x*0.09+t*0.003)*1.8;}
 
 function drawGlassShine(ctx){
-  const g = ctx.createLinearGradient(0, 0, 100, 0);
-  g.addColorStop(0,   'rgba(255,255,255,0.13)');
+  const g=ctx.createLinearGradient(0,0,100,0);
+  g.addColorStop(0,'rgba(255,255,255,0.13)');
   g.addColorStop(0.35,'rgba(255,255,255,0.04)');
-  g.addColorStop(0.7, 'rgba(255,255,255,0.01)');
-  g.addColorStop(1,   'rgba(0,0,0,0.18)');
+  g.addColorStop(0.7,'rgba(255,255,255,0.01)');
+  g.addColorStop(1,'rgba(0,0,0,0.18)');
   ctx.save();
-  ctx.fillStyle = g;
-  ctx.beginPath(); ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(50,63); ctx.lineTo(88,113); ctx.lineTo(12,113); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(14,9); ctx.lineTo(50,55); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(14,111); ctx.lineTo(50,65); ctx.stroke();
+  ctx.fillStyle=g;
+  ctx.beginPath();ctx.moveTo(12,7);ctx.lineTo(88,7);ctx.lineTo(50,57);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(50,63);ctx.lineTo(88,113);ctx.lineTo(12,113);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(14,9);ctx.lineTo(50,55);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(14,111);ctx.lineTo(50,65);ctx.stroke();
   ctx.restore();
 }
 
 function getSandColor(pct){
-  const r = Math.min(255, Math.floor(245 + 10*pct));
-  const g = Math.floor(200 - 120*pct);
-  const b = Math.floor(66 - 40*pct);
+  const r=Math.min(255,Math.floor(245+10*pct));
+  const g=Math.floor(200-120*pct);
+  const b=Math.floor(66-40*pct);
   return `rgb(${r},${g},${b})`;
 }
 
 function flipHourglass(){
-  const el = document.getElementById('hgWrap');
-  if(!el) return;
+  const el=document.getElementById('hgWrap');
+  if(!el)return;
   el.classList.add('flipping');
-  setTimeout(()=> el.classList.remove('flipping'), 850);
+  setTimeout(()=>el.classList.remove('flipping'),850);
 }
 
 function finishEffect(){
-  const el = document.getElementById('hgWrap');
-  if(!el) return;
+  const el=document.getElementById('hgWrap');
+  if(!el)return;
   el.classList.add('shaking');
   setTimeout(()=>{
     el.classList.remove('shaking');
     el.classList.add('finish-glow');
-    setTimeout(()=> el.classList.remove('finish-glow'), 700);
-  }, 350);
+    setTimeout(()=>el.classList.remove('finish-glow'),700);
+  },350);
 }
 
-function sandGradient(ctx, x1, y1, x2, y2, dark, pct){
-  const mid = getSandColor(pct || 0);
-  const light = `hsl(${48 - 20*(pct||0)}, 95%, 82%)`;
-  const shadow = `hsl(${38 - 15*(pct||0)}, 90%, 28%)`;
-  const g = ctx.createLinearGradient(x1, y1, x2, y2);
-  if(dark){
-    g.addColorStop(0, shadow);
-    g.addColorStop(0.5, mid);
-    g.addColorStop(1, light);
-  } else {
-    g.addColorStop(0, light);
-    g.addColorStop(0.5, mid);
-    g.addColorStop(1, shadow);
-  }
+function sandGradient(ctx,x1,y1,x2,y2,dark,pct){
+  const mid=getSandColor(pct||0);
+  const light=`hsl(${48-20*(pct||0)}, 95%, 82%)`;
+  const shadow=`hsl(${38-15*(pct||0)}, 90%, 28%)`;
+  const g=ctx.createLinearGradient(x1,y1,x2,y2);
+  if(dark){g.addColorStop(0,shadow);g.addColorStop(0.5,mid);g.addColorStop(1,light);}
+  else{g.addColorStop(0,light);g.addColorStop(0.5,mid);g.addColorStop(1,shadow);}
   return g;
 }
 
 function drawHourglass(pct){
-  if(pct === undefined){
-    pct = activeTimer && activeTimer.totalSecs > 0
-      ? Math.min(1, activeTimer.elapsed / activeTimer.totalSecs)
-      : 0;
-  }
-  const canvas = document.getElementById('fdHourglassCanvas');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = 100, H = 120;
+  if(pct===undefined){pct=activeTimer&&activeTimer.totalSecs>0?Math.min(1,activeTimer.elapsed/activeTimer.totalSecs):0;}
+  const canvas=document.getElementById('fdHourglassCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=100,H=120;
   ctx.clearRect(0,0,W,H);
-  const running = activeTimer && !!activeTimer.interval;
+  const running=activeTimer&&!!activeTimer.interval;
 
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath();
-  ctx.fillStyle='#0d1525'; ctx.fill();
-  ctx.strokeStyle='#3a4f72'; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(50,63); ctx.lineTo(88,113); ctx.lineTo(12,113); ctx.closePath();
-  ctx.fillStyle='#0d1525'; ctx.fill();
-  ctx.strokeStyle='#3a4f72'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.beginPath();ctx.moveTo(12,7);ctx.lineTo(88,7);ctx.lineTo(50,57);ctx.closePath();
+  ctx.fillStyle='#0d1525';ctx.fill();ctx.strokeStyle='#3a4f72';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(50,63);ctx.lineTo(88,113);ctx.lineTo(12,113);ctx.closePath();
+  ctx.fillStyle='#0d1525';ctx.fill();ctx.strokeStyle='#3a4f72';ctx.lineWidth=1.5;ctx.stroke();
   ctx.restore();
 
-  const sandSurfY = 7 + 50 * pct;
-  if(pct < 1){
-    const tlx = 12 + 36*(sandSurfY-7)/50;
-    const trx = 88 - 36*(sandSurfY-7)/50;
+  const sandSurfY=7+50*pct;
+  if(pct<1){
+    const tlx=12+36*(sandSurfY-7)/50;
+    const trx=88-36*(sandSurfY-7)/50;
     ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath();
-    ctx.clip();
-    ctx.shadowColor = getSandColor(pct);
-    ctx.shadowBlur = 6;
-    waveTime = Date.now();
-    ctx.beginPath();
-    ctx.moveTo(tlx, sandSurfY + waveOffset(tlx, waveTime));
-    for(let x = tlx; x <= trx; x += 2){
-      ctx.lineTo(x, sandSurfY + waveOffset(x, waveTime));
-    }
-    ctx.lineTo(50, 57);
-    ctx.closePath();
-    ctx.fillStyle = sandGradient(ctx, 50, sandSurfY, 50, 57, false, pct);
-    ctx.fill();
+    ctx.beginPath();ctx.moveTo(12,7);ctx.lineTo(88,7);ctx.lineTo(50,57);ctx.closePath();ctx.clip();
+    ctx.shadowColor=getSandColor(pct);ctx.shadowBlur=6;
+    waveTime=Date.now();
+    ctx.beginPath();ctx.moveTo(tlx,sandSurfY+waveOffset(tlx,waveTime));
+    for(let x=tlx;x<=trx;x+=2){ctx.lineTo(x,sandSurfY+waveOffset(x,waveTime));}
+    ctx.lineTo(50,57);ctx.closePath();
+    ctx.fillStyle=sandGradient(ctx,50,sandSurfY,50,57,false,pct);ctx.fill();
     ctx.restore();
   }
 
-  const botSandSurfY = 113 - 50 * pct;
-  if(pct > 0){
-    const blx = 12 + 36*(113 - botSandSurfY)/50;
-    const brx = 88 - 36*(113 - botSandSurfY)/50;
-    const mound = Math.min(8, (5 + 9*pct) * (brx - blx) / 76);
+  const botSandSurfY=113-50*pct;
+  if(pct>0){
+    const blx=12+36*(113-botSandSurfY)/50;
+    const brx=88-36*(113-botSandSurfY)/50;
+    const mound=Math.min(8,(5+9*pct)*(brx-blx)/76);
     ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(50,63); ctx.lineTo(88,113); ctx.lineTo(12,113); ctx.closePath();
-    ctx.clip();
-    ctx.shadowColor = getSandColor(pct);
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.moveTo(12, 113);
-    ctx.lineTo(88, 113);
-    ctx.lineTo(brx, botSandSurfY);
-    ctx.quadraticCurveTo(50, botSandSurfY - mound, blx, botSandSurfY);
-    ctx.closePath();
-    ctx.fillStyle = sandGradient(ctx, 50, 113, 50, botSandSurfY, true, pct);
-    ctx.fill();
+    ctx.beginPath();ctx.moveTo(50,63);ctx.lineTo(88,113);ctx.lineTo(12,113);ctx.closePath();ctx.clip();
+    ctx.shadowColor=getSandColor(pct);ctx.shadowBlur=6;
+    ctx.beginPath();ctx.moveTo(12,113);ctx.lineTo(88,113);ctx.lineTo(brx,botSandSurfY);
+    ctx.quadraticCurveTo(50,botSandSurfY-mound,blx,botSandSurfY);ctx.closePath();
+    ctx.fillStyle=sandGradient(ctx,50,113,50,botSandSurfY,true,pct);ctx.fill();
     ctx.restore();
   }
 
-  if(running && pct < 1){
+  if(running&&pct<1){
     particleTick++;
-    if(particleTick % 3 === 0) spawnParticle();
-    sandParticles = sandParticles.filter(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.25;
-      if(p.y >= botSandSurfY){
-        p.y = botSandSurfY;
-        p.vy *= -0.2;
-        p.vx *= 0.6;
-        p.x += (Math.random()-0.5) * 2;
-        if(Math.abs(p.vy) < 0.3) return false;
-      }
-      if(p.y > 114) return false;
-      ctx.save();
-      ctx.globalAlpha = p.alpha * Math.min(1,(botSandSurfY - p.y)/14);
-      ctx.shadowColor = getSandColor(pct);
-      ctx.shadowBlur = 4;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = getSandColor(pct);
-      ctx.fill();
-      if(Math.random() < 0.12){
-        ctx.globalAlpha = 0.9;
-        ctx.fillStyle = '#fff8c0';
-        ctx.fillRect(p.x - 0.5, p.y - 0.5, 1.5, 1.5);
-      }
-      ctx.restore();
-      return true;
+    if(particleTick%3===0)spawnParticle();
+    sandParticles=sandParticles.filter(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.25;
+      if(p.y>=botSandSurfY){p.y=botSandSurfY;p.vy*=-0.2;p.vx*=0.6;p.x+=(Math.random()-0.5)*2;if(Math.abs(p.vy)<0.3)return false;}
+      if(p.y>114)return false;
+      ctx.save();ctx.globalAlpha=p.alpha*Math.min(1,(botSandSurfY-p.y)/14);
+      ctx.shadowColor=getSandColor(pct);ctx.shadowBlur=4;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=getSandColor(pct);ctx.fill();
+      if(Math.random()<0.12){ctx.globalAlpha=0.9;ctx.fillStyle='#fff8c0';ctx.fillRect(p.x-0.5,p.y-0.5,1.5,1.5);}
+      ctx.restore();return true;
     });
-  } else {
-    sandParticles = [];
-  }
+  }else{sandParticles=[];}
 
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(12,7); ctx.lineTo(88,7); ctx.lineTo(50,57); ctx.closePath();
-  ctx.strokeStyle='#5a70a0'; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(14,7); ctx.lineTo(50,55); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(50,63); ctx.lineTo(88,113); ctx.lineTo(12,113); ctx.closePath();
-  ctx.strokeStyle='#5a70a0'; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.restore();
+  ctx.beginPath();ctx.moveTo(12,7);ctx.lineTo(88,7);ctx.lineTo(50,57);ctx.closePath();
+  ctx.strokeStyle='#5a70a0';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(14,7);ctx.lineTo(50,55);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(50,63);ctx.lineTo(88,113);ctx.lineTo(12,113);ctx.closePath();
+  ctx.strokeStyle='#5a70a0';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
+
+  ctx.save();ctx.beginPath();ctx.roundRect(44,56,12,8,3);
+  ctx.fillStyle='#1a2540';ctx.fill();ctx.strokeStyle='#5a70a0';ctx.lineWidth=1.2;ctx.stroke();ctx.restore();
 
   ctx.save();
-  ctx.beginPath(); ctx.roundRect(44,56,12,8,3);
-  ctx.fillStyle='#1a2540'; ctx.fill();
-  ctx.strokeStyle='#5a70a0'; ctx.lineWidth=1.2; ctx.stroke();
-  ctx.restore();
-
-  ctx.save();
-  ctx.beginPath(); ctx.roundRect(8,2,84,6,3);
-  ctx.fillStyle='#1e2d4a'; ctx.fill();
-  ctx.strokeStyle='#4a6090'; ctx.lineWidth=1; ctx.stroke();
-  ctx.beginPath(); ctx.roundRect(8,112,84,6,3);
-  ctx.fillStyle='#1e2d4a'; ctx.fill();
-  ctx.strokeStyle='#4a6090'; ctx.lineWidth=1; ctx.stroke();
+  ctx.beginPath();ctx.roundRect(8,2,84,6,3);
+  ctx.fillStyle='#1e2d4a';ctx.fill();ctx.strokeStyle='#4a6090';ctx.lineWidth=1;ctx.stroke();
+  ctx.beginPath();ctx.roundRect(8,112,84,6,3);
+  ctx.fillStyle='#1e2d4a';ctx.fill();ctx.strokeStyle='#4a6090';ctx.lineWidth=1;ctx.stroke();
   ctx.restore();
 
   drawGlassShine(ctx);
@@ -1280,31 +1468,20 @@ function drawHourglass(pct){
 
 function closeFocusDialog(){
   cancelAnimationFrame(sandAnimFrame);
-  sandParticles = [];
+  sandParticles=[];
   stopFocusPulse();
   document.getElementById('focusOverlay').classList.remove('show');
 }
 
 function dialogPauseResume(){
-  if(!activeTimer) return;
-  if(activeTimer.startBtnEl) pauseResumeTimer(activeTimer.startBtnEl);
-  const btn = document.getElementById('fdPauseBtn');
-  if(activeTimer && activeTimer.interval){
-    btn.textContent = '⏸ Pause';
-  } else {
-    btn.textContent = '▶ Resume';
-  }
+  if(!activeTimer)return;
+  if(activeTimer.startBtnEl)pauseResumeTimer(activeTimer.startBtnEl);
+  const btn=document.getElementById('fdPauseBtn');
+  if(activeTimer&&activeTimer.interval){btn.textContent='⏸ Pause';}else{btn.textContent='▶ Resume';}
 }
 
-function dialogMarkDone(){
-  closeFocusDialog();
-  globalMarkDone();
-}
-
-function dialogStop(){
-  closeFocusDialog();
-  stopActiveTimer();
-}
+function dialogMarkDone(){closeFocusDialog();globalMarkDone();}
+function dialogStop(){closeFocusDialog();stopActiveTimer();}
 
 function updateGlobalBar(){
   if(!activeTimer)return;
@@ -1323,13 +1500,12 @@ function showGlobalBar(show){
     document.getElementById('gPauseBtn').style.display='';
     document.getElementById('gPauseBtn').textContent='⏸ Pause';
     document.body.style.paddingTop='56px';
-  } else {
-    bar.classList.remove('show');
-    document.body.style.paddingTop='';
-  }
+  }else{bar.classList.remove('show');document.body.style.paddingTop='';}
 }
 
-// ── TABS ──
+// ════════════════════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════════════════════
 function switchTab(name){
   activeTab=name;
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
@@ -1340,19 +1516,17 @@ function switchTab(name){
   if(name==='notes-tab')renderNotesTab();
 }
 
-// ── TOGGLE TASK ──
 function toggleTask(id){
   const d=dayData(currentKey);
   d[id]=!d[id];
   save();
-  if(activeTimer&&activeTimer.id===id&&d[id]){
-    stopActiveTimer(false);
-    showToast('✅ Task completed!');
-  }
+  if(activeTimer&&activeTimer.id===id&&d[id]){stopActiveTimer(false);showToast('✅ Task completed!');}
   renderToday();
 }
 
-// ── RENDER TODAY ──
+// ════════════════════════════════════════════════════════════════
+//  RENDER TODAY
+// ════════════════════════════════════════════════════════════════
 function renderToday(){
   const isToday=currentKey===todayKey();
   const dd=document.getElementById('dateDisplay');
@@ -1388,7 +1562,6 @@ function renderToday(){
   SECTIONS.forEach(sec=>{
     const tasks=store.tasks.filter(t=>t.sec===sec.key);
     if(!tasks.length)return;
-
     const doneCnt=tasks.filter(t=>day[t.id]).length;
     const lbl=document.createElement('div');
     lbl.className='section-label';
@@ -1398,170 +1571,87 @@ function renderToday(){
     tasks.forEach(task=>{
       const done=!!day[task.id];
       const isActive=activeTimer&&activeTimer.id===task.id;
-
-      // ── TASK WRAP (outer container) ──
-      const wrap = document.createElement('div');
-      wrap.className = `task-wrap ${task.cat}`;
-
-      // ── TASK ROW ──
+      const wrap=document.createElement('div');
+      wrap.className=`task-wrap ${task.cat}`;
       const row=document.createElement('div');
       row.className=`task-row ${task.cat}${done?' done':''}${isActive?' active-timer':''}`;
       row.dataset.id=task.id;
 
-      // drag
       const handle=document.createElement('span');
-      handle.className='drag-handle';
-      handle.textContent='⠿';
-      handle.title='Drag to reorder';
-      handle.draggable=true;
-      handle.addEventListener('dragstart',e=>{
-        e.stopPropagation(); dragSrc=task.id;
-        e.dataTransfer.effectAllowed='move';
-        setTimeout(()=>row.classList.add('dragging'),0);
-      });
-      handle.addEventListener('dragend',()=>{
-        row.classList.remove('dragging');
-        document.querySelectorAll('.task-row').forEach(r=>r.classList.remove('drag-over'));
-      });
-      row.addEventListener('dragover',e=>{
-        e.preventDefault();
-        if(task.id!==dragSrc){
-          document.querySelectorAll('.task-row').forEach(r=>r.classList.remove('drag-over'));
-          row.classList.add('drag-over');
-        }
-      });
-      row.addEventListener('drop',e=>{
-        e.preventDefault();
-        row.classList.remove('drag-over');
-        if(!dragSrc||dragSrc===task.id)return;
-        const si=store.tasks.findIndex(t=>t.id===dragSrc);
-        const ti=store.tasks.findIndex(t=>t.id===task.id);
-        const [moved]=store.tasks.splice(si,1);
-        store.tasks.splice(ti,0,moved);
-        dragSrc=null;save();renderToday();
-      });
+      handle.className='drag-handle';handle.textContent='⠿';handle.title='Drag to reorder';handle.draggable=true;
+      handle.addEventListener('dragstart',e=>{e.stopPropagation();dragSrc=task.id;e.dataTransfer.effectAllowed='move';setTimeout(()=>row.classList.add('dragging'),0);});
+      handle.addEventListener('dragend',()=>{row.classList.remove('dragging');document.querySelectorAll('.task-row').forEach(r=>r.classList.remove('drag-over'));});
+      row.addEventListener('dragover',e=>{e.preventDefault();if(task.id!==dragSrc){document.querySelectorAll('.task-row').forEach(r=>r.classList.remove('drag-over'));row.classList.add('drag-over');}});
+      row.addEventListener('drop',e=>{e.preventDefault();row.classList.remove('drag-over');if(!dragSrc||dragSrc===task.id)return;const si=store.tasks.findIndex(t=>t.id===dragSrc);const ti=store.tasks.findIndex(t=>t.id===task.id);const[moved]=store.tasks.splice(si,1);store.tasks.splice(ti,0,moved);dragSrc=null;save();renderToday();});
 
-      // check
       const check=document.createElement('div');
-      check.className='task-check';
-      check.textContent=done?'✓':'';
+      check.className='task-check';check.textContent=done?'✓':'';
       check.addEventListener('click',()=>toggleTask(task.id));
 
-      // name
       const name=document.createElement('div');
-      name.className='task-name';
-      name.textContent=task.name;
+      name.className='task-name';name.textContent=task.name;
       name.addEventListener('click',()=>toggleTask(task.id));
 
-      // timer area
-      const timerArea=document.createElement('div');
-      timerArea.className='task-timer-area';
-
-      const durBadge=document.createElement('div');
-      durBadge.className='task-dur-badge';
-      durBadge.textContent=task.dur;
-
-      const timerDisplay=document.createElement('div');
-      timerDisplay.className='task-timer-display';
+      const timerArea=document.createElement('div');timerArea.className='task-timer-area';
+      const durBadge=document.createElement('div');durBadge.className='task-dur-badge';durBadge.textContent=task.dur;
+      const timerDisplay=document.createElement('div');timerDisplay.className='task-timer-display';
       if(isActive){
         const rem=activeTimer.totalSecs>0?Math.max(0,activeTimer.totalSecs-activeTimer.elapsed):activeTimer.elapsed;
         timerDisplay.textContent=fmtSecs(activeTimer.totalSecs>0?rem:activeTimer.elapsed);
         timerDisplay.classList.add('show');
-        activeTimer.timerDisplayEl=timerDisplay;
-        activeTimer.rowEl=row;
+        activeTimer.timerDisplayEl=timerDisplay;activeTimer.rowEl=row;
       }
 
-      const startBtn=document.createElement('button');
-      startBtn.className='start-btn';
-      if(done){
-        startBtn.textContent='✓ Done';
-        startBtn.disabled=true;
-        startBtn.style.opacity='0.4';
-      } else if(isActive){
-        if(activeTimer.interval){
-          startBtn.textContent='⏸ Pause';
-          startBtn.classList.add('running');
-        } else {
-          startBtn.textContent='▶ Resume';
-          startBtn.classList.add('paused');
-        }
+      const startBtn=document.createElement('button');startBtn.className='start-btn';
+      if(done){startBtn.textContent='✓ Done';startBtn.disabled=true;startBtn.style.opacity='0.4';}
+      else if(isActive){
+        if(activeTimer.interval){startBtn.textContent='⏸ Pause';startBtn.classList.add('running');}
+        else{startBtn.textContent='▶ Resume';startBtn.classList.add('paused');}
         activeTimer.startBtnEl=startBtn;
-      } else {
-        startBtn.textContent='▶ Start';
-      }
-
+      }else{startBtn.textContent='▶ Start';}
       if(!done){
         startBtn.addEventListener('click',e=>{
           e.stopPropagation();
-          if(activeTimer&&activeTimer.id===task.id){
-            pauseResumeTimer(startBtn);
-          } else {
-            startTaskTimer(task, row, startBtn, timerDisplay);
-          }
+          if(activeTimer&&activeTimer.id===task.id){pauseResumeTimer(startBtn);}
+          else{startTaskTimer(task,row,startBtn,timerDisplay);}
         });
       }
 
-      // ── NOTES BUTTON ──
-      const notesBtn = document.createElement('button');
-      notesBtn.className = 'notes-btn' + (hasNote(currentKey, task.id) ? ' has-note' : '');
-      notesBtn.title = 'Add/view notes for this task';
-      notesBtn.innerHTML = '📝 Notes<span class="notes-dot"></span>';
-      notesBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleNotes(wrap, currentKey, task.id, task.name, task.cat);
-      });
+      const notesBtn=document.createElement('button');
+      notesBtn.className='notes-btn'+(hasNote(currentKey,task.id)?' has-note':'');
+      notesBtn.title='Add/view notes';
+      notesBtn.innerHTML='📝 Notes<span class="notes-dot"></span>';
+      notesBtn.addEventListener('click',e=>{e.stopPropagation();toggleNotes(wrap,currentKey,task.id,task.name,task.cat);});
 
-      timerArea.append(durBadge, timerDisplay, startBtn, notesBtn);
-      row.append(handle, check, name, timerArea);
+      timerArea.append(durBadge,timerDisplay,startBtn,notesBtn);
+      row.append(handle,check,name,timerArea);
 
-      // ── NOTES PANEL ──
-      const notesPanel = document.createElement('div');
-      notesPanel.className = 'notes-panel';
-
-      const notesHeader = document.createElement('div');
-      notesHeader.className = 'notes-header';
-      notesHeader.innerHTML = `<span>📝 What did you do?</span><span class="notes-date-lbl">${shortDate(currentKey)}</span>`;
-
-      const textarea = document.createElement('textarea');
-      textarea.className = 'notes-textarea';
-      textarea.placeholder = 'Write what you studied, covered, problems attempted, how it went...\ne.g. Did 2 chapters of Polity, solved 15 maths questions, revised vocab from Set 3...';
-      textarea.rows = 3;
-      textarea.addEventListener('input', () => updateCharCount(notesPanel));
-      // Save on Ctrl+Enter
-      textarea.addEventListener('keydown', e => {
-        if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
-          e.preventDefault();
-          saveNoteFromPanel(notesPanel, currentKey, task.id);
-        }
-      });
-
-      const notesActions = document.createElement('div');
-      notesActions.className = 'notes-actions';
-
-      const charCount = document.createElement('span');
-      charCount.className = 'notes-char-count';
-      charCount.textContent = '0 chars';
-
-      const saveBtn = document.createElement('button');
-      saveBtn.className = 'notes-save-btn';
-      saveBtn.textContent = '💾 Save (Ctrl+Enter)';
-      saveBtn.addEventListener('click', () => saveNoteFromPanel(notesPanel, currentKey, task.id));
-
-      const clearBtn = document.createElement('button');
-      clearBtn.className = 'notes-clear-btn';
-      clearBtn.textContent = '✕ Clear';
-      clearBtn.addEventListener('click', () => clearNoteFromPanel(notesPanel, currentKey, task.id));
-
-      notesActions.append(charCount, clearBtn, saveBtn);
-      notesPanel.append(notesHeader, textarea, notesActions);
-
-      wrap.append(row, notesPanel);
+      const notesPanel=document.createElement('div');notesPanel.className='notes-panel';
+      const notesHeader=document.createElement('div');notesHeader.className='notes-header';
+      notesHeader.innerHTML=`<span>📝 What did you do?</span><span class="notes-date-lbl">${shortDate(currentKey)}</span>`;
+      const textarea=document.createElement('textarea');
+      textarea.className='notes-textarea';
+      textarea.placeholder='Write what you studied, covered, problems attempted, how it went...';
+      textarea.rows=3;
+      textarea.addEventListener('input',()=>updateCharCount(notesPanel));
+      textarea.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveNoteFromPanel(notesPanel,currentKey,task.id);}});
+      const notesActions=document.createElement('div');notesActions.className='notes-actions';
+      const charCount=document.createElement('span');charCount.className='notes-char-count';charCount.textContent='0 chars';
+      const saveBtn=document.createElement('button');saveBtn.className='notes-save-btn';saveBtn.textContent='💾 Save (Ctrl+Enter)';
+      saveBtn.addEventListener('click',()=>saveNoteFromPanel(notesPanel,currentKey,task.id));
+      const clearBtn=document.createElement('button');clearBtn.className='notes-clear-btn';clearBtn.textContent='✕ Clear';
+      clearBtn.addEventListener('click',()=>clearNoteFromPanel(notesPanel,currentKey,task.id));
+      notesActions.append(charCount,clearBtn,saveBtn);
+      notesPanel.append(notesHeader,textarea,notesActions);
+      wrap.append(row,notesPanel);
       grid.appendChild(wrap);
     });
   });
 }
 
-// ── ANALYTICS ──
+// ════════════════════════════════════════════════════════════════
+//  ANALYTICS
+// ════════════════════════════════════════════════════════════════
 function calColor(s,max){if(!s)return 'var(--g0)';const p=s/max;return p<.25?'var(--g1)':p<.5?'var(--g2)':p<.75?'var(--g3)':'var(--g4)';}
 function barColor(s,max){if(!s)return 'var(--border)';const p=s/max;return p<.4?'#f06090':p<.7?'#f6ad55':'#39d353';}
 
@@ -1572,14 +1662,14 @@ function renderAnalytics(){
   const totalDays=scores.length;
   const best=scores.length?Math.max(...scores):0;
   const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
-  const totalNotes = Object.keys(store.notes||{}).filter(k=>(store.notes||{})[k]).length;
+  const totalNotes=Object.keys(store.notes||{}).filter(k=>(store.notes||{})[k]).length;
 
   document.getElementById('statRow').innerHTML=`
     <div class="stat-pill"><div class="val">${calcStreak()}</div><div class="lbl">Day Streak 🔥</div></div>
     <div class="stat-pill"><div class="val">${totalDays}</div><div class="lbl">Days Active</div></div>
     <div class="stat-pill"><div class="val">${best}</div><div class="lbl">Best Score</div></div>
     <div class="stat-pill"><div class="val">${avg}</div><div class="lbl">Avg Score</div></div>
-    <div class="stat-pill"><div class="val">${totalNotes}</div><div class="lbl">Notes Written 📝</div></div>
+    <div class="stat-pill"><div class="val">${totalNotes}</div><div class="lbl">Notes 📝</div></div>
   `;
 
   const calGrid=document.getElementById('calGrid');
@@ -1587,8 +1677,7 @@ function renderAnalytics(){
   calGrid.innerHTML='';calMonths.innerHTML='';
 
   const end=new Date(todayKey()+'T00:00:00');
-  const start=new Date(end);
-  start.setDate(start.getDate()-181);
+  const start=new Date(end);start.setDate(start.getDate()-181);
   while(start.getDay()!==0)start.setDate(start.getDate()-1);
 
   const cells=[];
@@ -1596,24 +1685,19 @@ function renderAnalytics(){
   while(cur<=end){cells.push(localDateKey(cur));cur.setDate(cur.getDate()+1);}
   while(cur.getDay()!==0){cells.push(localDateKey(cur));cur.setDate(cur.getDate()+1);}
 
-  const totalWeeks = cells.length / 7;
-  let lastM = -1;
-  for(let w = 0; w < totalWeeks; w++){
-    const d = new Date(cells[w*7] + 'T00:00:00');
-    const lbl = document.createElement('div');
-    lbl.className = 'cal-month-lbl';
-    if(d.getMonth() !== lastM){
-      lastM = d.getMonth();
-      lbl.textContent = MONTHS[d.getMonth()];
-    }
+  const totalWeeks=cells.length/7;
+  let lastM=-1;
+  for(let w=0;w<totalWeeks;w++){
+    const d=new Date(cells[w*7]+'T00:00:00');
+    const lbl=document.createElement('div');lbl.className='cal-month-lbl';
+    if(d.getMonth()!==lastM){lastM=d.getMonth();lbl.textContent=MONTHS[d.getMonth()];}
     calMonths.appendChild(lbl);
   }
 
   cells.forEach(dk=>{
     const future=dk>todayKey();
     const s=calcScore(dk);
-    const cell=document.createElement('div');
-    cell.className='cal-cell';
+    const cell=document.createElement('div');cell.className='cal-cell';
     cell.style.background=future?'transparent':calColor(s,max);
     if(future)cell.style.border='1px dashed #1a2030';
     cell.setAttribute('data-tip',future?'Future':`${shortDate(dk)}: ${s}/${max}`);
@@ -1624,33 +1708,28 @@ function renderAnalytics(){
   renderBarChart();
 }
 
-let barRange = 30; // default 30 days
+let barRange=30;
 function setBarRange(n){
-  barRange = n;
+  barRange=n;
   document.querySelectorAll('.bar-range-btn').forEach(b=>b.classList.remove('active'));
-  const map = {30:'barBtn30',90:'barBtn90',0:'barBtnAll'};
-  const el = document.getElementById(map[n]);
-  if(el) el.classList.add('active');
+  const map={30:'barBtn30',90:'barBtn90',0:'barBtnAll'};
+  const el=document.getElementById(map[n]);if(el)el.classList.add('active');
   renderBarChart();
 }
 
 function renderBarChart(){
   const max=calcMax();
   const barChart=document.getElementById('barChart');
-  if(!barChart) return;
-  barChart.innerHTML='';
+  if(!barChart)return;barChart.innerHTML='';
   const today=new Date(todayKey()+'T00:00:00');
   const keys=Object.keys(store.days).sort();
   let barDays;
   if(barRange===0){
-    // All time
-    let firstKey = keys.length ? keys[0] : addDays(todayKey(),-29);
-    const firstDate = new Date(firstKey+'T00:00:00');
-    const diffDays = Math.round((today - firstDate)/(1000*60*60*24));
-    barDays = Math.max(diffDays, 29);
-  } else {
-    barDays = barRange - 1;
-  }
+    let firstKey=keys.length?keys[0]:addDays(todayKey(),-29);
+    const firstDate=new Date(firstKey+'T00:00:00');
+    const diffDays=Math.round((today-firstDate)/(1000*60*60*24));
+    barDays=Math.max(diffDays,29);
+  }else{barDays=barRange-1;}
 
   for(let i=barDays;i>=0;i--){
     const d=new Date(today);d.setDate(d.getDate()-i);
@@ -1658,32 +1737,29 @@ function renderBarChart(){
     const s=calcScore(dk);
     const h=max?Math.max(4,Math.round((s/max)*110)):4;
     const isT=dk===todayKey();
-    const col=document.createElement('div');
-    col.className='bar-col';
-    const bar=document.createElement('div');
-    bar.className='bar-fill';
-    bar.style.height=h+'px';
-    bar.style.background=isT?'var(--accent)':barColor(s,max);
+    const col=document.createElement('div');col.className='bar-col';
+    const bar=document.createElement('div');bar.className='bar-fill';
+    bar.style.height=h+'px';bar.style.background=isT?'var(--accent)':barColor(s,max);
     if(isT)bar.style.boxShadow='0 0 10px var(--accent)';
     bar.setAttribute('data-tip',`${shortDate(dk)}: ${s}/${max}`);
     bar.addEventListener('click',()=>{currentKey=dk;switchTab('today');});
-    const lbl2=document.createElement('div');
-    lbl2.className='bar-label';
+    const lbl2=document.createElement('div');lbl2.className='bar-label';
     lbl2.style.color=isT?'var(--accent)':'var(--muted)';
     lbl2.textContent=isT?'•':['S','M','T','W','T','F','S'][d.getDay()];
-    col.append(bar,lbl2);
-    barChart.appendChild(col);
+    col.append(bar,lbl2);barChart.appendChild(col);
   }
-  barChart.scrollLeft = barChart.scrollWidth;
+  barChart.scrollLeft=barChart.scrollWidth;
 }
 
-// ── MANAGE ──
+// ════════════════════════════════════════════════════════════════
+//  MANAGE
+// ════════════════════════════════════════════════════════════════
 function deleteTask(id){
   if(!confirm('Delete this task?'))return;
   if(activeTimer&&activeTimer.id===id)stopActiveTimer(false);
-  store.tasks=store.tasks.filter(t=>t.id!==id);
-  save();renderManage();renderToday();
+  store.tasks=store.tasks.filter(t=>t.id!==id);save();renderManage();renderToday();
 }
+
 function renderManage(){
   const list=document.getElementById('manageTaskList');
   list.innerHTML='';
@@ -1696,49 +1772,21 @@ function renderManage(){
     if(!tasks.length)return;
     const hdr=document.createElement('div');
     hdr.style.cssText='font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);padding:10px 0 5px;font-weight:700;font-family:"Space Mono",monospace;';
-    hdr.textContent=sec.label;
-    list.appendChild(hdr);
+    hdr.textContent=sec.label;list.appendChild(hdr);
 
     tasks.forEach(task=>{
-      // Outer wrapper
-      const wrap=document.createElement('div');
-      wrap.className='manage-task-wrap';
-      wrap.style.marginBottom='6px';
-
-      // Row
-      const row=document.createElement('div');
-      row.className='manage-task-row';
-      row.style.marginBottom='0';
-
-      const dot=document.createElement('div');
-      dot.style.cssText=`width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--${task.cat});`;
-
-      const nm=document.createElement('div');
-      nm.style.cssText='flex:1;font-size:0.85rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-      nm.textContent=task.name;
-
-      const dur=document.createElement('div');
-      dur.className='task-dur-badge';
-      dur.textContent=task.dur;
-
-      const badge=document.createElement('span');
-      badge.className=`cat-badge cat-${task.cat}`;
-      badge.textContent=catLabels[task.cat];
-
-      const editBtn=document.createElement('button');
-      editBtn.className='edit-btn';
-      editBtn.textContent='✏ Edit';
-
-      const del=document.createElement('button');
-      del.className='delete-btn';
-      del.textContent='✕';
+      const wrap=document.createElement('div');wrap.className='manage-task-wrap';wrap.style.marginBottom='6px';
+      const row=document.createElement('div');row.className='manage-task-row';row.style.marginBottom='0';
+      const dot=document.createElement('div');dot.style.cssText=`width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--${task.cat});`;
+      const nm=document.createElement('div');nm.style.cssText='flex:1;font-size:0.85rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';nm.textContent=task.name;
+      const dur=document.createElement('div');dur.className='task-dur-badge';dur.textContent=task.dur;
+      const badge=document.createElement('span');badge.className=`cat-badge cat-${task.cat}`;badge.textContent=catLabels[task.cat];
+      const editBtn=document.createElement('button');editBtn.className='edit-btn';editBtn.textContent='✏ Edit';
+      const del=document.createElement('button');del.className='delete-btn';del.textContent='✕';
       del.addEventListener('click',()=>deleteTask(task.id));
-
       row.append(dot,nm,dur,badge,editBtn,del);
 
-      // Inline edit panel
-      const editPanel=document.createElement('div');
-      editPanel.className='edit-panel';
+      const editPanel=document.createElement('div');editPanel.className='edit-panel';
       editPanel.innerHTML=`
         <div class="edit-panel-grid">
           <input class="edit-name-input" type="text" placeholder="Task name" value="${task.name.replace(/"/g,'&quot;')}" />
@@ -1752,35 +1800,21 @@ function renderManage(){
         </div>
       `;
 
-      // Toggle edit panel
       editBtn.addEventListener('click',()=>{
         const isOpen=editPanel.classList.contains('open');
-        // Close all other edit panels first
         document.querySelectorAll('.edit-panel.open').forEach(p=>{
           p.classList.remove('open');
-          const w=p.closest('.manage-task-wrap');
-          if(w) w.classList.remove('editing');
+          const w=p.closest('.manage-task-wrap');if(w)w.classList.remove('editing');
           const eb=w&&w.querySelector('.edit-btn');
           if(eb){eb.classList.remove('active');eb.textContent='✏ Edit';}
         });
-        if(!isOpen){
-          editPanel.classList.add('open');
-          wrap.classList.add('editing');
-          editBtn.classList.add('active');
-          editBtn.textContent='✕ Close';
-          editPanel.querySelector('.edit-name-input').focus();
-        }
+        if(!isOpen){editPanel.classList.add('open');wrap.classList.add('editing');editBtn.classList.add('active');editBtn.textContent='✕ Close';editPanel.querySelector('.edit-name-input').focus();}
       });
 
-      // Cancel
       editPanel.querySelector('.edit-cancel-btn').addEventListener('click',()=>{
-        editPanel.classList.remove('open');
-        wrap.classList.remove('editing');
-        editBtn.classList.remove('active');
-        editBtn.textContent='✏ Edit';
+        editPanel.classList.remove('open');wrap.classList.remove('editing');editBtn.classList.remove('active');editBtn.textContent='✏ Edit';
       });
 
-      // Save
       editPanel.querySelector('.edit-save-btn').addEventListener('click',()=>{
         const newName=editPanel.querySelector('.edit-name-input').value.trim();
         if(!newName){showToast('⚠ Name cannot be empty!','warn');return;}
@@ -1789,20 +1823,19 @@ function renderManage(){
         const newSec=editPanel.querySelector('.edit-sec-sel').value;
         const t=store.tasks.find(x=>x.id===task.id);
         if(t){t.name=newName;t.dur=newDur;t.cat=newCat;t.sec=newSec;}
-        save();renderManage();renderToday();
-        showToast('✅ Task updated!');
+        save();renderManage();renderToday();showToast('✅ Task updated!');
       });
 
-      wrap.append(row,editPanel);
-      list.appendChild(wrap);
+      wrap.append(row,editPanel);list.appendChild(wrap);
     });
   });
 }
 
-// ── WIRE EVENTS ──
+// ════════════════════════════════════════════════════════════════
+//  WIRE EVENTS & INIT
+// ════════════════════════════════════════════════════════════════
 document.getElementById('tabBar').addEventListener('click',e=>{
-  const t=e.target.closest('.tab');
-  if(t)switchTab(t.dataset.tab);
+  const t=e.target.closest('.tab');if(t)switchTab(t.dataset.tab);
 });
 document.getElementById('prevBtn').addEventListener('click',()=>goDay(-1));
 document.getElementById('nextBtn').addEventListener('click',()=>goDay(1));
@@ -1830,16 +1863,14 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   }
 });
 
-// ── INIT ──
+document.getElementById('focusOverlay').addEventListener('click',function(e){if(e.target===this)dialogStop();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('focusOverlay').classList.contains('show'))dialogStop();});
+
+// Init
+_getStoredToken();
+_updateDriveStatus();
 renderToday();
 renderManage();
-
-document.getElementById('focusOverlay').addEventListener('click', function(e){
-  if(e.target === this) dialogStop();
-});
-document.addEventListener('keydown', e => {
-  if(e.key === 'Escape' && document.getElementById('focusOverlay').classList.contains('show')) dialogStop();
-});
 </script>
 </body>
 </html>
