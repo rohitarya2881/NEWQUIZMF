@@ -151,16 +151,16 @@ function qsdSetTimerTab(mode) {
                 ?.classList.toggle('active', t === mode);
     });
 }
-function _fcToggleBookmark(btn) {
+async function _fcToggleBookmark(btn) {
     const qIdx   = parseInt(btn.dataset.qidx);
     const quizId = btn.dataset.quizid;
     const quiz   = findItemById(quizId);
     if (!quiz) return;
     const q = quiz.questions[qIdx];
     if (!q) return;
-    toggleBookmark(q, quizId, btn);
+    await toggleBookmark(q, quizId, btn);
     const card = btn.closest('.flashcard');
-    if (card) card.classList.toggle('fc-bookmarked', isBookmarked(q, quizId));
+    if (card) card.classList.toggle('fc-bookmarked', await isBookmarked(q, quizId));
 }
 /* ── Launch quiz with chosen settings ── */
 function launchQuizWithSettings(quizId, totalQuestions) {
