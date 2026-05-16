@@ -594,8 +594,8 @@ function displayFlashcards(quizId) {
     const cardsHTML = quiz.questions.map((q, i) => {
         const bm = isBookmarked(q, quiz.id);
         return `
-        <div class="flashcard" data-idx="${i}">
-            <button class="fc-edit-btn" onclick="event.stopPropagation();openFlashcardEdit('${quiz.id}',${i})" title="Edit">✏️</button>
+<div class="flashcard ${bm ? 'fc-bookmarked' : ''}" data-idx="${i}">
+<button class="fc-edit-btn" onclick="event.stopPropagation();openFlashcardEdit('${quiz.id}',${i})" title="Edit">✏️</button>
             <button class="fc-search-btn" onclick="event.stopPropagation();fcSearchQuestion(this)" data-q="${escHtml(q.question)}" title="Search on Google">🔍</button>
             <button class="fc-bm-btn ${bm?'bookmarked':''}" data-qidx="${i}" data-quizid="${quiz.id}"
                 onclick="event.stopPropagation();_fcToggleBookmark(this)"
