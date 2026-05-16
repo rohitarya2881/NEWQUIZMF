@@ -75,15 +75,25 @@ async function removeBookmark(question, bookmarkQuizId) {
 
 // ── Check if question is bookmarked ──────────
 function isBookmarked(question, quizId) {
-    const quiz   = findItemById(quizId);
+    const quiz = findItemById(quizId);
     if (!quiz) return false;
-    const parent = findItemById(quiz.parentId);
-    if (!parent) return false;
+
+    // Parent ko fresh tree se lo
     const bmName = quiz.name + BOOKMARK_SUFFIX;
 
-    // parent.children ke saath saath folderStructure bhi scan karo
-    const bmQuiz = parent.children?.find(c => c.type === 'quiz' && c.name === bmName)
-                ?? _findInTree(folderStructure, bmName, quiz.parentId);
+    // Seedha folderStructure mein dhundho — koi getAllItems() nahi chahiye
+    let bmQuiz = null;
+    const scan = (node) => {
+        if (bmQuiz) return;
+        if (node.type === 'quiz' && 
+            node.name === bmName && 
+            node.parentId === quiz.parentId) {
+            bmQuiz = node;
+            return;
+        }
+        (node.children || []).forEach(scan);
+    };
+    scan(folderStructure);
 
     if (!bmQuiz) return false;
     return bmQuiz.questions.some(q =>
