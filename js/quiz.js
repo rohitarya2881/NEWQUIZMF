@@ -558,8 +558,13 @@ async function displayFlashcards(quizId) {
     const letters = ['A','B','C','D','E','F','G','H'];
 
     // Build cards with exact old site HTML structure
- const cardsHTML = quiz.questions.map((q, i) => {
-    const bm = isBookmarked(q, quiz.id);  // ← check karo pehle
+// Naya — async hai ab
+const bmResults = await Promise.all(
+    quiz.questions.map(q => isBookmarked(q, quiz.id))
+);
+
+const cardsHTML = quiz.questions.map((q, i) => {
+    const bm = bmResults[i];
     return `
         <div class="flashcard ${bm ? 'fc-bookmarked' : ''}" data-idx="${i}">
             <button class="fc-edit-btn" onclick="event.stopPropagation();openFlashcardEdit('${quiz.id}',${i})" title="Edit">✏️</button>
@@ -594,7 +599,6 @@ async function displayFlashcards(quizId) {
             </div>
         </div>`;
 }).join('');
-
     fc.innerHTML = `
         <div class="fc-toolbar">
             <span class="fc-toolbar-title">📚 ${escHtml(quiz.name)}</span>
