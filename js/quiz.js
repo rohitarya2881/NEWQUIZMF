@@ -1896,7 +1896,16 @@ async function displayFlashcards(quizId) {
             ${cardsHTML}
             <div id="fcNoResults" class="fc-no-results">No questions match your search.</div>
         </div>`;
+   // ── Bookmark animation fresh trigger ──────────
 
+fc.querySelectorAll('.flashcard').forEach((card, i) => {
+    const q = quiz.questions[i];
+    if (isBookmarked(q, quiz.id)) {
+        card.classList.remove('fc-bookmarked');
+        void card.offsetWidth;  // reflow force — animation fresh start
+        card.classList.add('fc-bookmarked');
+    }
+});
     // Click to flip — uses old site .flipped class
     fc.querySelectorAll('.flashcard').forEach(card => {
         card.addEventListener('click', () => {
