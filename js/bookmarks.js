@@ -80,11 +80,25 @@ function isBookmarked(question, quizId) {
     const parent = findItemById(quiz.parentId);
     if (!parent) return false;
     const bmName = quiz.name + BOOKMARK_SUFFIX;
-    const bmQuiz = parent.children?.find(c => c.type === 'quiz' && c.name === bmName);
+
+    // parent.children ke saath saath folderStructure bhi scan karo
+    const bmQuiz = parent.children?.find(c => c.type === 'quiz' && c.name === bmName)
+                ?? _findInTree(folderStructure, bmName, quiz.parentId);
+
     if (!bmQuiz) return false;
     return bmQuiz.questions.some(q =>
         q.question?.trim().toLowerCase() === question.question?.trim().toLowerCase()
     );
+}
+
+// Helper — tree mein dhundho
+function _findInTree(node, name, parentId) {
+    if (node.type === 'quiz' && node.name === name && node.parentId === parentId) return node;
+    for (const child of node.children || []) {
+        const found = _findInTree(child, name, parentId);
+        if (found) return found;
+    }
+    return null;
 }
 
 // ── Toggle bookmark (used in quiz + flashcard) ─
