@@ -75,40 +75,23 @@ async function removeBookmark(question, bookmarkQuizId) {
 
 // ── Check if question is bookmarked ──────────
 function isBookmarked(question, quizId) {
-    const quiz = findItemById(quizId);
+    const quiz   = findItemById(quizId);
     if (!quiz) return false;
+    const parent = findItemById(quiz.parentId);
+    if (!parent) return false;
     const bmName = quiz.name + BOOKMARK_SUFFIX;
-    
-    // DB se directly fresh data lo
-    return new Promise(resolve => {
-        const tx = db.transaction(['folderStructure'], 'readonly');
-        const index = tx.objectStore('folderStructure').index('parentId');
-        index.getAll(quiz.parentId).onsuccess = e => {
-            const bmQuiz = e.target.result?.find(
-                item => item.type === 'quiz' && item.name === bmName
-            );
-            if (!bmQuiz) { resolve(false); return; }
-            const found = bmQuiz.questions?.some(q =>
-                q.question?.trim().toLowerCase() === question.question?.trim().toLowerCase()
-            );
-            resolve(!!found);
-        };
-    });
-}
-// Helper — tree mein dhundho
-function _findInTree(node, name, parentId) {
-    if (node.type === 'quiz' && node.name === name && node.parentId === parentId) return node;
-    for (const child of node.children || []) {
-        const found = _findInTree(child, name, parentId);
-        if (found) return found;
-    }
-    return null;
+    const bmQuiz = parent.children?.find(c => c.type === 'quiz' && c.name === bmName);
+    if (!bmQuiz) return false;
+    return bmQuiz.questions.some(q =>
+        q.question?.trim().toLowerCase() === question.question?.trim().toLowerCase()
+    );
 }
 
 // ── Toggle bookmark (used in quiz + flashcard) ─
 async function toggleBookmark(question, quizId, btnEl) {
-    const bookmarked = await isBookmarked(question, quizId);  // ← sirf yahan await add kiya
+    const bookmarked = isBookmarked(question, quizId);
     if (bookmarked) {
+        // Find and remove
         const quiz   = findItemById(quizId);
         const parent = findItemById(quiz?.parentId);
         const bmQuiz = parent?.children?.find(c => c.type === 'quiz' && c.name === quiz.name + BOOKMARK_SUFFIX);
@@ -119,6 +102,7 @@ async function toggleBookmark(question, quizId, btnEl) {
         if (btnEl) { btnEl.textContent = '✅🔖'; btnEl.title = 'Bookmarked! Click to remove'; btnEl.classList.add('bookmarked'); }
     }
 }
+
 // ══════════════════════════════════════════════
 // ALL BOOKMARKS VIEW
 // ══════════════════════════════════════════════
