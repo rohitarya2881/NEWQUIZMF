@@ -958,17 +958,45 @@
 .log-editing { border-left-color: #f39c12 !important; background: rgba(243,156,18,0.04) !important; }
 
 /* Bookmarked flashcard — neon glow */
+/* Bookmarked flashcard — light neon glow */
 .flashcard.fc-bookmarked {
-    box-shadow: 0 0 18px rgba(243,156,18,0.5),
-                0 0 40px rgba(243,156,18,0.2);
-    border: 1px solid rgba(243,156,18,0.4);
-    border-top: 3px solid rgba(243,156,18,0.9);
+    position: relative;
+    border-radius: 16px;
+    z-index: 0;
 }
 
-.dark-theme .flashcard.fc-bookmarked {
-    box-shadow: 0 0 20px rgba(255,180,0,0.4),
-                0 0 50px rgba(255,180,0,0.15),
-                inset 0 0 20px rgba(255,180,0,0.05);
-    border: 1px solid rgba(255,180,0,0.3);
-    border-top: 3px solid rgba(255,180,0,0.85);
+.flashcard.fc-bookmarked::before,
+.flashcard.fc-bookmarked::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background: linear-gradient(45deg,
+        #f39c12, #f1c40f, #e67e22,
+        #f39c12, #f1c40f, #e67e22,
+        #f39c12, #f1c40f
+    );
+    background-size: 400% 400%;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-radius: 16px;
+    z-index: -1;
+    animation: fcBmAnimate 3s ease alternate infinite;
+}
+
+.flashcard.fc-bookmarked::after {
+    filter: blur(6px);  /* tight blur — no spread */
+    opacity: 0.6;
+}
+
+@keyframes fcBmAnimate {
+    0%   { background-position: 0% 50%;   }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%;   }
+}
+
+/* Dark theme — slightly brighter */
+.dark-theme .flashcard.fc-bookmarked::after {
+    opacity: 0.75;
+    filter: blur(7px);
 }
