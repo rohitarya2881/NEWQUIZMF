@@ -77,30 +77,24 @@ async function removeBookmark(question, bookmarkQuizId) {
 function isBookmarked(question, quizId) {
     const quiz = findItemById(quizId);
     if (!quiz) return false;
-
-    // Parent ko fresh tree se lo
     const bmName = quiz.name + BOOKMARK_SUFFIX;
-
-    // Seedha folderStructure mein dhundho — koi getAllItems() nahi chahiye
-    let bmQuiz = null;
-    const scan = (node) => {
-        if (bmQuiz) return;
-        if (node.type === 'quiz' && 
-            node.name === bmName && 
-            node.parentId === quiz.parentId) {
-            bmQuiz = node;
-            return;
-        }
-        (node.children || []).forEach(scan);
-    };
-    scan(folderStructure);
-
-    if (!bmQuiz) return false;
-    return bmQuiz.questions.some(q =>
-        q.question?.trim().toLowerCase() === question.question?.trim().toLowerCase()
-    );
+    
+    // DB se directly fresh data lo
+    return new Promise(resolve => {
+        const tx = db.transaction(['folderStructure'], 'readonly');
+        const index = tx.objectStore('folderStructure').index('parentId');
+        index.getAll(quiz.parentId).onsuccess = e => {
+            const bmQuiz = e.target.result?.find(
+                item => item.type === 'quiz' && item.name === bmName
+            );
+            if (!bmQuiz) { resolve(false); return; }
+            const found = bmQuiz.questions?.some(q =>
+                q.question?.trim().toLowerCase() === question.question?.trim().toLowerCase()
+            );
+            resolve(!!found);
+        };
+    });
 }
-
 // Helper — tree mein dhundho
 function _findInTree(node, name, parentId) {
     if (node.type === 'quiz' && node.name === name && node.parentId === parentId) return node;
