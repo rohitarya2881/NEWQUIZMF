@@ -393,6 +393,13 @@ function showResults() {
                     <p class="wrong-answer"><i class="fas fa-times"></i> ${escHtml(item.selectedAnswer || 'Not answered')}</p>
                     <p class="correct-answer"><i class="fas fa-check"></i> ${escHtml(item.options[item.correctIndex])}</p>
                     ${item.explanation ? `<p class="explanation"><i class="fas fa-info-circle"></i> ${escHtml(item.explanation)}</p>` : ''}
+                    <button onclick="_bookmarkSingleWrong(${i})" 
+                        id="bmWrong_${i}"
+                        style="margin-top:8px;padding:5px 12px;background:rgba(243,156,18,0.1);
+                        border:1px solid rgba(243,156,18,0.3);border-radius:4px;color:#f39c12;
+                        font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">
+                        🔖 Bookmark
+                    </button>
                 </div>`).join('')}
         </div>
         <div class="results-actions">
@@ -405,7 +412,6 @@ function showResults() {
     // difficult.js will append "Save Marked" button if needed
     appendSaveMarkedButton();
 }
-
 function restartQuiz() {
     if (!currentQuiz) return;
     stopQuizTimer();
@@ -414,6 +420,12 @@ function restartQuiz() {
 }
 function exitQuiz() { stopQuizTimer(); goHome(); }
 
+function _bookmarkSingleWrong(index) {
+    const q   = incorrectQuestions[index];
+    const btn = document.getElementById(`bmWrong_${index}`);
+    if (!q || !currentQuiz) return;
+    toggleBookmark(q, currentQuiz.id, btn);
+}
 function _bookmarkCurrentQuestion() {
     if (!currentQuizQuestions || currentQuestionIndex >= currentQuizQuestions.length) return;
     const q   = currentQuizQuestions[currentQuestionIndex];
