@@ -958,32 +958,40 @@
 .log-editing { border-left-color: #f39c12 !important; background: rgba(243,156,18,0.04) !important; }
 
 /* Bookmarked flashcard — neon glow */
-/* Bookmarked flashcard — light neon glow */
-/* Bookmarked flashcard — light neon glow */
 .flashcard.fc-bookmarked {
     position: relative;
     border-radius: 16px;
     z-index: 0;
 }
 
-.flashcard.fc-bookmarked::before,
-.flashcard.fc-bookmarked::after {
+.flashcard.fc-bookmarked::before {
     content: '';
     position: absolute;
     top: -2px;
-    left: -2px;
-    background: linear-gradient(45deg,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000);
-    background-size: 400% 400%;
-    width: calc(100% + 4px);
-    height: calc(100% + 4px);
-    border-radius: 16px;
-    z-index: -1;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000);
+    background-size: 400% 100%;
+    border-radius: 16px 16px 0 0;
+    z-index: 1;
     animation: fcBmAnimate 3s ease alternate infinite;
 }
 
 .flashcard.fc-bookmarked::after {
-    filter: blur(6px);
-    opacity: 0.6;
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000);
+    background-size: 400% 100%;
+    border-radius: 16px 16px 0 0;
+    z-index: -1;
+    filter: blur(4px);
+    opacity: 0.8;
+    animation: fcBmAnimate 3s ease alternate infinite;
 }
 
 @keyframes fcBmAnimate {
