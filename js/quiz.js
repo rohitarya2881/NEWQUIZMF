@@ -548,8 +548,10 @@ async function displayFlashcards(quizId) {
     const letters = ['A','B','C','D','E','F','G','H'];
 
     // Build cards with exact old site HTML structure
-    const cardsHTML = quiz.questions.map((q, i) => `
-        <div class="flashcard" data-idx="${i}">
+ const cardsHTML = quiz.questions.map((q, i) => {
+    const bm = isBookmarked(q, quiz.id);  // ← check karo pehle
+    return `
+        <div class="flashcard ${bm ? 'fc-bookmarked' : ''}" data-idx="${i}">
             <button class="fc-edit-btn" onclick="event.stopPropagation();openFlashcardEdit('${quiz.id}',${i})" title="Edit">✏️</button>
             <button class="fc-search-btn" onclick="event.stopPropagation();fcSearchQuestion(this)" data-q="${escHtml(q.question)}" title="Search on Google">🔍</button>
             <div class="flashcard-inner">
@@ -580,7 +582,8 @@ async function displayFlashcards(quizId) {
                     </div>
                 </div>
             </div>
-        </div>`).join('');
+        </div>`;
+}).join('');
 
     fc.innerHTML = `
         <div class="fc-toolbar">
