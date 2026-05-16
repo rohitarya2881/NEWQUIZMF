@@ -958,7 +958,6 @@
 .log-editing { border-left-color: #f39c12 !important; background: rgba(243,156,18,0.04) !important; }
 
 /* Bookmarked flashcard — neon glow */
-
 @keyframes fcRainbowSpin {
     0%   { background-position: 0% 50%; }
     50%  { background-position: 100% 50%; }
