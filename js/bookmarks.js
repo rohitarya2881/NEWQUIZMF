@@ -107,9 +107,8 @@ function _findInTree(node, name, parentId) {
 
 // ── Toggle bookmark (used in quiz + flashcard) ─
 async function toggleBookmark(question, quizId, btnEl) {
-    const bookmarked = isBookmarked(question, quizId);
+    const bookmarked = await isBookmarked(question, quizId);  // ← sirf yahan await add kiya
     if (bookmarked) {
-        // Find and remove
         const quiz   = findItemById(quizId);
         const parent = findItemById(quiz?.parentId);
         const bmQuiz = parent?.children?.find(c => c.type === 'quiz' && c.name === quiz.name + BOOKMARK_SUFFIX);
@@ -120,7 +119,6 @@ async function toggleBookmark(question, quizId, btnEl) {
         if (btnEl) { btnEl.textContent = '✅🔖'; btnEl.title = 'Bookmarked! Click to remove'; btnEl.classList.add('bookmarked'); }
     }
 }
-
 // ══════════════════════════════════════════════
 // ALL BOOKMARKS VIEW
 // ══════════════════════════════════════════════
