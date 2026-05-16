@@ -959,6 +959,7 @@
 
 /* Bookmarked flashcard — neon glow */
 /* Bookmarked flashcard — light neon glow */
+/* Bookmarked flashcard — light neon glow */
 .flashcard.fc-bookmarked {
     position: relative;
     border-radius: 16px;
@@ -971,11 +972,7 @@
     position: absolute;
     top: -2px;
     left: -2px;
-    background: linear-gradient(45deg,
-        #f39c12, #f1c40f, #e67e22,
-        #f39c12, #f1c40f, #e67e22,
-        #f39c12, #f1c40f
-    );
+    background: linear-gradient(45deg,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000,#fb0094,#0000ff,#00ff00,#ffff00,#ff0000);
     background-size: 400% 400%;
     width: calc(100% + 4px);
     height: calc(100% + 4px);
@@ -985,7 +982,7 @@
 }
 
 .flashcard.fc-bookmarked::after {
-    filter: blur(6px);  /* tight blur — no spread */
+    filter: blur(6px);
     opacity: 0.6;
 }
 
@@ -993,10 +990,4 @@
     0%   { background-position: 0% 50%;   }
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%;   }
-}
-
-/* Dark theme — slightly brighter */
-.dark-theme .flashcard.fc-bookmarked::after {
-    opacity: 0.75;
-    filter: blur(7px);
 }
