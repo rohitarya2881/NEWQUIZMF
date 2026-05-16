@@ -959,7 +959,6 @@
 
 /* Bookmarked flashcard — neon glow */
 
-/* NAYA — ye hamesha kaam karta hai, @property dependency nahi */
 @keyframes fcRainbowSpin {
     0%   { background-position: 0% 50%; }
     50%  { background-position: 100% 50%; }
@@ -977,10 +976,7 @@
     position: absolute;
     inset: -2px;
     border-radius: 12px;
-    background: linear-gradient(
-        270deg,
-        #fb0094, #0000ff, #00ff00, #ffff00, #ff0000, #fb0094
-    );
+    background: linear-gradient(270deg, #fb0094, #0000ff, #00ff00, #ffff00, #ff0000, #fb0094);
     background-size: 400% 400%;
     z-index: -1;
     animation: fcRainbowSpin 3s linear infinite;
@@ -996,8 +992,7 @@
 }
 
 .dark-theme .flashcard.fc-bookmarked::after {
-    background: linear-gradient(
-        135deg,
+    background: linear-gradient(135deg,
         rgba(21, 27, 35, 0.95) 0%,
         rgba(32, 39, 55, 0.95) 100%
     );
