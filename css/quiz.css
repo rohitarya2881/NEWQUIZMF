@@ -958,21 +958,20 @@
 .log-editing { border-left-color: #f39c12 !important; background: rgba(243,156,18,0.04) !important; }
 
 /* Bookmarked flashcard — neon glow */
+
+
+
+
+
 .flashcard.fc-bookmarked {
     overflow: visible;
-    border: 1.5px solid transparent;
-    background-clip: padding-box;
-    outline: none;
-    box-shadow: 0 0 6px 1px rgba(251,0,148,0.15),
-                0 0 6px 1px rgba(0,255,0,0.1),
-                0 0 6px 1px rgba(0,0,255,0.1);
     animation: fcBorderAnimate 3s ease alternate infinite;
 }
 
 @keyframes fcBorderAnimate {
-    0%   { box-shadow: 0 0 6px 1px rgba(251,0,148,0.3), 0 0 8px 1px rgba(251,0,148,0.1); }
-    25%  { box-shadow: 0 0 6px 1px rgba(0,0,255,0.3),   0 0 8px 1px rgba(0,0,255,0.1); }
-    50%  { box-shadow: 0 0 6px 1px rgba(0,255,0,0.3),   0 0 8px 1px rgba(0,255,0,0.1); }
-    75%  { box-shadow: 0 0 6px 1px rgba(255,255,0,0.3), 0 0 8px 1px rgba(255,255,0,0.1); }
-    100% { box-shadow: 0 0 6px 1px rgba(255,0,0,0.3),   0 0 8px 1px rgba(255,0,0,0.1); }
+    0%   { box-shadow: 0 0 8px 2px rgba(251,0,148,0.7), 0 0 16px 2px rgba(251,0,148,0.25); }
+    25%  { box-shadow: 0 0 8px 2px rgba(0,0,255,0.7),   0 0 16px 2px rgba(0,0,255,0.25); }
+    50%  { box-shadow: 0 0 8px 2px rgba(0,255,0,0.7),   0 0 16px 2px rgba(0,255,0,0.25); }
+    75%  { box-shadow: 0 0 8px 2px rgba(255,255,0,0.7), 0 0 16px 2px rgba(255,255,0,0.25); }
+    100% { box-shadow: 0 0 8px 2px rgba(255,0,0,0.7),   0 0 16px 2px rgba(255,0,0,0.25); }
 }
