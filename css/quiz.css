@@ -960,18 +960,47 @@
 /* Bookmarked flashcard — neon glow */
 
 
-
-
-
 .flashcard.fc-bookmarked {
     overflow: visible;
-    animation: fcBorderAnimate 3s ease alternate infinite;
+    position: relative;
+    z-index: 0;
 }
 
-@keyframes fcBorderAnimate {
-    0%   { box-shadow: 0 0 8px 2px rgba(251,0,148,0.7), 0 0 16px 2px rgba(251,0,148,0.25); }
-    25%  { box-shadow: 0 0 8px 2px rgba(0,0,255,0.7),   0 0 16px 2px rgba(0,0,255,0.25); }
-    50%  { box-shadow: 0 0 8px 2px rgba(0,255,0,0.7),   0 0 16px 2px rgba(0,255,0,0.25); }
-    75%  { box-shadow: 0 0 8px 2px rgba(255,255,0,0.7), 0 0 16px 2px rgba(255,255,0,0.25); }
-    100% { box-shadow: 0 0 8px 2px rgba(255,0,0,0.7),   0 0 16px 2px rgba(255,0,0,0.25); }
+.flashcard.fc-bookmarked::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 12px;
+    background: linear-gradient(var(--angle, 0deg),
+        #fb0094, #0000ff, #00ff00, #ffff00, #ff0000, #fb0094
+    );
+    z-index: -1;
+    animation: fcRainbowSpin 3s linear infinite;
+}
+
+.flashcard.fc-bookmarked::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 10px;
+    background: white;
+    z-index: -1;
+}
+
+.dark-theme .flashcard.fc-bookmarked::after {
+    background: linear-gradient(
+        135deg,
+        rgba(21, 27, 35, 0.95) 0%,
+        rgba(32, 39, 55, 0.95) 100%
+    );
+}
+
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes fcRainbowSpin {
+    to { --angle: 360deg; }
 }
