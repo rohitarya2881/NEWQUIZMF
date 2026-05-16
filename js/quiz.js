@@ -608,6 +608,16 @@ async function displayFlashcards(quizId) {
             ${cardsHTML}
             <div id="fcNoResults" class="fc-no-results">No questions match your search.</div>
         </div>`;
+fc.querySelectorAll('.flashcard').forEach((card, i) => {
+    const q  = quiz.questions[i];
+    const bm = isBookmarked(q, quiz.id);
+    if (bm) {
+        card.classList.remove('fc-bookmarked');   // pehle remove
+        // void trick — browser ko force karta hai reflow ke liye
+        void card.offsetWidth;
+        card.classList.add('fc-bookmarked');       // phir add — animation fresh start
+    }
+});
 
     // Click to flip — uses old site .flipped class
     fc.querySelectorAll('.flashcard').forEach(card => {
