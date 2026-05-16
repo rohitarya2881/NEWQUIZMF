@@ -575,6 +575,8 @@ function _fcToggleBookmark(btn) {
     const q = quiz.questions[qIdx];
     if (!q) return;
     toggleBookmark(q, quizId, btn);
+    // Card pe class toggle karo
+    btn.closest('.flashcard')?.classList.toggle('fc-bookmarked', !btn.classList.contains('bookmarked'));
 }
 
 function displayFlashcards(quizId) {
