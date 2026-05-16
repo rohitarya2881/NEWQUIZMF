@@ -74,19 +74,28 @@ async function removeBookmark(question, bookmarkQuizId) {
 }
 
 // ── Check if question is bookmarked ──────────
+// ── Check if question is bookmarked ──────────
 function isBookmarked(question, quizId) {
-    const quiz   = findItemById(quizId);
+    const quiz = findItemById(quizId);
     if (!quiz) return false;
-    const parent = findItemById(quiz.parentId);
-    if (!parent) return false;
+
     const bmName = quiz.name + BOOKMARK_SUFFIX;
-    const bmQuiz = parent.children?.find(c => c.type === 'quiz' && c.name === bmName);
+
+    // parent.children pe depend mat karo — poora tree scan karo
+    const allItems = getAllItems();
+    const bmQuiz = allItems.find(item =>
+        item.type === 'quiz' &&
+        item.name === bmName &&
+        item.parentId === quiz.parentId &&
+        item.metadata?.isBookmarkQuiz === true
+    );
+
     if (!bmQuiz) return false;
+
     return bmQuiz.questions.some(q =>
         q.question?.trim().toLowerCase() === question.question?.trim().toLowerCase()
     );
 }
-
 // ── Toggle bookmark (used in quiz + flashcard) ─
 async function toggleBookmark(question, quizId, btnEl) {
     const bookmarked = isBookmarked(question, quizId);
