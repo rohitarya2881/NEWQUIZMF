@@ -210,13 +210,32 @@ function renderQuizzes() {
                     <button class="primary-btn small"   onclick="startQuiz('${q.id}')"><i class="fas fa-play"></i> Start</button>
                     <button class="secondary-btn small" onclick="displayFlashcards('${q.id}')"><i class="fas fa-layer-group"></i> Cards</button>
                     <button class="secondary-btn small" onclick="shareItem('${q.id}')">🔗 Share</button>
-                    ${q.metadata?.isBookmarkQuiz
-                        ? `<button class="danger-btn small" onclick="_clearBookmarkQuiz('${q.id}')" title="Clear all bookmarks">🔖✕ Clear Bookmarks</button>
-                        <button class="danger-btn small" onclick="deleteItemById('${q.id}')" title="Delete bookmark quiz"><i class="fas fa-trash"></i></button>`
-`
-                        : `<button class="secondary-btn small" onclick="showAddQuestionToQuizDialog('${q.id}')"><i class="fas fa-plus"></i> Add Q</button>
-                    <button class="danger-btn small"    onclick="deleteItemById('${q.id}')"><i class="fas fa-trash"></i></button>`
-                    }
+                   ${q.metadata?.isBookmarkQuiz
+    ? `
+        <button class="danger-btn small"
+            onclick="_clearBookmarkQuiz('${q.id}')"
+            title="Clear all bookmarks">
+            🔖✕ Clear Bookmarks
+        </button>
+
+        <button class="danger-btn small"
+            onclick="deleteItemById('${q.id}')"
+            title="Delete bookmark quiz">
+            <i class="fas fa-trash"></i>
+        </button>
+      `
+    : `
+        <button class="secondary-btn small"
+            onclick="showAddQuestionToQuizDialog('${q.id}')">
+            <i class="fas fa-plus"></i> Add Q
+        </button>
+
+        <button class="danger-btn small"
+            onclick="deleteItemById('${q.id}')">
+            <i class="fas fa-trash"></i>
+        </button>
+      `
+}
                 </div>
             </div>`;
         }).join('');
