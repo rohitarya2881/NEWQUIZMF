@@ -197,8 +197,7 @@ function renderQuizzes() {
                 : '';
 
             return `
-            <div class="quiz-card glass-card" style="position:relative;${q.metadata?.isBookmarkQuiz?'border-left:3px solid #f39c12;':''}">
-                <div class="quiz-header">
+<div class="quiz-card glass-card ${q.metadata?.isBookmarkQuiz ? 'bookmark-quiz-card' : ''}" style="position:relative;">                <div class="quiz-header">
                     <i class="fas fa-${q.metadata?.isBookmarkQuiz?'bookmark':'file-alt'}" style="${q.metadata?.isBookmarkQuiz?'color:#f39c12;':''}"></i>
                     <h4>${escHtml(q.name)}${q.metadata?.isBookmarkQuiz?` <span style="font-size:0.68rem;background:rgba(243,156,18,0.12);color:#f39c12;padding:2px 7px;border-radius:10px;font-weight:700;">🔖 Bookmarks</span>`:''}</h4>
                     <span class="question-count">${q.questions?.length || 0} questions</span>
