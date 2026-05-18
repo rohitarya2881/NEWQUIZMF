@@ -996,3 +996,10 @@
         rgba(32, 39, 55, 0.95) 100%
     );
 }
+.bookmark-quiz-card{
+    border-left:3px solid #f39c12 !important;
+}
+
+.bookmark-quiz-card .quiz-header i{
+    color:#f39c12;
+}
